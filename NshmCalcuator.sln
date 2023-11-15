@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33424.131
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NshmCalcuator.Client", "NshmCalcuator\Client\NshmCalcuator.Client.csproj", "{ABF2D285-BD3C-48C9-8B5A-96666080090E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NshmCalcuator.Shared", "NshmCalcuator\Shared\NshmCalcuator.Shared.csproj", "{C2ABBA47-722D-4461-9596-AB607175205B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ABF2D285-BD3C-48C9-8B5A-96666080090E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABF2D285-BD3C-48C9-8B5A-96666080090E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABF2D285-BD3C-48C9-8B5A-96666080090E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABF2D285-BD3C-48C9-8B5A-96666080090E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2ABBA47-722D-4461-9596-AB607175205B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2ABBA47-722D-4461-9596-AB607175205B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2ABBA47-722D-4461-9596-AB607175205B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2ABBA47-722D-4461-9596-AB607175205B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E192A3D5-6156-49B1-A9AD-8A16C3ACD1A4}
+	EndGlobalSection
+EndGlobal

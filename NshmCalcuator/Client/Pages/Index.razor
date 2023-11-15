@@ -1,9 +1,171 @@
 ﻿@page "/"
+@using NshmCalculator.Shared
 
-<PageTitle>Index</PageTitle>
+<PageTitle>逆水寒手游属性计算器</PageTitle>
 
-<h1>Hello, world!</h1>
+<Layout ShowFooter="true" IsPage="true">
+    <Header>
+        <div class="row g-3">
+            <div class="text-center header" style="text-align: center">
+                逆水寒手游属性计算器
+            </div>
+        </div>
+    </Header>
+    <Main>
+        <ValidateForm @ref="ValidateForm" Model="@_info" OnValidSubmit="@Calculate">
+            <Divider Text="玩家基础数值" Alignment="Alignment.Center"/>
+            <div class="row g-3">
+                <div class="col-12 col-sm-6">
+                    <BootstrapInputGroup>
+                        <BootstrapInputGroupLabel DisplayText="基础攻击"/>
+                        <BootstrapInput @bind-Value="@_info.PlayerBaseAttack"/>
+                    </BootstrapInputGroup>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <BootstrapInputGroup>
+                        <BootstrapInputGroupLabel DisplayText="基础克制"/>
+                        <BootstrapInput @bind-Value="@_info.PlayerBaseRestraint"/>
+                    </BootstrapInputGroup>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <BootstrapInputGroup>
+                        <BootstrapInputGroupLabel DisplayText="基础属性攻击"/>
+                        <BootstrapInput @bind-Value="@_info.PlayerBaseElementAttack"/>
+                    </BootstrapInputGroup>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <BootstrapInputGroup>
+                        <BootstrapInputGroupLabel DisplayText="基础破防"/>
+                        <BootstrapInput @bind-Value="@_info.PlayerBaseBreakDefense"/>
+                    </BootstrapInputGroup>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <BootstrapInputGroup>
+                        <BootstrapInputGroupLabel DisplayText="基础命中"/>
+                        <BootstrapInput @bind-Value="@_info.PlayerBaseHit"/>
+                    </BootstrapInputGroup>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <BootstrapInputGroup>
+                        <BootstrapInputGroupLabel DisplayText="基础会心"/>
+                        <BootstrapInput @bind-Value="@_info.PlayerBaseCriticalHits"/>
+                    </BootstrapInputGroup>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <BootstrapInputGroup>
+                        <BootstrapInputGroupLabel DisplayText="基础会伤(%)"/>
+                        <BootstrapInput @bind-Value="@_info.PlayerBaseCriticalRate"/>
+                        <BootstrapInputGroupLabel DisplayText="%"/>
+                    </BootstrapInputGroup>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <BootstrapInputGroup>
+                        <BootstrapInputGroupLabel DisplayText="周天会心率(%)"/>
+                        <BootstrapInput @bind-Value="@_info.PlayerBaseZtCriticalHitsRate"/>
+                        <BootstrapInputGroupLabel DisplayText="%"/>
+                    </BootstrapInputGroup>
+                </div>
+            </div>
+            <Divider Text="敌方数值" Alignment="Alignment.Center"/>
+            <div class="row g-3">
+                <div class="col-12 col-sm-6">
+                    <BootstrapInputGroup >
+                        <BootstrapInputGroupLabel DisplayText="敌方防御"/>
+                        <BootstrapInput @bind-Value="@_info.EnemyDefense"/>
+                    </BootstrapInputGroup>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <BootstrapInputGroup>
+                        <BootstrapInputGroupLabel DisplayText="敌方格挡"/>
+                        <BootstrapInput @bind-Value="@_info.EnemyBlock"/>
+                    </BootstrapInputGroup>
+                </div>
+                <div class="col-12" style="text-align: center">
+                    <BootstrapInputGroupLabel DisplayText="满命中："/>
+                    <BootstrapInputGroupLabel DisplayText="@_info.FullHit.ToString()"/>
+                </div>
+            </div>
+            <Divider Text="玩家新增数值" Alignment="Alignment.Center"/>
+            <div class="row g-3">
+                <div class="col-12 col-sm-6">
+                    <BootstrapInputGroup>
+                        <BootstrapInputGroupLabel DisplayText="新增攻击"/>
+                        <BootstrapInput @bind-Value="@_info.IncreaseAttack"/>
+                    </BootstrapInputGroup>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <BootstrapInputGroup>
+                        <BootstrapInputGroupLabel DisplayText="新增克制"/>
+                        <BootstrapInput @bind-Value="@_info.IncreaseRestraint"/>
+                    </BootstrapInputGroup>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <BootstrapInputGroup>
+                        <BootstrapInputGroupLabel DisplayText="新增属性攻击"/>
+                        <BootstrapInput @bind-Value="@_info.IncreaseElementAttack"/>
+                    </BootstrapInputGroup>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <BootstrapInputGroup>
+                        <BootstrapInputGroupLabel DisplayText="新增破防"/>
+                        <BootstrapInput @bind-Value="@_info.IncreaseBreakDefense"/>
+                    </BootstrapInputGroup>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <BootstrapInputGroup>
+                        <BootstrapInputGroupLabel DisplayText="新增命中"/>
+                        <BootstrapInput @bind-Value="@_info.IncreaseHit"/>
+                    </BootstrapInputGroup>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <BootstrapInputGroup>
+                        <BootstrapInputGroupLabel DisplayText="新增会心"/>
+                        <BootstrapInput @bind-Value="@_info.IncreaseCriticalHits"/>
+                    </BootstrapInputGroup>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <BootstrapInputGroup>
+                        <BootstrapInputGroupLabel DisplayText="新增会伤率(%)"/>
+                        <BootstrapInput @bind-Value="@_info.IncreaseCriticalRate"/>
+                        <BootstrapInputGroupLabel DisplayText="%"/>
+                    </BootstrapInputGroup>
+                </div>
+                <div class="col-12" style="text-align:center">
+                    <Button ButtonType="@ButtonType.Submit" Text="计算"></Button>
+                </div>
+            </div>
+        </ValidateForm>
+    </Main>
+    <Footer>
+        Powered by .NET 6.0
+    </Footer>
+</Layout>
 
-Welcome to your new app.
 
-<Button Color="Color.Primary" Icon="fa-solid fa-font-awesome" Text="测试"></Button>
+@code {
+    private readonly PlayerInfo _info = new PlayerInfo();
+    private ValidateForm? ValidateForm { get; set; }
+
+    private Task Calculate(EditContext context)
+    {
+        if (_info.PlayerBaseHit > _info.FullHit)
+        {
+            ValidateForm?.SetError(nameof(_info.PlayerBaseHit), "基础命中不能大于满命中值");
+        }
+        else if (_info.IncreaseHit > _info.FullHit)
+        {
+            ValidateForm?.SetError(nameof(_info.IncreaseHit), "新增命中不能大于满命中值");
+        }
+        else if (_info.PlayerBaseHit + _info.IncreaseHit > _info.FullHit)
+        {
+            ValidateForm?.SetError(nameof(_info.IncreaseHit), "基础命中与新增命中之和不能大于满命中");
+        }
+        else
+        {
+            
+        }
+
+        return Task.CompletedTask;
+    }
+
+}
