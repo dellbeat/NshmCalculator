@@ -1,0 +1,33 @@
+﻿@page "/counter"
+
+<PageTitle>属性计算器</PageTitle>
+
+<Layout ShowFooter="true" IsPage="true">
+    <Header>
+        <div class="text-center header">
+            属性计算器
+        </div>
+    </Header>
+    <Main>
+        <div class="text-center main">
+            <p role="status">Current count: @currentCount</p>
+            <button class="btn btn-primary" @onclick="IncrementCount">Click Me</button>
+        </div>
+    </Main>
+    <Footer>
+        Footer
+    </Footer>
+</Layout>
+
+
+
+
+
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}

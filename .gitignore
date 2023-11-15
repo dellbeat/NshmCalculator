@@ -1,0 +1,10 @@
+﻿/.idea/.idea.NshmCalcuator/.idea/.gitignore
+/.idea/.idea.NshmCalcuator/.idea/encodings.xml
+/.idea/.idea.NshmCalcuator/.idea/indexLayout.xml
+/.idea/.idea.NshmCalcuator/.idea/vcs.xml
+/.idea/config/applicationhost.config
+/NshmCalcuator/Client/bin
+/.vs
+/NshmCalcuator/Client/obj
+/NshmCalcuator/Shared/bin
+/NshmCalcuator/Shared/obj
