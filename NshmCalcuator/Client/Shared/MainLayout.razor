@@ -1,13 +1,34 @@
-﻿@inherits LayoutComponentBase
+﻿@using System.Diagnostics.CodeAnalysis
+@using NshmCalculator.Client.Pages
+@inherits LayoutComponentBase
+@inject DialogService DialogService
 
 <Layout ShowFooter="true" IsPage="true">
     <Header>
-        <h3 style="text-align:center">逆水寒手游百分比增伤计算器</h3>
+        <div class="col-12" style="text-align:right">
+            <Button ButtonType="ButtonType.Button" Icon="fas fa-circle-info" OnClick="@OnClick"></Button>
+        </div>
     </Header>
     <Main>
         @Body
     </Main>
     <Footer>
-        Powered by .NET 6.0
+        <div class="col-12" style="text-align:center">Powered by .NET 6.0</div>
     </Footer>
 </Layout>
+
+@code
+{
+    [Inject]
+    [NotNull]
+    private DialogService? Service { get; set; }
+
+    private readonly DialogOption _option = new()
+    {
+        Title = "关于本工具",
+        ShowFooter = false,
+        Component = BootstrapDynamicComponent.CreateComponent<About>()
+    };
+
+    private Task OnClick() => Service.Show(_option);
+}
