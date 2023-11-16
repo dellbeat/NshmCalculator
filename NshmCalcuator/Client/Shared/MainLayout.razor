@@ -1,9 +1,21 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <main>
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+@* <div class="page"> *@
+@*     <main> *@
+@*         <article class="content px-4"> *@
+@*              *@
+@*         </article> *@
+@*     </main> *@
+@* </div> *@
+
+<Layout ShowFooter="true" IsPage="true">
+    <Header>
+        <h3 style="text-align:center">逆水寒手游百分比增伤计算器</h3>
+    </Header>
+    <Main>
+        @Body
+    </Main>
+    <Footer>
+        Powered by .NET 6.0
+    </Footer>
+</Layout>
