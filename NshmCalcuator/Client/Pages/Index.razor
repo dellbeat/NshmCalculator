@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using NshmCalculator.Shared
+@inject Blazored.LocalStorage.ISyncLocalStorageService localStorage
 
 <PageTitle>逆水寒手游属性计算器</PageTitle>
 <ValidateForm @ref="ValidateForm" Model="@_info" OnValidSubmit="@Calculate">
@@ -71,8 +72,8 @@
             </BootstrapInputGroup>
         </div>
         <div class="col-12" style="text-align: center">
-            <BootstrapInputGroupLabel DisplayText="满命中："/>
-            <BootstrapInputGroupLabel DisplayText="@_info.FullHit.ToString()"/>
+            <BootstrapLabel Value="满命中："/>
+            <BootstrapLabel Value="@_info.FullHit.ToString()"/>
         </div>
     </div>
     <Divider Text="玩家新增数值" Alignment="Alignment.Center"/>
@@ -124,16 +125,40 @@
             <Button ButtonType="@ButtonType.Submit" Text="计算"></Button>
         </div>
         <div class="col-12" style="text-align: center">
-            <BootstrapInputGroupLabel DisplayText="增伤百分比："/>
-            <BootstrapInputGroupLabel DisplayText="@_info.Result.ToString("P3")"/>
+            <BootstrapLabel Value="增伤百分比："/>
+            <BootstrapLabel Value="@_info.Result.ToString("P3")"/>
+        </div>
+        <div class="col-12" style="text-align: center">
+            <BootstrapLabel Value="@LastTimeStr"/>
         </div>
     </div>
 </ValidateForm>
 
 
 @code {
-    private readonly PlayerInfo _info = new();
+    private PlayerInfo _info = null;
     private ValidateForm? ValidateForm { get; set; }
+
+    private string? LastTimeStr
+    {
+        get => _info.LastCalTime == null ? null : $"上次计算时间:{(((DateTime)_info.LastCalTime).ToString("yyyy-MM-dd HH:mm:ss"))}";
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        GetInfo();
+    }
+
+    private void SaveInfo()
+    {
+        localStorage.SetItem("info", _info);
+    }
+
+    private void GetInfo()
+    {
+        _info = localStorage.GetItem<PlayerInfo>("info") ?? new();
+    }
 
     private Task Calculate(EditContext context)
     {
@@ -169,7 +194,10 @@
             double b13 = (b2 * (1 + b1 * (_info.PlayerBaseCriticalRate * 1.0 / 100 + _info.IncreaseCriticalRate * 1.0 / 100 - 1)) + 0.5 - b2 / 2) / (b2 * (1 + b1 * (_info.PlayerBaseCriticalRate * 1.0 / 100 - 1)) + 0.5 - b2 / 2) - 1;
 
             _info.Result = ((b6 + 1) * (b7 + 1) * (1 + b10) * (1 + b12) * (1 + b13) - 1);
+            _info.LastCalTime = DateTime.Now;
         }
+
+        SaveInfo();
 
         return Task.CompletedTask;
     }

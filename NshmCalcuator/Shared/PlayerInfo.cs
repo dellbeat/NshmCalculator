@@ -144,6 +144,8 @@ public class PlayerInfo
     /// 结果（百分比增伤）
     /// </summary>
     public double Result { get; set; }
+    
+    public DateTime? LastCalTime { get; set; }
 
     public PlayerInfo()
     {
