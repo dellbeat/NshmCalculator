@@ -9,6 +9,8 @@
     <link href="css/app.css" rel="stylesheet" />
     <link href="_content/BootstrapBlazor/css/bootstrap.blazor.bundle.min.css" rel="stylesheet">
     <link href="_content/BootstrapBlazor.FontAwesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="manifest.webmanifest" rel="manifest" />
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
 </head>
 
 <body>
@@ -35,9 +37,10 @@
     <script type="text/javascript" src="/js/loading.js"></script>
     <script src="_content/BootstrapBlazor/js/bootstrap.blazor.bundle.min.js"></script>
     <script src="_framework/blazor.webassembly.js" autostart="false"></script>
+    <script>navigator.serviceWorker.register('/js/service-worker.js');</script>
 </body>
 <script type="module">
-    import { BrotliDecode } from './decode.min.js';
+    import { BrotliDecode } from '/js/decode.min.js';
     Blazor.start({
         loadBootResource: function (type, name, defaultUri, integrity) {
             // 注意：这里使用localhost的时候不会启动压缩
