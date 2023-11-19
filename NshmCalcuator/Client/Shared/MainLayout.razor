@@ -6,14 +6,15 @@
 <Layout ShowFooter="true" IsPage="true">
     <Header>
         <div class="col-12" style="text-align:right">
-            <Button ButtonType="ButtonType.Button" Icon="fas fa-circle-info" OnClick="@OnClick"></Button>
+            <Button ButtonType="ButtonType.Button" Icon="fas fa-download" OnClick="@OnClickPwa"></Button>
+            <Button ButtonType="ButtonType.Button" Icon="fas fa-circle-info" OnClick="@OnClickTips"></Button>
         </div>
     </Header>
     <Main>
         @Body
     </Main>
     <Footer>
-        <div class="col-12" style="text-align:center">Version:1.1.0 | Powered by .NET 6.0</div>
+        <div class="col-12" style="text-align:center">Version:1.2.0 | Powered by .NET 6.0</div>
     </Footer>
 </Layout>
 
@@ -23,12 +24,22 @@
     [NotNull]
     private DialogService? Service { get; set; }
 
-    private readonly DialogOption _option = new()
+    private readonly DialogOption _tipsOption = new()
     {
         Title = "关于本工具",
         ShowFooter = false,
         Component = BootstrapDynamicComponent.CreateComponent<About>()
     };
 
-    private Task OnClick() => Service.Show(_option);
+    private readonly DialogOption _pwaOption = new()
+    {
+        Title = "添加至主屏幕功能介绍",
+        ShowFooter = false,
+        Component = BootstrapDynamicComponent.CreateComponent<AddPwa>()
+    };
+
+
+    private Task OnClickTips() => Service.Show(_tipsOption);
+
+    private Task OnClickPwa() => Service.Show(_pwaOption);
 }
