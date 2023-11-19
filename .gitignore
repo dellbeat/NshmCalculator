@@ -8,3 +8,5 @@
 /NshmCalcuator/Client/obj
 /NshmCalcuator/Shared/bin
 /NshmCalcuator/Shared/obj
+/NshmCalcuator/Client/.vs/NshmCalcuator.Client/v17
+/NshmCalcuator/Client/NshmCalcuator.Client.csproj.user
