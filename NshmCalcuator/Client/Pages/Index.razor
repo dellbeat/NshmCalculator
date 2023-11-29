@@ -6,66 +6,66 @@
 <ValidateForm @ref="ValidateForm" Model="@_info" OnValidSubmit="@Calculate">
     <Divider Text="玩家基础数值" Alignment="Alignment.Center"/>
     <div class="row g-3">
-        <div class="col-12 col-sm-6">
+        <div class="col-6 col-md-3">
             <BootstrapInputGroup>
                 <BootstrapInputGroupLabel DisplayText="基础攻击"/>
                 <BootstrapInput @bind-Value="@_info.PlayerBaseAttack"/>
             </BootstrapInputGroup>
         </div>
-        <div class="col-12 col-sm-6">
+        <div class="col-6 col-md-3">
             <BootstrapInputGroup>
                 <BootstrapInputGroupLabel DisplayText="基础克制"/>
                 <BootstrapInput @bind-Value="@_info.PlayerBaseRestraint"/>
             </BootstrapInputGroup>
         </div>
-        <div class="col-12 col-sm-6">
+        <div class="col-6 col-md-3">
             <BootstrapInputGroup>
                 <BootstrapInputGroupLabel DisplayText="基础属性攻击"/>
                 <BootstrapInput @bind-Value="@_info.PlayerBaseElementAttack"/>
             </BootstrapInputGroup>
         </div>
-        <div class="col-12 col-sm-6">
+        <div class="col-6 col-md-3">
             <BootstrapInputGroup>
                 <BootstrapInputGroupLabel DisplayText="基础破防"/>
                 <BootstrapInput @bind-Value="@_info.PlayerBaseBreakDefense"/>
             </BootstrapInputGroup>
         </div>
-        <div class="col-12 col-sm-6">
+        <div class="col-6 col-md-3">
             <BootstrapInputGroup>
                 <BootstrapInputGroupLabel DisplayText="基础命中"/>
                 <BootstrapInput @bind-Value="@_info.PlayerBaseHit"/>
             </BootstrapInputGroup>
         </div>
-        <div class="col-12 col-sm-6">
+        <div class="col-6 col-md-3">
             <BootstrapInputGroup>
                 <BootstrapInputGroupLabel DisplayText="基础会心"/>
                 <BootstrapInput @bind-Value="@_info.PlayerBaseCriticalHits"/>
             </BootstrapInputGroup>
         </div>
-        <div class="col-12 col-sm-6">
+        <div class="col-6 col-md-3">
             <BootstrapInputGroup>
                 <BootstrapInputGroupLabel DisplayText="基础会伤(%)"/>
                 <BootstrapInput @bind-Value="@_info.PlayerBaseCriticalRate"/>
-                <BootstrapInputGroupLabel DisplayText="%"/>
+                @* <BootstrapInputGroupLabel DisplayText="%"/> *@
             </BootstrapInputGroup>
         </div>
-        <div class="col-12 col-sm-6">
+        <div class="col-6 col-md-3">
             <BootstrapInputGroup>
                 <BootstrapInputGroupLabel DisplayText="周天会心率(%)"/>
                 <BootstrapInput @bind-Value="@_info.PlayerBaseZtCriticalHitsRate"/>
-                <BootstrapInputGroupLabel DisplayText="%"/>
+                @* <BootstrapInputGroupLabel DisplayText="%"/> *@
             </BootstrapInputGroup>
         </div>
     </div>
     <Divider Text="敌方数值" Alignment="Alignment.Center"/>
     <div class="row g-3">
-        <div class="col-12 col-sm-6">
+        <div class="col-6 col-lg-6 col-sm-6">
             <BootstrapInputGroup >
                 <BootstrapInputGroupLabel DisplayText="敌方防御"/>
                 <BootstrapInput @bind-Value="@_info.EnemyDefense"/>
             </BootstrapInputGroup>
         </div>
-        <div class="col-12 col-sm-6">
+        <div class="col-6 col-lg-6 col-sm-6">
             <BootstrapInputGroup>
                 <BootstrapInputGroupLabel DisplayText="敌方格挡"/>
                 <BootstrapInput @bind-Value="@_info.EnemyBlock"/>
@@ -78,43 +78,43 @@
     </div>
     <Divider Text="玩家新增数值" Alignment="Alignment.Center"/>
     <div class="row g-3">
-        <div class="col-12 col-sm-6">
+        <div class="col-6 col-md-3">
             <BootstrapInputGroup>
                 <BootstrapInputGroupLabel DisplayText="新增攻击"/>
                 <BootstrapInput @bind-Value="@_info.IncreaseAttack"/>
             </BootstrapInputGroup>
         </div>
-        <div class="col-12 col-sm-6">
+        <div class="col-6 col-md-3">
             <BootstrapInputGroup>
                 <BootstrapInputGroupLabel DisplayText="新增克制"/>
                 <BootstrapInput @bind-Value="@_info.IncreaseRestraint"/>
             </BootstrapInputGroup>
         </div>
-        <div class="col-12 col-sm-6">
+        <div class="col-6 col-md-3">
             <BootstrapInputGroup>
                 <BootstrapInputGroupLabel DisplayText="新增属性攻击"/>
                 <BootstrapInput @bind-Value="@_info.IncreaseElementAttack"/>
             </BootstrapInputGroup>
         </div>
-        <div class="col-12 col-sm-6">
+        <div class="col-6 col-md-3">
             <BootstrapInputGroup>
                 <BootstrapInputGroupLabel DisplayText="新增破防"/>
                 <BootstrapInput @bind-Value="@_info.IncreaseBreakDefense"/>
             </BootstrapInputGroup>
         </div>
-        <div class="col-12 col-sm-6">
+        <div class="col-6 col-md-3">
             <BootstrapInputGroup>
                 <BootstrapInputGroupLabel DisplayText="新增命中"/>
                 <BootstrapInput @bind-Value="@_info.IncreaseHit"/>
             </BootstrapInputGroup>
         </div>
-        <div class="col-12 col-sm-6">
+        <div class="col-6 col-md-3">
             <BootstrapInputGroup>
                 <BootstrapInputGroupLabel DisplayText="新增会心"/>
                 <BootstrapInput @bind-Value="@_info.IncreaseCriticalHits"/>
             </BootstrapInputGroup>
         </div>
-        <div class="col-12 col-sm-6">
+        <div class="col-6 col-md-3">
             <BootstrapInputGroup>
                 <BootstrapInputGroupLabel DisplayText="新增会伤率(%)"/>
                 <BootstrapInput @bind-Value="@_info.IncreaseCriticalRate"/>

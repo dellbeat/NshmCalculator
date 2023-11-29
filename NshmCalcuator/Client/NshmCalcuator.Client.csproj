@@ -8,8 +8,8 @@
     <RootNamespace>NshmCalculator.Client</RootNamespace>
     <PublishTrimmed>true</PublishTrimmed>
     <RunAOTCompilation>false</RunAOTCompilation>
-    <AssemblyVersion>1.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.1</FileVersion>
+    <AssemblyVersion>1.2.1</AssemblyVersion>
+    <FileVersion>1.2.1.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
