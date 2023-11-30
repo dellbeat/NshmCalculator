@@ -14,7 +14,7 @@
         @Body
     </Main>
     <Footer>
-        <div class="col-12" style="text-align:center">Version:1.2.1 | Powered by .NET 6.0</div>
+        <div class="col-12" style="text-align:center">Version:1.2.2 | Powered by .NET 6.0</div>
     </Footer>
 </Layout>
 
@@ -25,18 +25,18 @@
     private DialogService? Service { get; set; }
 
     private readonly DialogOption _tipsOption = new()
-    {
-        Title = "关于本工具",
-        ShowFooter = false,
-        Component = BootstrapDynamicComponent.CreateComponent<About>()
-    };
+        {
+            Title = "关于本工具",
+            ShowFooter = false,
+            Component = BootstrapDynamicComponent.CreateComponent<About>()
+        };
 
     private readonly DialogOption _pwaOption = new()
-    {
-        Title = "添加至主屏幕功能介绍",
-        ShowFooter = false,
-        Component = BootstrapDynamicComponent.CreateComponent<AddPwa>()
-    };
+        {
+            Title = "添加至主屏幕功能介绍",
+            ShowFooter = false,
+            Component = BootstrapDynamicComponent.CreateComponent<AddPwa>()
+        };
 
 
     private Task OnClickTips() => Service.Show(_tipsOption);
