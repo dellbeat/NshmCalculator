@@ -8,8 +8,8 @@
 		<RootNamespace>NshmCalculator.Client</RootNamespace>
 		<PublishTrimmed>true</PublishTrimmed>
 		<RunAOTCompilation>false</RunAOTCompilation>
-		<AssemblyVersion>1.2.2</AssemblyVersion>
-		<FileVersion>1.2.2.0</FileVersion>
+		<AssemblyVersion>1.2.3</AssemblyVersion>
+		<FileVersion>1.2.3.0</FileVersion>
 
 		<BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
 		<EventSourceSupport>false</EventSourceSupport>

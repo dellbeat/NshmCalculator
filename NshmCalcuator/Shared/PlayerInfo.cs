@@ -144,6 +144,11 @@ public class PlayerInfo
     /// 结果（百分比增伤）
     /// </summary>
     public double Result { get; set; }
+
+    /// <summary>
+    /// 实际命中率
+    /// </summary>
+    public double HitRate { get; set; }
     
     public DateTime? LastCalTime { get; set; }
 

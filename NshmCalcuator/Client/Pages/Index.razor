@@ -123,9 +123,13 @@
         <div class="col-12" style="text-align:center">
             <Button ButtonType="@ButtonType.Submit" Text="计算"></Button>
         </div>
-        <div class="col-12" style="text-align: center">
+        <div class="col-6" style="text-align: center">
             <BootstrapLabel Value="增伤百分比："/>
             <BootstrapLabel Value="@_info.Result.ToString("P3")"/>
+        </div>
+        <div class="col-6" style="text-align: center">
+            <BootstrapLabel Value="实际命中率："/>
+            <BootstrapLabel Value="@_info.HitRate.ToString("P2")"/>
         </div>
         <div class="col-12" style="text-align: center">
             <BootstrapLabel Value="@LastTimeStr"/>
@@ -193,6 +197,7 @@
             double b13 = (b2 * (1 + b1 * (_info.PlayerBaseCriticalRate * 1.0 / 100 + _info.IncreaseCriticalRate * 1.0 / 100 - 1)) + 0.5 - b2 / 2) / (b2 * (1 + b1 * (_info.PlayerBaseCriticalRate * 1.0 / 100 - 1)) + 0.5 - b2 / 2) - 1;
 
             _info.Result = ((b6 + 1) * (b7 + 1) * (1 + b10) * (1 + b12) * (1 + b13) - 1);
+            _info.HitRate = b4;//根据数值推定暂定为该属性
             _info.LastCalTime = DateTime.Now;
         }
 
