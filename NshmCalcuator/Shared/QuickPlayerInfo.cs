@@ -2,7 +2,7 @@
 
 namespace NshmCalculator.Shared;
 
-public class PlayerInfo
+public class QuickPlayerInfo
 {
     #region 玩家基础属性
 
@@ -152,7 +152,7 @@ public class PlayerInfo
     
     public DateTime? LastCalTime { get; set; }
 
-    public PlayerInfo()
+    public QuickPlayerInfo()
     {
         PlayerBaseAttack = 2500;
         PlayerBaseRestraint = 1000;

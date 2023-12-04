@@ -2,7 +2,7 @@
 @using NshmCalculator.Shared
 @inject Blazored.LocalStorage.ISyncLocalStorageService localStorage
 
-<PageTitle>逆水寒手游属性计算器</PageTitle>
+<PageTitle>逆水寒手游增伤计算器</PageTitle>
 <ValidateForm @ref="ValidateForm" Model="@_info" OnValidSubmit="@Calculate">
     <Divider Text="玩家基础数值" Alignment="Alignment.Center"/>
     <div class="row g-3">
@@ -139,7 +139,7 @@
 
 
 @code {
-    private PlayerInfo _info = new();
+    private QuickPlayerInfo _info = new();
     private ValidateForm? ValidateForm { get; set; }
 
     private string? LastTimeStr
@@ -160,7 +160,7 @@
 
     private void GetInfo()
     {
-        _info = localStorage.GetItem<PlayerInfo>("info") ?? new();
+        _info = localStorage.GetItem<QuickPlayerInfo>("info") ?? new();
     }
 
     private Task Calculate(EditContext context)
