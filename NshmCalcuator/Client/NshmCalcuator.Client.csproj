@@ -8,8 +8,8 @@
 		<RootNamespace>NshmCalculator.Client</RootNamespace>
 		<PublishTrimmed>true</PublishTrimmed>
 		<RunAOTCompilation>false</RunAOTCompilation>
-		<AssemblyVersion>2.0.0</AssemblyVersion>
-		<FileVersion>2.0.0.0</FileVersion>
+		<AssemblyVersion>2.1.0</AssemblyVersion>
+		<FileVersion>2.1.0.0</FileVersion>
 
 		<BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
 		<EventSourceSupport>false</EventSourceSupport>
@@ -21,6 +21,7 @@
 	<ItemGroup>
 		<PackageReference Include="Blazored.LocalStorage" Version="4.4.0" />
 		<PackageReference Include="BootstrapBlazor" Version="8.0.0" />
+		<PackageReference Include="BootstrapBlazor.Chart" Version="8.0.0" />
 		<PackageReference Include="BootstrapBlazor.FontAwesome" Version="8.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.13" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.13" PrivateAssets="all" />

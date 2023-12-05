@@ -1,7 +1,6 @@
-﻿@page "/full"
+﻿@page "/"
 @using NshmCalculator.Shared
-@using System.Globalization
-@using Console = System.Console
+@using Color = BootstrapBlazor.Components.Color
 @inject ISyncLocalStorageService LocalStorage
 @inject ToastService ToastService
 
@@ -161,11 +160,16 @@
         </div>
     </div>
 </ValidateForm>
+<Chart @ref="YieldsChart" OnInitAsync="() => OnInit()" Width="100%" />
 
 @code {
 
     private FullPlayerInfo _baseInfo = new();
     private ValidateForm? ValidateForm { get; set; }
+    private Chart YieldsChart { get; set; }
+    private List<List<double>> _yieldList { get; set; }
+    private readonly int BaseIncreaseNum = 40;
+    private static string[] _labelArray = new[] { "攻击", "元素攻击", "破防", "命中", "会心" };
 
     private readonly ToastOption _warningOption = new ToastOption()
         {
@@ -175,10 +179,7 @@
             Content = "计算进程出现异常，建议检查输入内容；如有必要可与作者联系"
         };
 
-    private string? LastTimeStr
-    {
-        get => _baseInfo.LastCalTime == null ? null : $"上次计算时间:{(((DateTime)_baseInfo.LastCalTime).ToString("yyyy-MM-dd HH:mm:ss"))}";
-    }
+    private string? LastTimeStr => _baseInfo.LastCalTime == null ? null : $"上次计算时间:{(((DateTime)_baseInfo.LastCalTime).ToString("yyyy-MM-dd HH:mm:ss"))}";
 
     protected override void OnInitialized()
     {
@@ -189,6 +190,7 @@
     private void SaveInfo()
     {
         LocalStorage.SetItem("fullBaseInfo", _baseInfo);
+        LocalStorage.SetItem("yieldList", _yieldList);
     }
 
     private void GetInfo()
@@ -197,6 +199,14 @@
         if (_baseInfo.EnemyCriticalDefense == 0)
         {
             _baseInfo.EnemyCriticalDefense = 200;
+        }
+        _yieldList = LocalStorage.GetItem<List<List<double>>>("yieldList") ?? new List<List<double>>();
+        if (_yieldList.Count == 0)//需要保证有五个列表，置空即可
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                _yieldList.Add(new List<double>());
+            }
         }
     }
 
@@ -247,6 +257,10 @@
         double panelHitRateOfPlayer = (143 * hitNum * 1.0 / (hitNum + 713) / 100 is double panelNum && panelNum > 1 ? 1 : panelNum);//玩家[攻击方]面板命中率
         double panelDefenseRateOfMonster = 143 * 1.0 * blockOfMonster / (blockOfMonster + 713) / 100;//敌方[受击方]面板格挡率Da
         double hitRateOfPlayer = 0.95 + panelHitRateOfPlayer - panelDefenseRateOfMonster;//玩家对敌方命中率
+        if (hitRateOfPlayer > 1)
+        {
+            hitRateOfPlayer = 1;
+        }
         int remainCritical = (criticalHit - criticalDefenseOfMonster);//剩余会心
         double criticalRate = (115 * remainCritical + 90) * 1.0 / (remainCritical + 940) / 100 + extraCriticalRate;//会心率
         calCriticalRate = criticalRate;
@@ -276,6 +290,35 @@
                 _baseInfo.HitRate = 1;
             }
 
+            double oldAttack = _baseInfo.BaseDamageFunValue;
+            double oldElement = _baseInfo.BaseDamageFunValue;
+            double oldBreakDefense = _baseInfo.BaseDamageFunValue;
+            double oldHit = _baseInfo.CriticalDamageFunValue;
+            double oldCritical = _baseInfo.CriticalDamageFunValue;
+
+            for (int i = 0; i < _yieldList.Count; i++)
+            {
+                _yieldList[i].Clear();
+            }
+
+            for (int i = 1; i <= 20; i++)
+            {
+                _yieldList[0].Add((CalculateBaseDamage(_baseInfo.PlayerBaseAttack + i * BaseIncreaseNum, _baseInfo.PlayerBaseRestraint, _baseInfo.PlayerBaseElementAttack, _baseInfo.PlayerBaseBreakDefense, _baseInfo.EnemyDefense, _baseInfo.EnemyResist, rate1, rate2) - oldAttack) / oldAttack);
+                oldAttack = CalculateBaseDamage(_baseInfo.PlayerBaseAttack + i * BaseIncreaseNum, _baseInfo.PlayerBaseRestraint, _baseInfo.PlayerBaseElementAttack, _baseInfo.PlayerBaseBreakDefense, _baseInfo.EnemyDefense, _baseInfo.EnemyResist, rate1, rate2);
+
+                _yieldList[1].Add((CalculateBaseDamage(_baseInfo.PlayerBaseAttack, _baseInfo.PlayerBaseRestraint, _baseInfo.PlayerBaseElementAttack + i * BaseIncreaseNum, _baseInfo.PlayerBaseBreakDefense, _baseInfo.EnemyDefense, _baseInfo.EnemyResist, rate1, rate2) - oldElement) / oldElement);
+                oldElement = CalculateBaseDamage(_baseInfo.PlayerBaseAttack, _baseInfo.PlayerBaseRestraint, _baseInfo.PlayerBaseElementAttack + i * BaseIncreaseNum, _baseInfo.PlayerBaseBreakDefense, _baseInfo.EnemyDefense, _baseInfo.EnemyResist, rate1, rate2);
+
+                _yieldList[2].Add((CalculateBaseDamage(_baseInfo.PlayerBaseAttack, _baseInfo.PlayerBaseRestraint, _baseInfo.PlayerBaseElementAttack, _baseInfo.PlayerBaseBreakDefense + i * BaseIncreaseNum, _baseInfo.EnemyDefense, _baseInfo.EnemyResist, rate1, rate2) - oldBreakDefense) / oldBreakDefense);
+                oldBreakDefense = CalculateBaseDamage(_baseInfo.PlayerBaseAttack, _baseInfo.PlayerBaseRestraint, _baseInfo.PlayerBaseElementAttack, _baseInfo.PlayerBaseBreakDefense + i * BaseIncreaseNum, _baseInfo.EnemyDefense, _baseInfo.EnemyResist, rate1, rate2);
+
+                _yieldList[3].Add((CalculateCriticalDamage(_baseInfo.NonCriticalDamageFunValue, _baseInfo.PlayerBaseHit + i * BaseIncreaseNum, _baseInfo.EnemyBlock, (_baseInfo.PlayerBaseCriticalRate - 100) / 100.0, _baseInfo.PlayerBaseCriticalHits, _baseInfo.EnemyCriticalDefense, _baseInfo.PlayerBaseZtCriticalHitsRate / 100.0, out _) - oldHit) / oldHit);
+                oldHit = CalculateCriticalDamage(_baseInfo.NonCriticalDamageFunValue, _baseInfo.PlayerBaseHit + i * BaseIncreaseNum, _baseInfo.EnemyBlock, (_baseInfo.PlayerBaseCriticalRate - 100) / 100.0, _baseInfo.PlayerBaseCriticalHits, _baseInfo.EnemyCriticalDefense, _baseInfo.PlayerBaseZtCriticalHitsRate / 100.0, out _);
+
+                _yieldList[4].Add((CalculateCriticalDamage(_baseInfo.NonCriticalDamageFunValue, _baseInfo.PlayerBaseHit, _baseInfo.EnemyBlock, (_baseInfo.PlayerBaseCriticalRate - 100) / 100.0, _baseInfo.PlayerBaseCriticalHits + i * BaseIncreaseNum, _baseInfo.EnemyCriticalDefense, _baseInfo.PlayerBaseZtCriticalHitsRate / 100.0, out _) - oldCritical) / oldCritical);
+                oldCritical = CalculateCriticalDamage(_baseInfo.NonCriticalDamageFunValue, _baseInfo.PlayerBaseHit, _baseInfo.EnemyBlock, (_baseInfo.PlayerBaseCriticalRate - 100) / 100.0, _baseInfo.PlayerBaseCriticalHits + i * BaseIncreaseNum, _baseInfo.EnemyCriticalDefense, _baseInfo.PlayerBaseZtCriticalHitsRate / 100.0, out _);
+            }
+            YieldsChart.Update(ChartAction.Update);
             SaveInfo();
         }
         catch (Exception e)
@@ -283,8 +326,41 @@
             ToastService.Show(_warningOption);
         }
 
-
-
         return Task.CompletedTask;
+    }
+
+    private Task<ChartDataSource> OnInit()
+    {
+        var ds = new ChartDataSource
+            {
+                Options =
+            {
+                Title = $"提升收益率曲线(每提升{BaseIncreaseNum}点的千分比)",
+                X =
+                {
+                    Title = "提升数值"
+                },
+                Y =
+                {
+                    Title = "收益率(‰)"
+                }
+            }
+            };
+        List<string> xLabels = new List<string>();
+        for (int i = 1; i <= 20; i++)
+        {
+            xLabels.Add((i * BaseIncreaseNum).ToString());
+        }
+        ds.Labels = xLabels;
+        for (int i = 0; i < _labelArray.Length; i++)
+        {
+            ds.Data.Add(new ChartDataset()
+                {
+                    Label = $"{_labelArray[i]}提升收益率(‰)",
+                    Data = _yieldList[i].Select(s => s * 1000).Cast<object>()
+                });
+        }
+
+        return Task.FromResult(ds);
     }
 }
