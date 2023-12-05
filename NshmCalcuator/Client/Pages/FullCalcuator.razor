@@ -1,7 +1,9 @@
 ﻿@page "/full"
 @using NshmCalculator.Shared
 @using System.Globalization
-@inject Blazored.LocalStorage.ISyncLocalStorageService localStorage
+@using Console = System.Console
+@inject ISyncLocalStorageService LocalStorage
+@inject ToastService ToastService
 
 <PageTitle>逆水寒手游属性收益计算器</PageTitle>
 <ValidateForm @ref="ValidateForm" Model="@_baseInfo" OnValidSubmit="@OnCalculateBase">
@@ -78,10 +80,12 @@
         </div>
         <div class="col-12" style="text-align: center">
             <BootstrapLabel Value="满命中：" />
-            <BootstrapLabel Value="@_baseInfo.FullHit.ToString()" />
+            <Tag Color="Color.Success">
+                @_baseInfo.FullHit.ToString()
+            </Tag>
         </div>
     </div>
-    <Divider Text="玩家新增数值" Alignment="Alignment.Center" />
+    <Divider Text="玩家新增数值（选填）" Alignment="Alignment.Center" />
     <div class="row g-3">
         <div class="col-6 col-md-3">
             <BootstrapInputGroup>
@@ -128,17 +132,29 @@
         <div class="col-12" style="text-align:center">
             <Button ButtonType="@ButtonType.Submit" Text="计算"></Button>
         </div>
-        <div class="col-6 col-md-4" style="text-align: center">
+        <div class="col-6 col-md-3" style="text-align: center">
             <BootstrapLabel Value="未会心伤害：" />
-            <BootstrapLabel Value="@_baseInfo.NonCriticalDamageFunValue.ToString("0.00")" />
+            <Tag Color="Color.Primary">
+                @_baseInfo.NonCriticalDamageFunValue.ToString("0.00")
+            </Tag>
         </div>
-        <div class="col-6 col-md-4" style="text-align: center">
+        <div class="col-6 col-md-3" style="text-align: center">
             <BootstrapLabel Value="含命中会心伤害期望：" />
-            <BootstrapLabel Value="@_baseInfo.NonCriticalDamageFunValue.ToString("0.00")" />
+            <Tag Color="Color.Primary">
+                @_baseInfo.CriticalDamageFunValue.ToString("0.00")
+            </Tag>
         </div>
-        <div class="col-6 col-md-4" style="text-align: center">
+        <div class="col-6 col-md-3" style="text-align: center">
             <BootstrapLabel Value="实际命中率：" />
-            <BootstrapLabel Value="@_baseInfo.HitRate.ToString("P2")" />
+            <Tag Color="Color.Primary">
+                @_baseInfo.HitRate.ToString("P2")
+            </Tag>
+        </div>
+        <div class="col-6 col-md-3" style="text-align: center">
+            <BootstrapLabel Value="实际会心率：" />
+            <Tag Color="Color.Primary">
+                @_baseInfo.CalCriticalRate.ToString("P2")
+            </Tag>
         </div>
         <div class="col-12" style="text-align: center">
             <BootstrapLabel Value="@LastTimeStr" />
@@ -150,6 +166,14 @@
 
     private FullPlayerInfo _baseInfo = new();
     private ValidateForm? ValidateForm { get; set; }
+
+    private readonly ToastOption _warningOption = new ToastOption()
+        {
+            Category = ToastCategory.Warning,
+            IsAutoHide = false,
+            Title = "Notification",
+            Content = "计算进程出现异常，建议检查输入内容；如有必要可与作者联系"
+        };
 
     private string? LastTimeStr
     {
@@ -164,12 +188,16 @@
 
     private void SaveInfo()
     {
-        localStorage.SetItem("fullBaseInfo", _baseInfo);
+        LocalStorage.SetItem("fullBaseInfo", _baseInfo);
     }
 
     private void GetInfo()
     {
-        _baseInfo = localStorage.GetItem<FullPlayerInfo>("fullBaseInfo") ?? new();
+        _baseInfo = LocalStorage.GetItem<FullPlayerInfo>("fullBaseInfo") ?? new();
+        if (_baseInfo.EnemyCriticalDefense == 0)
+        {
+            _baseInfo.EnemyCriticalDefense = 200;
+        }
     }
 
     /// <summary>
@@ -214,13 +242,14 @@
     /// <param name="criticalHit">会心</param>
     /// <param name="criticalDefenseOfMonster">敌方会心抵抗</param>
     /// <param name="extraCriticalRate">内功提供的额外会心率</param>
-    private double CalculateCriticalDamage(double nonCriticalDamage, int hitNum, int blockOfMonster, double criticalSubRate, int criticalHit, int criticalDefenseOfMonster, double extraCriticalRate)
+    private double CalculateCriticalDamage(double nonCriticalDamage, int hitNum, int blockOfMonster, double criticalSubRate, int criticalHit, int criticalDefenseOfMonster, double extraCriticalRate, out double calCriticalRate)
     {
         double panelHitRateOfPlayer = (143 * hitNum * 1.0 / (hitNum + 713) / 100 is double panelNum && panelNum > 1 ? 1 : panelNum);//玩家[攻击方]面板命中率
         double panelDefenseRateOfMonster = 143 * 1.0 * blockOfMonster / (blockOfMonster + 713) / 100;//敌方[受击方]面板格挡率Da
         double hitRateOfPlayer = 0.95 + panelHitRateOfPlayer - panelDefenseRateOfMonster;//玩家对敌方命中率
         int remainCritical = (criticalHit - criticalDefenseOfMonster);//剩余会心
         double criticalRate = (115 * remainCritical + 90) * 1.0 / (remainCritical + 940) / 100 + extraCriticalRate;//会心率
+        calCriticalRate = criticalRate;
         double criticalDamage = nonCriticalDamage * hitRateOfPlayer * (1 + criticalSubRate * criticalRate) + 0.5 * nonCriticalDamage * (1 - hitRateOfPlayer);//会心伤害【未计算技能倍数】
 
         return criticalDamage;
@@ -235,17 +264,26 @@
         double rate2 = 0.324;//系数2，暂定为固定值
         double rate1 = rate2 * 923;//系数1
 
-        _baseInfo.BaseDamageFunValue = CalculateBaseDamage(_baseInfo.PlayerBaseAttack, _baseInfo.PlayerBaseRestraint, _baseInfo.PlayerBaseElementAttack, _baseInfo.PlayerBaseBreakDefense, _baseInfo.EnemyDefense, _baseInfo.EnemyCriticalDefense, rate1, rate2);
-        _baseInfo.NonCriticalDamageFunValue = CalculateNonCriticalDamage(_baseInfo.BaseDamageFunValue, _baseInfo.PlayerBaseRestrainedRate / 100.0);
-        _baseInfo.CriticalDamageFunValue = CalculateCriticalDamage(_baseInfo.NonCriticalDamageFunValue, _baseInfo.PlayerBaseHit, _baseInfo.EnemyBlock, (_baseInfo.PlayerBaseCriticalRate - 1) / 100.0, _baseInfo.PlayerBaseCriticalHits, _baseInfo.EnemyCriticalDefense, _baseInfo.PlayerBaseZtCriticalHitsRate / 100.0);
-        _baseInfo.HitRate = (95 + 143 * (_baseInfo.PlayerBaseHit + _baseInfo.IncreaseHit) * 1.0 / (_baseInfo.PlayerBaseHit + _baseInfo.IncreaseHit + 713) - 143 * _baseInfo.EnemyBlock * 1.0 / (_baseInfo.EnemyBlock + 713)) / 100;
-
-        if (_baseInfo.HitRate > 1)
+        try
         {
-            _baseInfo.HitRate = 1;
+            _baseInfo.BaseDamageFunValue = CalculateBaseDamage(_baseInfo.PlayerBaseAttack, _baseInfo.PlayerBaseRestraint, _baseInfo.PlayerBaseElementAttack, _baseInfo.PlayerBaseBreakDefense, _baseInfo.EnemyDefense, _baseInfo.EnemyResist, rate1, rate2);
+            _baseInfo.NonCriticalDamageFunValue = CalculateNonCriticalDamage(_baseInfo.BaseDamageFunValue, _baseInfo.PlayerBaseRestrainedRate / 100.0);
+            _baseInfo.CriticalDamageFunValue = CalculateCriticalDamage(_baseInfo.NonCriticalDamageFunValue, _baseInfo.PlayerBaseHit, _baseInfo.EnemyBlock, (_baseInfo.PlayerBaseCriticalRate - 100) / 100.0, _baseInfo.PlayerBaseCriticalHits, _baseInfo.EnemyCriticalDefense, _baseInfo.PlayerBaseZtCriticalHitsRate / 100.0, out double newRate);
+            _baseInfo.HitRate = (95 + 143 * (_baseInfo.PlayerBaseHit + _baseInfo.IncreaseHit) * 1.0 / (_baseInfo.PlayerBaseHit + _baseInfo.IncreaseHit + 713) - 143 * _baseInfo.EnemyBlock * 1.0 / (_baseInfo.EnemyBlock + 713)) / 100;
+            _baseInfo.CalCriticalRate = newRate;
+            if (_baseInfo.HitRate > 1)
+            {
+                _baseInfo.HitRate = 1;
+            }
+
+            SaveInfo();
+        }
+        catch (Exception e)
+        {
+            ToastService.Show(_warningOption);
         }
 
-        SaveInfo();
+
 
         return Task.CompletedTask;
     }

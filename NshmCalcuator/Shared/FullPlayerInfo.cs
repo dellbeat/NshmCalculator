@@ -77,42 +77,42 @@ public class FullPlayerInfo
 	/// 新增攻击力
 	/// </summary>
 	[Required]
-	[Range(0, 100000, ErrorMessage = "请输入1至100000内的整数")]
+	[Range(-100000, 100000, ErrorMessage = "请输入-100000至100000内的整数")]
 	public int IncreaseAttack { get; set; }
 
 	/// <summary>
 	/// 新增破防
 	/// </summary>
 	[Required]
-	[Range(0, 100000, ErrorMessage = "请输入1至100000内的整数")]
+	[Range(-100000, 100000, ErrorMessage = "请输入-100000至100000内的整数")]
 	public int IncreaseBreakDefense { get; set; }
 
 	/// <summary>
 	/// 新增元素攻击
 	/// </summary>
 	[Required]
-	[Range(0, 100000, ErrorMessage = "请输入1至100000内的整数")]
+	[Range(-100000, 100000, ErrorMessage = "请输入-100000至100000内的整数")]
 	public int IncreaseElementAttack { get; set; }
 
 	/// <summary>
 	/// 新增克制
 	/// </summary>
 	[Required]
-	[Range(0, 100000, ErrorMessage = "请输入1至100000内的整数")]
+	[Range(-100000, 100000, ErrorMessage = "请输入-100000至100000内的整数")]
 	public int IncreaseRestraint { get; set; }
 
 	/// <summary>
 	/// 新增命中
 	/// </summary>
 	[Required]
-	[Range(0, 100000, ErrorMessage = "请输入1至100000内的整数")]
+	[Range(-100000, 100000, ErrorMessage = "请输入-100000至100000内的整数")]
 	public int IncreaseHit { get; set; }
 
 	/// <summary>
 	/// 新增会心
 	/// </summary>
 	[Required]
-	[Range(0, 100000, ErrorMessage = "请输入1至100000内的整数")]
+	[Range(-100000, 100000, ErrorMessage = "请输入-100000至100000内的整数")]
 	public int IncreaseCriticalHits { get; set; }
 
 	/// <summary>
@@ -198,6 +198,11 @@ public class FullPlayerInfo
 	public double HitRate { get; set; }
 
 	/// <summary>
+	/// 实际会心率
+	/// </summary>
+	public double CalCriticalRate { get; set; }
+
+	/// <summary>
 	/// 上次计算时间
 	/// </summary>
 	public DateTime? LastCalTime { get; set; }
@@ -214,5 +219,7 @@ public class FullPlayerInfo
 
 		EnemyBlock = 630;
 		EnemyDefense = 1680;
+
+        EnemyCriticalDefense = 200;
     }
 }

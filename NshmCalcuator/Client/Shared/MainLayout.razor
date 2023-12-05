@@ -3,18 +3,29 @@
 @inherits LayoutComponentBase
 @inject DialogService DialogService
 
-<Layout ShowFooter="true" IsPage="true" ShowCollapseBar="true">
+<Layout ShowFooter="true" IsPage="true" IsFullSide="true">
     <Header>
-        <div class="col-12" style="text-align:right">
+        <div class="col-10">
+            <Button ButtonType="ButtonType.Button" Icon="fas fa-bars" OnClick="@ShowDrawer"></Button>
+        </div>
+        <div class="col-2" style="text-align:right">
             <Button ButtonType="ButtonType.Button" Icon="fas fa-download" OnClick="@OnClickPwa"></Button>
             <Button ButtonType="ButtonType.Button" Icon="fas fa-circle-info" OnClick="@OnClickTips"></Button>
         </div>
     </Header>
     <Main>
+        <Drawer Placement="Placement.Left" @bind-IsOpen="@IsDrawerOpen" IsBackdrop="true">
+            <div class="top-row pl-4 navbar navbar-dark">
+                <span class="sidebar-text"></span>
+            </div>
+            <Menu Items="@_menuItems" IsVertical="true" style="border-right: 1px solid #e6e6e6;">
+            </Menu>
+        </Drawer>
         @Body
     </Main>
     <Footer>
-        <div class="col-12" style="text-align:center">Version:1.2.3 | Powered by .NET 6.0</div>
+        <div class="col-12" style="text-align:center">Version:2.0.0 | Powered by .NET 6.0</div>
+        <GoTop Target="#scroll" />
     </Footer>
 </Layout>
 
@@ -23,6 +34,17 @@
     [Inject]
     [NotNull]
     private DialogService? Service { get; set; }
+
+    private bool IsDrawerOpen { get; set; }
+
+    private readonly List<MenuItem> _menuItems = new List<MenuItem>();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _menuItems.Add(new MenuItem("增伤百分比计算器", "/", "fas fa-calculator") { Match = NavLinkMatch.All});
+        _menuItems.Add(new MenuItem("属性收益计算器", "/full", "fas fa-calculator") { Match = NavLinkMatch.All });
+    }
 
     private readonly DialogOption _tipsOption = new()
         {
@@ -42,4 +64,18 @@
     private Task OnClickTips() => Service.Show(_tipsOption);
 
     private Task OnClickPwa() => Service.Show(_pwaOption);
+
+    private Task ShowDrawer()
+    {
+        IsDrawerOpen = true;
+
+        return Task.CompletedTask;
+    }
+
+    private Task HideDrawer()
+    {
+        IsDrawerOpen = false;
+
+        return Task.CompletedTask;
+    }
 }
