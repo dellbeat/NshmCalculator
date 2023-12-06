@@ -169,7 +169,7 @@
     private Chart YieldsChart { get; set; }
     private List<List<double>> _yieldList { get; set; }
     private readonly int BaseIncreaseNum = 40;
-    private static string[] _labelArray = new[] { "攻击", "元素攻击", "破防", "命中", "会心" };
+    private static string[] _labelArray = new[] { "攻击", "元素攻击", "破防", "命中", "会心" ,"首克数值"};
 
     private readonly ToastOption _warningOption = new ToastOption()
         {
@@ -201,9 +201,9 @@
             _baseInfo.EnemyCriticalDefense = 200;
         }
         _yieldList = LocalStorage.GetItem<List<List<double>>>("yieldList") ?? new List<List<double>>();
-        if (_yieldList.Count == 0)//需要保证有五个列表，置空即可
+        if (_yieldList.Count != 6)//需要保证有五个列表，置空即可
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = _yieldList.Count; i < 6; i++)
             {
                 _yieldList.Add(new List<double>());
             }
@@ -226,6 +226,10 @@
     {
         double resistanceRemission = resistOfMonster * 1.0 / (resistOfMonster + 530);//敌方（怪物）抗性减免
         int remainDefense = defenseOfMonster - breakDefenseOfPlayer;//敌方剩余防御，理论不会小于0，不做特别判断
+        if (remainDefense < 0)
+        {
+            remainDefense = 0;
+        }
         double defenseRemission = remainDefense * 1.0 / (remainDefense + 2860);//防御减免
 
         double baseDamage = ((rate1 + rate2 * (attackOfPlayer - remainAirShield + restraintNum - resistOfMonster)) * (1 - defenseRemission) + rate2 * elementAttackOfPlayer * (1 - resistanceRemission));//无首领克制加成的伤害
@@ -295,6 +299,7 @@
             double oldBreakDefense = _baseInfo.BaseDamageFunValue;
             double oldHit = _baseInfo.CriticalDamageFunValue;
             double oldCritical = _baseInfo.CriticalDamageFunValue;
+            double oldRestraint = _baseInfo.BaseDamageFunValue;
 
             for (int i = 0; i < _yieldList.Count; i++)
             {
@@ -317,6 +322,9 @@
 
                 _yieldList[4].Add((CalculateCriticalDamage(_baseInfo.NonCriticalDamageFunValue, _baseInfo.PlayerBaseHit, _baseInfo.EnemyBlock, (_baseInfo.PlayerBaseCriticalRate - 100) / 100.0, _baseInfo.PlayerBaseCriticalHits + i * BaseIncreaseNum, _baseInfo.EnemyCriticalDefense, _baseInfo.PlayerBaseZtCriticalHitsRate / 100.0, out _) - oldCritical) / oldCritical);
                 oldCritical = CalculateCriticalDamage(_baseInfo.NonCriticalDamageFunValue, _baseInfo.PlayerBaseHit, _baseInfo.EnemyBlock, (_baseInfo.PlayerBaseCriticalRate - 100) / 100.0, _baseInfo.PlayerBaseCriticalHits + i * BaseIncreaseNum, _baseInfo.EnemyCriticalDefense, _baseInfo.PlayerBaseZtCriticalHitsRate / 100.0, out _);
+
+                _yieldList[5].Add((CalculateBaseDamage(_baseInfo.PlayerBaseAttack, _baseInfo.PlayerBaseRestraint + i * BaseIncreaseNum, _baseInfo.PlayerBaseElementAttack, _baseInfo.PlayerBaseBreakDefense, _baseInfo.EnemyDefense, _baseInfo.EnemyResist, rate1, rate2) - oldRestraint) / oldRestraint);
+                oldRestraint = CalculateBaseDamage(_baseInfo.PlayerBaseAttack, _baseInfo.PlayerBaseRestraint + i * BaseIncreaseNum, _baseInfo.PlayerBaseElementAttack, _baseInfo.PlayerBaseBreakDefense, _baseInfo.EnemyDefense, _baseInfo.EnemyResist, rate1, rate2);
             }
             YieldsChart.Update(ChartAction.Update);
             SaveInfo();

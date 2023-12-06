@@ -217,8 +217,8 @@ public class FullPlayerInfo
 		PlayerBaseCriticalHits = 888;
 		PlayerBaseCriticalRate = 188;
 
-		EnemyBlock = 630;
-		EnemyDefense = 1680;
+		EnemyBlock = 800;
+		EnemyDefense = 2800;
 
         EnemyCriticalDefense = 200;
     }
