@@ -24,7 +24,7 @@
         @Body
     </Main>
     <Footer>
-        <div class="col-12" style="text-align:center">Version:2.1.2 | Powered by .NET 6.0</div>
+        <div class="col-12" style="text-align:center">Version:3.0.0 | Powered by .NET 6.0</div>
         <GoTop Target="#scroll" />
     </Footer>
 </Layout>
@@ -44,6 +44,7 @@
         base.OnInitialized();
         _menuItems.Add(new MenuItem("属性收益计算器", "/", "fas fa-calculator") { Match = NavLinkMatch.All });
         _menuItems.Add(new MenuItem("增伤百分比计算器", "/simple", "fas fa-calculator") { Match = NavLinkMatch.All});
+        _menuItems.Add(new MenuItem("素问治疗量计算器", "/treat", "fas fa-calculator") { Match = NavLinkMatch.All });
     }
 
     private readonly DialogOption _tipsOption = new()

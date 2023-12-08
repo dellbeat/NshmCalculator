@@ -1,6 +1,5 @@
 ﻿@page "/simple"
 @using NshmCalculator.Shared
-@using Console = System.Console
 @inject ISyncLocalStorageService LocalStorage
 @inject ToastService ToastService
 
@@ -48,14 +47,12 @@
             <BootstrapInputGroup>
                 <BootstrapInputGroupLabel DisplayText="基础会伤(%)"/>
                 <BootstrapInput @bind-Value="@_info.PlayerBaseCriticalRate"/>
-                @* <BootstrapInputGroupLabel DisplayText="%"/> *@
             </BootstrapInputGroup>
         </div>
         <div class="col-6 col-md-3">
             <BootstrapInputGroup>
                 <BootstrapInputGroupLabel DisplayText="周天会心率(%)"/>
                 <BootstrapInput @bind-Value="@_info.PlayerBaseZtCriticalHitsRate"/>
-                @* <BootstrapInputGroupLabel DisplayText="%"/> *@
             </BootstrapInputGroup>
         </div>
     </div>
