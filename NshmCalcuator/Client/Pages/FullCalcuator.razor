@@ -10,7 +10,9 @@
     <div class="row g-3">
         <div class="col-6 col-md-4">
             <BootstrapInputGroup>
-                <BootstrapInputGroupLabel DisplayText="攻击" />
+                <Tooltip Title="面板内/外功攻击力" Placement="Placement.Right" Trigger="Click">
+                    <BootstrapInputGroupLabel DisplayText="攻击*" />
+                </Tooltip>
                 <BootstrapInput @bind-Value="@_baseInfo.PlayerBaseAttack" />
             </BootstrapInputGroup>
         </div>
@@ -22,13 +24,17 @@
         </div>
         <div class="col-6 col-md-4">
             <BootstrapInputGroup>
-                <BootstrapInputGroupLabel DisplayText="元素攻击" />
+                <Tooltip Title="技能属性对应的的元素攻击的值" Placement="Placement.Right" Trigger="Click">
+                    <BootstrapInputGroupLabel DisplayText="元素攻击*" />
+                </Tooltip>
                 <BootstrapInput @bind-Value="@_baseInfo.PlayerBaseElementAttack" />
             </BootstrapInputGroup>
         </div>
         <div class="col-6 col-md-4">
             <BootstrapInputGroup>
+                <Tooltip Title="若受击方为boss或木桩，则此处输入首领克制的数字值，即斜杠左边的值" Placement="Placement.Right" Trigger="Click">
                 <BootstrapInputGroupLabel DisplayText="克制数值" />
+                </Tooltip>
                 <BootstrapInput @bind-Value="@_baseInfo.PlayerBaseRestraint" />
             </BootstrapInputGroup>
         </div>
@@ -52,14 +58,18 @@
         </div>
         <div class="col-6 col-md-4">
             <BootstrapInputGroup>
+                <Tooltip Title="例如：内功3金提供5%的会心率，则此处输入5" Placement="Placement.Right" Trigger="Click">
                 <BootstrapInputGroupLabel DisplayText="周天会心率(%)" />
-                <BootstrapInput @bind-Value="@_baseInfo.PlayerBaseZtCriticalHitsRate" />
+                </Tooltip>
+                <BootstrapInput @bind-Value="@_baseInfo.PlayerBaseZtCriticalHitsRate"/>
             </BootstrapInputGroup>
         </div>
         <div class="col-6 col-md-4">
             <BootstrapInputGroup>
-                <BootstrapInputGroupLabel DisplayText="克制百分比(%)" />
-                <BootstrapInput @bind-Value="@_baseInfo.PlayerBaseRestrainedRate" />
+                <Tooltip Title="若受击方为boss或木桩，则此处输入首领克制的百分比值，即斜杠右边的值" Placement="Placement.Right" Trigger="Click">
+                    <BootstrapInputGroupLabel DisplayText="克制百分比(%)"/>
+                </Tooltip>
+                <BootstrapInput @bind-Value="@_baseInfo.PlayerBaseRestrainedRate"/>
             </BootstrapInputGroup>
         </div>
     </div>
@@ -88,8 +98,10 @@
     <div class="row g-3">
         <div class="col-6 col-md-3">
             <BootstrapInputGroup>
-                <BootstrapInputGroupLabel DisplayText="新增攻击" />
-                <BootstrapInput @bind-Value="@_baseInfo.IncreaseAttack" />
+                <Tooltip Title="输入的是平均攻击的变化，如果是单独提升最大/最小攻击则需要除以2" Placement="Placement.Right" Trigger="Click">
+                    <BootstrapInputGroupLabel DisplayText="新增攻击"/>
+                </Tooltip>
+                <BootstrapInput @bind-Value="@_baseInfo.IncreaseAttack"/>
             </BootstrapInputGroup>
         </div>
         <div class="col-6 col-md-3">
@@ -132,7 +144,7 @@
             <Button ButtonType="@ButtonType.Submit" Text="计算"></Button>
         </div>
         <div class="col-6 col-md-3" style="text-align: center">
-            <BootstrapLabel Value="未会心伤害：" />
+            <BootstrapLabel Value="未会心伤害："/>
             <Tag Color="Color.Primary">
                 @_baseInfo.NonCriticalDamageFunValue.ToString("0.00")
             </Tag>
@@ -169,7 +181,7 @@
     private Chart YieldsChart { get; set; }
     private List<List<double>> _yieldList { get; set; }
     private readonly int BaseIncreaseNum = 40;
-    private static string[] _labelArray = new[] { "攻击", "元素攻击", "破防", "命中", "会心" ,"首克数值"};
+    private static string[] _labelArray = new[] { "攻击", "元素攻击", "破防", "命中", "会心", "首克数值" };
 
     private readonly ToastOption _warningOption = new ToastOption()
         {
@@ -256,6 +268,7 @@
     /// <param name="criticalHit">会心</param>
     /// <param name="criticalDefenseOfMonster">敌方会心抵抗</param>
     /// <param name="extraCriticalRate">内功提供的额外会心率</param>
+    /// <param name="calCriticalRate">计算的会心率结果</param>
     private double CalculateCriticalDamage(double nonCriticalDamage, int hitNum, int blockOfMonster, double criticalSubRate, int criticalHit, int criticalDefenseOfMonster, double extraCriticalRate, out double calCriticalRate)
     {
         double panelHitRateOfPlayer = (143 * hitNum * 1.0 / (hitNum + 713) / 100 is double panelNum && panelNum > 1 ? 1 : panelNum);//玩家[攻击方]面板命中率
