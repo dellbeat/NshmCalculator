@@ -33,7 +33,7 @@
         <div class="col-6 col-md-4">
             <BootstrapInputGroup>
                 <Tooltip Title="若受击方为boss或木桩，则此处输入首领克制的数字值，即斜杠左边的值" Placement="Placement.Right" Trigger="Click">
-                <BootstrapInputGroupLabel DisplayText="克制数值" />
+                    <BootstrapInputGroupLabel DisplayText="克制数值" />
                 </Tooltip>
                 <BootstrapInput @bind-Value="@_baseInfo.PlayerBaseRestraint" />
             </BootstrapInputGroup>
@@ -59,7 +59,7 @@
         <div class="col-6 col-md-4">
             <BootstrapInputGroup>
                 <Tooltip Title="例如：内功3金提供5%的会心率，则此处输入5" Placement="Placement.Right" Trigger="Click">
-                <BootstrapInputGroupLabel DisplayText="周天会心率(%)" />
+                    <BootstrapInputGroupLabel DisplayText="周天会心率(%)" />
                 </Tooltip>
                 <BootstrapInput @bind-Value="@_baseInfo.PlayerBaseZtCriticalHitsRate"/>
             </BootstrapInputGroup>

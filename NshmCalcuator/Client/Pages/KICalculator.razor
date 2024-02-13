@@ -1,0 +1,247 @@
+﻿@page "/ki"
+@using NshmCalculator.Shared.Models
+@using NshmCalculator.Shared
+@inject ISyncLocalStorageService LocalStorage
+@inject ToastService ToastService
+
+<PageTitle>逆水寒手游内功增伤计算器</PageTitle>
+<ValidateForm @ref="ValidateForm" Model="@_info" OnValidSubmit="@Calculate">
+    <Divider Text="玩家基础数值" Alignment="Alignment.Center" />
+    <div class="row g-3">
+        <div class="col-6 col-md-3">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="基础攻击" />
+                <BootstrapInput @bind-Value="@_info.PlayerBaseAttack" />
+            </BootstrapInputGroup>
+        </div>
+        <div class="col-6 col-md-3">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="基础克制" />
+                <BootstrapInput @bind-Value="@_info.PlayerBaseRestraint" />
+            </BootstrapInputGroup>
+        </div>
+        <div class="col-6 col-md-3">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="基础属性攻击" />
+                <BootstrapInput @bind-Value="@_info.PlayerBaseElementAttack" />
+            </BootstrapInputGroup>
+        </div>
+        <div class="col-6 col-md-3">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="基础破防" />
+                <BootstrapInput @bind-Value="@_info.PlayerBaseBreakDefense" />
+            </BootstrapInputGroup>
+        </div>
+        <div class="col-6 col-md-3">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="基础命中" />
+                <BootstrapInput @bind-Value="@_info.PlayerBaseHit" />
+            </BootstrapInputGroup>
+        </div>
+        <div class="col-6 col-md-3">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="基础会心" />
+                <BootstrapInput @bind-Value="@_info.PlayerBaseCriticalHits" />
+            </BootstrapInputGroup>
+        </div>
+        <div class="col-6 col-md-3">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="基础会伤(%)" />
+                <BootstrapInput @bind-Value="@_info.PlayerBaseCriticalRate" />
+            </BootstrapInputGroup>
+        </div>
+        <div class="col-6 col-md-3">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="周天会心率(%)" />
+                <BootstrapInput @bind-Value="@_info.PlayerBaseZtCriticalHitsRate" />
+            </BootstrapInputGroup>
+        </div>
+    </div>
+    <Divider Text="敌方数值" Alignment="Alignment.Center" />
+    <div class="row g-3">
+        <div class="col-6 col-lg-6 col-sm-6">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="敌方防御" />
+                <BootstrapInput @bind-Value="@_info.EnemyDefense" />
+            </BootstrapInputGroup>
+        </div>
+        <div class="col-6 col-lg-6 col-sm-6">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="敌方格挡" />
+                <BootstrapInput @bind-Value="@_info.EnemyBlock" />
+            </BootstrapInputGroup>
+        </div>
+        <div class="col-12" style="text-align: center">
+            <BootstrapLabel Value="满命中：" />
+            <Tag Color="Color.Success">
+                @_info.FullHit.ToString()
+            </Tag>
+        </div>
+    </div>
+    <Divider Text="玩家新增数值" Alignment="Alignment.Center" />
+    <div class="row g-3">
+        <div class="col-6 col-md-3">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="新增耐力" />
+                <BootstrapInput @bind-Value="@_info.IncreaseStamina" />
+            </BootstrapInputGroup>
+        </div>
+        <div class="col-6 col-md-3">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="新增根骨" />
+                <BootstrapInput @bind-Value="@_info.IncreaseVitality" />
+            </BootstrapInputGroup>
+        </div>
+        <div class="col-6 col-md-3">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="新增气海力量" />
+                <BootstrapInput @bind-Value="@_info.IncreaseStrength" />
+            </BootstrapInputGroup>
+        </div>
+        <div class="col-6 col-md-3">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="新增身法" />
+                <BootstrapInput @bind-Value="@_info.IncreaseLightness" />
+            </BootstrapInputGroup>
+        </div>
+        <div class="col-6 col-md-3">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="新增攻击" />
+                <BootstrapInput @bind-Value="@_info.IncreaseAttack" />
+            </BootstrapInputGroup>
+        </div>
+        <div class="col-6 col-md-3">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="新增大小攻击" />
+                <BootstrapInput @bind-Value="@_info.IncreaseExtremeAttack" />
+            </BootstrapInputGroup>
+        </div>
+        <div class="col-6 col-md-3">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="新增克制" />
+                <BootstrapInput @bind-Value="@_info.IncreaseRestraint" />
+            </BootstrapInputGroup>
+        </div>
+        <div class="col-6 col-md-3">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="新增元素攻击" />
+                <BootstrapInput @bind-Value="@_info.IncreaseElementAttack" />
+            </BootstrapInputGroup>
+        </div>
+        <div class="col-6 col-md-3">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="新增破防" />
+                <BootstrapInput @bind-Value="@_info.IncreaseBreakDefense" />
+            </BootstrapInputGroup>
+        </div>
+        <div class="col-6 col-md-3">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="新增命中" />
+                <BootstrapInput @bind-Value="@_info.IncreaseHit" />
+            </BootstrapInputGroup>
+        </div>
+        <div class="col-6 col-md-3">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="新增会心" />
+                <BootstrapInput @bind-Value="@_info.IncreaseCriticalHits" />
+            </BootstrapInputGroup>
+        </div>
+        <div class="col-6 col-md-3">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupLabel DisplayText="新增会伤率(%)" />
+                <BootstrapInput @bind-Value="@_info.IncreaseCriticalRate" />
+            </BootstrapInputGroup>
+        </div>
+        <div class="col-12" style="text-align:center">
+            <Button ButtonType="@ButtonType.Submit" Text="计算"></Button>
+        </div>
+        <div class="col-6" style="text-align: center">
+            <BootstrapLabel Value="提升率：" />
+            <Tag Color="Color.Primary">
+                @_info.Result.ToString("P3")
+            </Tag>
+        </div>
+        <div class="col-6" style="text-align: center">
+            <BootstrapLabel Value="攻击分：" />
+            <Tag Color="Color.Primary">
+                @_info.Score.ToString("F2")
+            </Tag>
+        </div>
+    </div>
+</ValidateForm>
+
+@code {
+    /*
+     * 基础面板
+     * 新增攻击向词条
+     * 内功攻击计算
+     */
+
+    private KiPageParameterInfo _info = new();
+    private ValidateForm? ValidateForm { get; set; }
+    private readonly ToastOption _warningOption = new ToastOption()
+        {
+            Category = ToastCategory.Warning,
+            IsAutoHide = false,
+            Title = "Notification",
+            Content = "计算进程出现异常，建议检查输入内容；如有必要可与作者联系"
+        };
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        GetInfo();
+    }
+
+    private void SaveInfo()
+    {
+        LocalStorage.SetItem("KiInfo", _info);
+    }
+
+    private void GetInfo()
+    {
+        _info = LocalStorage.GetItem<KiPageParameterInfo>("KiInfo") ?? new();
+    }
+
+    private Task Calculate(EditContext context)
+    {
+        try
+        {
+            if (_info.PlayerBaseHit > _info.FullHit)
+            {
+                ValidateForm?.SetError(nameof(_info.PlayerBaseHit), "基础命中不能大于满命中值");
+            }
+            else if (_info.IncreaseHit > _info.FullHit)
+            {
+                ValidateForm?.SetError(nameof(_info.IncreaseHit), "新增命中不能大于满命中值");
+            }
+            else if (_info.PlayerBaseHit + _info.IncreaseHit > _info.FullHit)
+            {
+                ValidateForm?.SetError(nameof(_info.IncreaseHit), "基础命中与新增命中之和不能大于满命中");
+            }
+            else
+            {
+                EarningRate baseRate = CalculatorUtility.CalculatePerGains(_info);
+
+                double increaseAttack = _info.IncreaseStamina * 1.65 + _info.IncreaseVitality * 1.65 + _info.IncreaseStrength * 5 + _info.IncreaseAttack + _info.IncreaseExtremeAttack * 0.5;
+                int increaseBreakDefense = _info.IncreaseStrength * 2 + _info.IncreaseBreakDefense;
+                double increaseHit = _info.IncreaseHit + _info.IncreaseLightness * 0.8;
+                double increaseCriticalHits = _info.IncreaseLightness * 1.6 + _info.IncreaseCriticalHits - _info.EnemyAntiCriticalHits;
+
+
+                var results = CalculatorUtility.CalculateIncreaseRate(_info, increaseAttack, increaseBreakDefense, _info.IncreaseElementAttack, _info.IncreaseRestraint, increaseHit, increaseCriticalHits, _info.IncreaseCriticalRate);
+
+                _info.Result = results.Item1;
+                _info.Score = results.Item1 / baseRate.AttackAndRestraint;
+
+                SaveInfo();
+            }
+        }
+        catch (Exception e)
+        {
+            ToastService.Show(_warningOption);
+        }
+
+        return Task.CompletedTask;
+    }
+}
