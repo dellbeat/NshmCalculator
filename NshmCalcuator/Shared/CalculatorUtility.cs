@@ -22,11 +22,15 @@ public class CalculatorUtility
 
         int defenseSubBase = baseInfo.EnemyDefense - baseInfo.PlayerBaseBreakDefense >= 0 ? baseInfo.EnemyDefense - baseInfo.PlayerBaseBreakDefense : 0; //由于破防超过防御部分无收益，故对破防数值进行预计算
         int defenseSubFull = baseInfo.EnemyDefense - baseInfo.PlayerBaseBreakDefense - breakDefense >= 0 ? baseInfo.EnemyDefense - baseInfo.PlayerBaseBreakDefense - breakDefense : 0;
-
+        double baseHit = baseInfo.PlayerBaseHit > baseInfo.FullHit ? baseInfo.FullHit : baseInfo.PlayerBaseHit;
+        double addedHit = baseInfo.PlayerBaseHit + hit > baseInfo.FullHit
+            ? baseInfo.FullHit
+            : baseInfo.PlayerBaseHit + hit;
+        
         double b1 = (115 * baseInfo.PlayerBaseCriticalHits + 90) * 1.0 / (baseInfo.PlayerBaseCriticalHits + 940) / 100 + baseInfo.PlayerBaseZtCriticalHitsRate * 1.0 / 100;//暴击百分比
-        double b2 = (95 + 143 * baseInfo.PlayerBaseHit * 1.0 / (baseInfo.PlayerBaseHit + 713) - 143 * baseInfo.EnemyBlock * 1.0 / (baseInfo.EnemyBlock + 713)) / 100;//命中值
+        double b2 = (95 + 143 * baseHit * 1.0 / (baseHit + 713) - 143 * baseInfo.EnemyBlock * 1.0 / (baseInfo.EnemyBlock + 713)) / 100;//命中值
         double b3 = (115 * (baseInfo.PlayerBaseCriticalHits + criticalHits) + 90) * 1.0 / (baseInfo.PlayerBaseCriticalHits + criticalHits + 940) / 100 + baseInfo.PlayerBaseZtCriticalHitsRate * 1.0 / 100;//新增后暴击百分比
-        double b4 = (95 + 143 * (baseInfo.PlayerBaseHit + hit) * 1.0 / (baseInfo.PlayerBaseHit + hit + 713) - 143 * baseInfo.EnemyBlock * 1.0 / (baseInfo.EnemyBlock + 713)) / 100;//新增后命中值
+        double b4 = (95 + 143 * addedHit * 1.0 / (addedHit + 713) - 143 * baseInfo.EnemyBlock * 1.0 / (baseInfo.EnemyBlock + 713)) / 100;//新增后命中值
         double b5 = b4 - b2;//新增命中百分比
         double b6 = (b2 * (1 + b3 * (baseInfo.PlayerBaseCriticalRate * 1.0 / 100 - 1)) + 0.5 - b2 / 2) / (b2 * (1 + b1 * (baseInfo.PlayerBaseCriticalRate * 1.0 / 100 - 1)) + 0.5 - b2 / 2) - 1;//暴击提升率
         double b7 = (2 * b5 * b1 * (baseInfo.PlayerBaseCriticalRate * 1.0 / 100 - 1) + b5) / (2 * b2 * b1 * (baseInfo.PlayerBaseCriticalRate * 1.0 / 100 - 1) + b2 + 1);//中间值

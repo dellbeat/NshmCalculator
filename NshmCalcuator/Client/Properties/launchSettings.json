@@ -8,7 +8,7 @@
       },
       "dotnetRunMessages": true,
       "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
-      "applicationUrl": "http://0.0.0.0:5035"
+      "applicationUrl": "http://localhost:5035"
     },
     "IIS Express": {
       "commandName": "IISExpress",
@@ -21,10 +21,10 @@
     "WSL": {
       "commandName": "WSL2",
       "launchBrowser": true,
-      "launchUrl": "http://0.0.0.0:5035",
+      "launchUrl": "http://localhost:5035",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_URLS": "http://0.0.0.0:5035"
+        "ASPNETCORE_URLS": "http://localhost:5035"
       },
       "distributionName": ""
     }
