@@ -95,6 +95,11 @@ namespace NshmCalculator.Shared.Models
         public int EnemyAntiCriticalHits { get; set; }
 
         /// <summary>
+        /// 敌方元素抗，暂不作为必填属性
+        /// </summary>
+        public int EnemyAntiElementAttack { get; set; }
+
+        /// <summary>
         /// 满命中
         /// </summary>
         public int FullHit => Convert.ToInt32(Math.Floor((105524 * EnemyBlock + 2541845) * 1.0 / (98394 - 5 * EnemyBlock)));

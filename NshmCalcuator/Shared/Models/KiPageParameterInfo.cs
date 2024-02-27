@@ -108,5 +108,6 @@ public class KiPageParameterInfo : PlayerBaseInfo
         PlayerBaseCriticalRate = 188;
         EnemyBlock = 630;
         EnemyDefense = 1680;
+        EnemyAntiElementAttack = 60;
     }
 }
