@@ -1,0 +1,121 @@
+﻿@page "/treat"
+@using NshmCalculator.Shared
+@using Blazored.LocalStorage
+@using NshmCalculator.MudClient.Utilities
+@inject ISyncLocalStorageService LocalStorage
+@* ReSharper disable once IdentifierTypo *@
+@inject ISnackbar Snackbar
+
+<PageTitle>素问治疗量计算器</PageTitle>
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudPaper Class="d-flex align-center justify-center py-8">
+            <MudStack AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.h4">素问治疗量计算器</MudText>
+                <MudText Typo="Typo.h6" Align="Align.Center">原作者：
+                    <MudChip Color="Color.Tertiary">B站@白宝正不正</MudChip>
+                </MudText>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12">
+        <MudPaper Class="pa-4 mt-4">
+            <EditForm Model="@_info" OnValidSubmit="Calculate">
+                <DataAnnotationsValidator />
+                <MudGrid>
+                    <MudItem xs="12" sm="4">
+                        <MudTextField ShrinkLabel @bind-Value="_info.PlayerBaseTreatPercent" Label="基础治疗(%)" Variant="Variant.Outlined" />
+                     </MudItem>
+                     <MudItem xs="12" sm="4">
+                         <MudTextField ShrinkLabel @bind-Value="_info.PlayerBaseAttack" Label="基础攻击" Variant="Variant.Outlined" />
+                     </MudItem>
+                     <MudItem xs="12" sm="4">
+                         <MudTextField ShrinkLabel @bind-Value="_info.PlayerBaseCriticalHits" Label="基础会心" Variant="Variant.Outlined" />
+                     </MudItem>
+                     <MudItem xs="12" sm="4">
+                         <MudTextField ShrinkLabel @bind-Value="_info.PlayerBaseCriticalRate" Label="基础会伤(%)" Variant="Variant.Outlined" />
+                     </MudItem>
+                     <MudItem xs="12" sm="4">
+                         <MudTextField ShrinkLabel @bind-Value="_info.PlayerBaseTreatCriticalRate" Label="治疗会伤" Variant="Variant.Outlined" />
+                     </MudItem>
+                     <MudItem xs="12" sm="4">
+                         <MudTextField ShrinkLabel @bind-Value="_info.PlayerBaseZtCriticalHitsRate" Label="周天会心率(%)" HelperText="计算金周天对治疗收益/凌风对点绛提升" Variant="Variant.Outlined" />
+                     </MudItem>
+                     <MudItem xs="12">
+                         <MudDivider FlexItem="true" />
+                     </MudItem>
+                     <MudItem xs="12" sm="6">
+                         <MudTextField ShrinkLabel @bind-Value="_info.IncreaseAttack" Label="新增攻击" HelperText="输入面板实际新增加攻击" Variant="Variant.Outlined" />
+                     </MudItem>
+                     <MudItem xs="12" sm="6">
+                         <MudTextField ShrinkLabel @bind-Value="_info.IncreaseCriticalHits" Label="新增会心" Variant="Variant.Outlined" />
+                     </MudItem>
+                     <MudItem xs="12" sm="6">
+                         <MudTextField ShrinkLabel @bind-Value="_info.IncreaseCriticalRate" Label="新增会伤率(%)" Variant="Variant.Outlined" />
+                     </MudItem>
+                     <MudItem xs="12" sm="6">
+                         <MudTextField ShrinkLabel @bind-Value="_info.IncreaseZtCriticalRate" Label="新增会心率(%)" Variant="Variant.Outlined" />
+                     </MudItem>
+                     <MudItem xs="12">
+                         <MudDivider FlexItem="true" />
+                     </MudItem>
+                     <MudItem xs="12" Class="d-flex align-center justify-center">
+                         <MudButton Variant="Variant.Filled" Color="Color.Info" Class="d-flex align-center justify-center" ButtonType="ButtonType.Submit">计算</MudButton>
+                     </MudItem>
+                 </MudGrid>
+             </EditForm>
+
+         </MudPaper>
+     </MudItem>
+     <MudItem xs="12">
+         <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+             治疗增加百分比：
+             <MudChip Color="Color.Info">@_info.Result.ToString("P2")</MudChip>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+
+    @code {
+    private TreatPlayerInfo _info = new();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        GetInfo();
+        LocalStorage.SetItemAsString(TipsText.LastTextName, "treat");
+    }
+
+    private void SaveInfo()
+    {
+        LocalStorage.SetItem("_treatInfo", _info);
+    }
+
+    private void GetInfo()
+    {
+        _info = LocalStorage.GetItem<TreatPlayerInfo>("_treatInfo") ?? new();
+    }
+
+    private Task Calculate(EditContext context)
+    {
+        try
+        {
+            double a = (100 * _info.PlayerBaseCriticalHits + 30) * 1.0 / (_info.PlayerBaseCriticalHits + 1880) * 1.0 / 100 + _info.PlayerBaseZtCriticalHitsRate / 100.0;
+            double b = (100 * (_info.PlayerBaseCriticalHits + _info.IncreaseCriticalHits) + 30) * 1.0 / (_info.PlayerBaseCriticalHits + _info.IncreaseCriticalHits + 1880) * 1.0 / 100 + _info.PlayerBaseZtCriticalHitsRate / 100.0 + _info.IncreaseZtCriticalRate / 100.0;
+            double c = (1 + b * (_info.PlayerBaseTreatCriticalRate / 100.0 - 1)) / (1 + a * (_info.PlayerBaseTreatCriticalRate / 100.0 - 1)) - 1;
+            double d = (1 + b * (_info.PlayerBaseTreatCriticalRate / 100.0 + _info.IncreaseCriticalRate / 100.0 / 2 - 1)) / (1 + b * (_info.PlayerBaseTreatCriticalRate / 100.0 - 1)) - 1;
+            int e = _info.PlayerBaseAttack + 920;
+            double f = _info.IncreaseAttack * 1.0 / e;
+
+            _info.Result = (f + 1) * (c + 1) * (d + 1) - 1;
+
+            SaveInfo();
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add(TipsText.ExceptionText, Severity.Warning);
+        }
+
+        return Task.CompletedTask;
+    }
+}

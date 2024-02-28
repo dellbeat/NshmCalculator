@@ -1,4 +1,7 @@
 ﻿<MudNavMenu>
-    <MudNavLink Href="/" Match="NavLinkMatch.All">首页</MudNavLink>
-    <MudNavLink Href="/counter" Match="NavLinkMatch.Prefix">Counter</MudNavLink>
+    <MudNavLink Icon="@Icons.Material.Filled.Home" Href="/" Match="NavLinkMatch.All">首页</MudNavLink>
+    <MudNavGroup Icon="@Icons.Material.Filled.Calculate" Title="计算器" Expanded="true">
+        <MudNavLink Icon="@Icons.Material.Filled.Calculate" Href="/treat" Match="NavLinkMatch.Prefix">治疗量计算</MudNavLink>
+    </MudNavGroup>
+    <MudNavLink Icon="@Icons.Material.Filled.Settings" Href="/settings" Match="NavLinkMatch.All">设置</MudNavLink>
 </MudNavMenu>

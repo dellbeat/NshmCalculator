@@ -1,0 +1,47 @@
+﻿@page "/settings"
+@using Blazored.LocalStorage
+@using NshmCalculator.MudClient.Utilities
+@inject ISyncLocalStorageService LocalStorage
+
+<PageTitle>设置</PageTitle>
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudSwitch T="bool" @bind-Value="@_autoRedirect" CheckedChanged="@OnCheckChanged" Color="Color.Info" UnCheckedColor="Color.Dark" Label="访问时跳转到最近一次访问的计算器" />
+    </MudItem>
+</MudGrid>
+
+@code {
+    private bool _autoRedirect = false;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        InitStatus();
+    }
+
+    private void InitStatus()
+    {
+        if (LocalStorage.ContainKey(TipsText.AutoRedirectName))
+        {
+            _autoRedirect = LocalStorage.GetItem<bool>(TipsText.AutoRedirectName);
+        }
+        else
+        {
+            SaveStatus();
+        }
+    }
+
+    private void SaveStatus()
+    {
+        LocalStorage.SetItem(TipsText.AutoRedirectName, _autoRedirect);
+    }
+
+
+    private void OnCheckChanged(bool status)
+    {
+        _autoRedirect = status; 
+        SaveStatus();
+    }
+
+}

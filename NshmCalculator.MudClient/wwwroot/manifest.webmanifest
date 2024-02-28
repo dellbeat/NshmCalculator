@@ -1,6 +1,6 @@
 {
-  "name": "NshmCalculator.MudClient",
-  "short_name": "NshmCalculator.MudClient",
+  "name": "逆水寒手游计算器",
+  "short_name": "计算器",
   "id": "./",
   "start_url": "./",
   "display": "standalone",

@@ -1,29 +1,53 @@
-﻿@inherits LayoutComponentBase
+﻿@using NshmCalculator.MudClient.Utilities
+@using Blazored.LocalStorage
+@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject ISyncLocalStorageService LocalStorage
 
 <MudThemeProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
-    <MudAppBar Elevation="1">
+    <MudAppBar Elevation="1" Color="Color.Info">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
+        <MudText Typo="Typo.h6">逆水寒手游计算器</MudText>
         <MudSpacer />
         <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
-        <NavMenu/>
+        <NavMenu />
     </MudDrawer>
-    <MudMainContent>
+    <MudMainContent style="margin:12px">
         @Body
     </MudMainContent>
-</MudLayout>
+    <MudAppBar Elevation="0" Color="Color.Dark" Style="top: auto; bottom: 0" Dense="true" Fixed="true">
+        <MudGrid Justify="Justify.Center">
+            <MudText Style="font-size:small">@TipsText.FooterText</MudText>
+            </MudGrid>
+        </MudAppBar>
+    </MudLayout>
 
-@code {
+    @code {
     bool _drawerOpen = false;
 
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
+    }
+
+    protected override void OnInitialized()
+    {
+        AutoJump();
+    }
+
+    private void AutoJump()
+    {
+        var route = LocalStorage.ContainKey(TipsText.LastTextName) ? LocalStorage.GetItemAsString(TipsText.LastTextName) : null;
+        bool autoRedirect = LocalStorage.ContainKey(TipsText.AutoRedirectName) && LocalStorage.GetItem<bool>(TipsText.AutoRedirectName);
+        if (autoRedirect && !string.IsNullOrEmpty(route))
+        {
+            NavigationManager.NavigateTo($"/{route}");
+        }
     }
 }

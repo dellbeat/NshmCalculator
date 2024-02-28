@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NshmCalcuator.Client", "Nsh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NshmCalcuator.Shared", "NshmCalcuator\Shared\NshmCalcuator.Shared.csproj", "{C2ABBA47-722D-4461-9596-AB607175205B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NshmCalculator.MudClient", "NshmCalculator.MudClient\NshmCalculator.MudClient.csproj", "{905B035E-AE89-4913-B36E-819F95737468}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NshmCalculator.MudClient", "NshmCalculator.MudClient\NshmCalculator.MudClient.csproj", "{905B035E-AE89-4913-B36E-819F95737468}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

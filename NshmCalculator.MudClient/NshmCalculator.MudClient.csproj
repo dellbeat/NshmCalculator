@@ -8,9 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.0" PrivateAssets="all" />
     <PackageReference Include="MudBlazor" Version="6.16.0" />
+    <PackageReference Include="MudBlazor.ThemeManager" Version="1.0.8" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +21,10 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\data\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NshmCalcuator\Shared\NshmCalcuator.Shared.csproj" />
   </ItemGroup>
 
 </Project>
