@@ -1,0 +1,18 @@
+﻿@page "/counter"
+
+<PageTitle>点我+1</PageTitle>
+
+<h1>点我+1</h1>
+
+<p role="status">功德: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">+1</button>
+
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}

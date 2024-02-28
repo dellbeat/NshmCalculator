@@ -11,3 +11,6 @@
 /NshmCalcuator/Client/.vs/NshmCalcuator.Client/v17
 /NshmCalcuator/Client/Properties/PublishProfiles/FolderProfile.pubxml
 /NshmCalcuator/Client/Properties/PublishProfiles/FolderProfile.pubxml.user
+/NshmCalculator.MudClient/bin
+/NshmCalculator.MudClient/obj
+/NshmCalculator.MudClient/Properties/PublishProfiles
