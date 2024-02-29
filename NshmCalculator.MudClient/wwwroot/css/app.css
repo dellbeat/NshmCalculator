@@ -62,7 +62,7 @@ a, .btn-link {
 }
 
     .blazor-error-boundary::after {
-        content: "An error has occurred."
+        content: "\4e0d\5c0f\5fc3\51fa\9519\4e86\ff0c\53ef\4ee5\622a\56fe\8054\7cfb\4f5c\8005\007e."
     }
 
 .loading-progress {
