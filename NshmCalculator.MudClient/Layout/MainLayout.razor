@@ -4,22 +4,22 @@
 @inject NavigationManager NavigationManager
 @inject ISyncLocalStorageService LocalStorage
 
-<MudThemeProvider />
+<MudThemeProvider Theme="_customTheme" />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
-    <MudAppBar Elevation="1" Color="Color.Info">
+    <MudAppBar Elevation="1" Color="Color.Info" Dense="true">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <MudText Typo="Typo.h6">逆水寒手游计算器</MudText>
-        <MudSpacer />
-        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu />
     </MudDrawer>
     <MudMainContent style="margin:12px">
-        @Body
+        <div class="content" px="4" style="padding-bottom:60px">
+            @Body
+        </div>
     </MudMainContent>
     <MudAppBar Elevation="0" Color="Color.Dark" Style="top: auto; bottom: 0" Dense="true" Fixed="true">
         <MudGrid Justify="Justify.Center">
@@ -29,6 +29,23 @@
     </MudLayout>
 
     @code {
+    readonly MudTheme _customTheme = new()
+        {
+            Palette = new PaletteLight()
+            {
+                AppbarBackground = new MudBlazor.Utilities.MudColor("#003D59"),
+                Primary = new MudBlazor.Utilities.MudColor("#003D59"),
+                Secondary = new MudBlazor.Utilities.MudColor("#013243"),
+                Background = new MudBlazor.Utilities.MudColor(222, 222, 225, 100)
+            },
+            PaletteDark = new PaletteDark()
+            {
+                AppbarBackground = new MudBlazor.Utilities.MudColor("#1DACD6"),
+                Primary = new MudBlazor.Utilities.MudColor("#1DACD6"),
+                Secondary = new MudBlazor.Utilities.MudColor("#48D1CC"),
+            }
+        };
+
     bool _drawerOpen = false;
 
     void DrawerToggle()

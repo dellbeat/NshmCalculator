@@ -1,5 +1,146 @@
 ﻿@page "/"
+@using NshmCalculator.Shared.Models
+@inject UpdateLog[] UpdateLogs
 
 <PageTitle>首页</PageTitle>
 
-施工中。。。
+<MudPaper Class="d-flex align-start justify-start py-8">
+    <MudGrid>
+        <MudItem xs="12">
+            <MudText Typo="Typo.h4" Align="Align.Center">逆水寒手游计算器</MudText>
+        </MudItem>
+        <MudItem xs="12">
+            <MudStack AlignItems="AlignItems.Start" Class="ml-4 mr-4">
+                <MudText Typo="Typo.h5" Align="Align.Start">
+                    关于
+                </MudText>
+                <MudText Typo="Typo.inherit" Align="Align.Start">
+                    作者：菜菜菜菜菜（姑苏绮罗）
+                </MudText>
+                <MudText Typo="Typo.inherit" Align="Align.Start">
+                    在线计算器内的计算器都是来源于网络上发布的Excel计算器；原先是考虑到帮派群里的爪机一族使用Excel可能会比较磕绊，因此写了个在线版本的计算器方便使用。
+                </MudText>
+                <MudText Typo="Typo.inherit" Align="Align.Start">
+                    由于自己没怎么学过前端，界面可能会比较单调；使用上如有问题建议欢迎反馈拍砖。
+                </MudText>
+                <MudText Typo="Typo.inherit" Align="Align.Start">
+                    功能建议反馈邮箱:imvegetable@@foxmail.com
+                </MudText>
+            </MudStack>
+        </MudItem>
+        <MudItem xs="12">
+            <MudDivider DividerType="DividerType.FullWidth"></MudDivider>
+        </MudItem>
+        <MudItem xs="12">
+            <MudStack AlignItems="AlignItems.Start" Class="ml-4 mr-4">
+                <MudText Typo="Typo.h5" Align="Align.Start">
+                    主要功能及开发计划
+                </MudText>
+                <MudText Typo="Typo.inherit" Align="Align.Start">
+                    在线计算各类数值，如素问治疗量/增伤百分比/属性收益/内功收益等。
+                </MudText>
+                <MudText Typo="Typo.inherit" Align="Align.Start">
+                    先前已有可使用的版本，但界面设计与底层结构存在待优化的内容，故将该计算器进行重构。目前已移植了素问治疗量计算器，后续将在个人空闲时将其他计算器进行移植。
+                </MudText>
+            </MudStack>
+        </MudItem>
+        <MudItem xs="12">
+            <MudDivider DividerType="DividerType.FullWidth"></MudDivider>
+        </MudItem>
+        <MudItem xs="12">
+            <MudStack AlignItems="AlignItems.Start" Class="ml-4 mr-4">
+                <MudText Typo="Typo.h5" Align="Align.Start">
+                    内容来源及鸣谢
+                </MudText>
+                <MudText Typo="Typo.inherit" Align="Align.Start">
+                    B站<b>@@白宝正不正</b>：
+                    <MudLink Href="https://www.bilibili.com/video/BV1G94y1x7sW" Underline="Underline.Always">属性计算器不再纠结词条特技装备收益与选择</MudLink>
+                    （增伤百分比计算器）
+                </MudText>
+                <MudText Typo="Typo.inherit" Align="Align.Start">
+                    B站<b>@@白宝正不正</b>：
+                    <MudLink Href="https://www.bilibili.com/video/BV1DP411Y7MK" Underline="Underline.Always">新手向治疗素问养成一图流全攻略</MudLink>
+                    （素问治疗量计算器）
+                </MudText>
+                <MudText Typo="Typo.inherit" Align="Align.Start">
+                    贴吧<b>@@星语困</b>：
+                    <MudLink Href="https://tieba.baidu.com/p/8530450428" Underline="Underline.Always">独家首发！！逆水寒手游属性收益计算器！</MudLink>
+                    （属性收益计算器）
+                </MudText>
+                <MudText Typo="Typo.inherit" Align="Align.Start">
+                    NGA<b>@@UID:42330896</b>：
+                    <MudLink Href="https://g.nga.cn/read.php?tid=38987417&rand=308" Underline="Underline.Always">[攻略]内功计算器1.2.2南问雪版</MudLink>
+                    （内功收益计算器）
+                </MudText>
+                <MudText Typo="Typo.inherit" Align="Align.Start">
+                    <MudLink Href="https://github.com/arkntools/arknights-toolbox" Underline="Underline.Always">arkntools/arknights-toolbox</MudLink>
+                    （设计思路参考）
+                </MudText>
+            </MudStack>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+<MudPaper Class="d-flex align-start justify-start py-8 mt-4">
+    <MudGrid>
+        <MudItem xs="12">
+            <MudText Typo="Typo.h5" Align="Align.Start" Class="ml-4 mr-4">更新日志</MudText>
+        </MudItem>
+        @foreach (var updateLog in _newLogs)
+        {
+            <MudItem xs="12">
+                <MudStack AlignItems="AlignItems.Start" Class="ml-4 mr-4 mb-4">
+                    <MudText Typo="Typo.h6" Align="Align.Start">@updateLog.DateTime</MudText>
+                        @foreach (var log in updateLog?.Log)
+                    {
+                        <MudText Typo="Typo.inherit" Align="Align.Start">@log</MudText>
+                    }
+                </MudStack>
+            </MudItem>
+        }
+
+        <MudItem xs="12">
+            <MudExpansionPanels Elevation="1" Class="ml-4 mr-4">
+                <MudExpansionPanel>
+                    <TitleContent>
+                        <MudText Typo="Typo.h5" Align="Align.Start">历史更新</MudText>
+                    </TitleContent>
+                    <ChildContent>
+                        @foreach (var updateLog in _oldLogs)
+                        {
+                            <MudItem xs="12">
+                                <MudStack AlignItems="AlignItems.Start" Class="mb-4">
+                                    <MudText Typo="Typo.h6" Align="Align.Start">@updateLog.DateTime</MudText>
+                                    @foreach (var log in updateLog?.Log)
+                                    {
+                                        <MudText Typo="Typo.inherit" Align="Align.Start">@log</MudText>
+                                    }
+                                </MudStack>
+                            </MudItem>
+                        }
+                    </ChildContent>
+                </MudExpansionPanel>
+            </MudExpansionPanels>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@code
+{
+    private readonly List<UpdateLog> _newLogs = [];
+    private readonly List<UpdateLog> _oldLogs = [];
+    private const int NewLogCount = 2;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        if (UpdateLogs.Length > 0)
+        {
+            _newLogs.AddRange(UpdateLogs.Take(UpdateLogs.Length > NewLogCount ? NewLogCount : UpdateLogs.Length));
+            if (UpdateLogs.Length > NewLogCount)
+            {
+                _oldLogs.AddRange(UpdateLogs.Skip(NewLogCount).Take(UpdateLogs.Length - NewLogCount));
+            }
+        }
+    }
+}
