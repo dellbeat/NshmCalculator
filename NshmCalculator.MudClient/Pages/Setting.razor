@@ -22,9 +22,9 @@
 
     private void InitStatus()
     {
-        if (LocalStorage.ContainKey(TipsText.AutoRedirectName))
+        if (LocalStorage.ContainKey(ConstText.AutoRedirectName))
         {
-            _autoRedirect = LocalStorage.GetItem<bool>(TipsText.AutoRedirectName);
+            _autoRedirect = LocalStorage.GetItem<bool>(ConstText.AutoRedirectName);
         }
         else
         {
@@ -34,7 +34,7 @@
 
     private void SaveStatus()
     {
-        LocalStorage.SetItem(TipsText.AutoRedirectName, _autoRedirect);
+        LocalStorage.SetItem(ConstText.AutoRedirectName, _autoRedirect);
     }
 
 

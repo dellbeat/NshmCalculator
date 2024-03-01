@@ -5,6 +5,8 @@
 @inject ISyncLocalStorageService LocalStorage
 @* ReSharper disable once IdentifierTypo *@
 @inject ISnackbar Snackbar
+@inject IDialogService Dialog
+@inject Dictionary<string,string> TipsDictionary
 
 <PageTitle>素问治疗量计算器</PageTitle>
 
@@ -61,29 +63,42 @@
                          <MudDivider FlexItem="true" />
                      </MudItem>
                      <MudItem xs="12" Class="d-flex align-center justify-center">
-                         <MudButton Variant="Variant.Filled" Color="Color.Info" Class="d-flex align-center justify-center" ButtonType="ButtonType.Submit">计算</MudButton>
+                         <MudStack Row="true" Spacing="4">
+                             <MudButton Variant="Variant.Filled" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Submit">计算</MudButton>
+                             <MudButton Variant="Variant.Filled" Color="Color.Default" Class="d-flex" ButtonType="ButtonType.Button" OnClick="ShowTips">帮助说明</MudButton>
+                         </MudStack>
                      </MudItem>
                  </MudGrid>
              </EditForm>
 
          </MudPaper>
      </MudItem>
-    <MudItem xs="12">
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-            治疗增加百分比：
-            <MudChip Color="Color.Info">@_info.Result.ToString("P2")</MudChip>
-        </MudPaper>
-    </MudItem>
-</MudGrid>
+     <MudItem xs="12">
+         <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+             治疗增加百分比：
+             <MudChip Color="Color.Info">@_info.Result.ToString("P2")</MudChip>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
 
     @code {
     private TreatPlayerInfo _info = new();
+    private readonly DialogParameters<TipsDialog> _tipsDialogParameters = new();
+    private readonly DialogOptions _tipsDialogOptions = new();
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
         GetInfo();
-        LocalStorage.SetItemAsString(TipsText.LastTextName, "treat");
+        InitParameters();
+        LocalStorage.SetItemAsString(ConstText.LastTextName, "treat");
+    }
+
+    private void InitParameters()
+    {
+        TipsDictionary.TryGetValue("treat", out string? tips);
+        _tipsDialogParameters.Add(nameof(TipsDialog.ContentText), new MarkupString(tips));
+        _tipsDialogOptions.CloseButton = true;
     }
 
     private void SaveInfo()
@@ -113,9 +128,14 @@
         }
         catch (Exception e)
         {
-            Snackbar.Add(TipsText.ExceptionText, Severity.Warning);
+            Snackbar.Add(ConstText.ExceptionText, Severity.Warning);
         }
 
         return Task.CompletedTask;
+    }
+
+    private void ShowTips()
+    {
+        Dialog.Show<TipsDialog>("使用帮助", _tipsDialogParameters, _tipsDialogOptions);
     }
 }

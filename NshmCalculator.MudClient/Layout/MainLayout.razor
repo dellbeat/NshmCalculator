@@ -23,7 +23,7 @@
     </MudMainContent>
     <MudAppBar Elevation="0" Color="Color.Dark" Style="top: auto; bottom: 0" Dense="true" Fixed="true">
         <MudGrid Justify="Justify.Center">
-            <MudText Style="font-size:small">@TipsText.FooterText</MudText>
+            <MudText Style="font-size:small">@ConstText.FooterText</MudText>
             </MudGrid>
         </MudAppBar>
     </MudLayout>
@@ -60,8 +60,8 @@
 
     private void AutoJump()
     {
-        var route = LocalStorage.ContainKey(TipsText.LastTextName) ? LocalStorage.GetItemAsString(TipsText.LastTextName) : null;
-        bool autoRedirect = LocalStorage.ContainKey(TipsText.AutoRedirectName) && LocalStorage.GetItem<bool>(TipsText.AutoRedirectName);
+        var route = LocalStorage.ContainKey(ConstText.LastTextName) ? LocalStorage.GetItemAsString(ConstText.LastTextName) : null;
+        bool autoRedirect = LocalStorage.ContainKey(ConstText.AutoRedirectName) && LocalStorage.GetItem<bool>(ConstText.AutoRedirectName);
         if (autoRedirect && !string.IsNullOrEmpty(route))
         {
             NavigationManager.NavigateTo($"/{route}");

@@ -6,7 +6,6 @@ using MudBlazor.Services;
 using NshmCalculator.MudClient;
 using NshmCalculator.MudClient.Utilities;
 using NshmCalculator.Shared.Models;
-using System.Net.Http;
 using System.Text.Json;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -35,7 +34,9 @@ builder.Services.AddBlazoredLocalStorage();
 #region InitConfig
 
 UpdateLog[] updateLogs = new UpdateLog[] { };
-var newJson = await client.GetStringAsync(TipsText.UpdateLogPath);//需要处理缓存未更新的情况
+Dictionary<string, string> tipsDictionary = new Dictionary<string, string>();
+
+var newJson = await client.GetStringAsync(ConstText.UpdateLogPath);//需要处理缓存未更新的情况
 if (!string.IsNullOrEmpty(newJson))
 {
     var logs = JsonSerializer.Deserialize<UpdateLog[]>(newJson);
@@ -45,7 +46,18 @@ if (!string.IsNullOrEmpty(newJson))
     }
 }
 
+var tipsJson = await client.GetStringAsync(ConstText.TipsJsonPath);
+if (!string.IsNullOrEmpty(tipsJson))
+{
+    var dic = JsonSerializer.Deserialize<Dictionary<string, string>>(tipsJson);
+    if (dic != null)
+    {
+        tipsDictionary = dic;
+    }
+}
+
 builder.Services.AddSingleton(updateLogs);
+builder.Services.AddSingleton(tipsDictionary);
 
 #endregion
 
