@@ -60,7 +60,7 @@
 
     private void AutoJump()
     {
-        var route = LocalStorage.ContainKey(ConstText.LastTextName) ? LocalStorage.GetItemAsString(ConstText.LastTextName) : null;
+        var route = LocalStorage.ContainKey(ConstText.LastVisitName) ? LocalStorage.GetItemAsString(ConstText.LastVisitName) : null;
         bool autoRedirect = LocalStorage.ContainKey(ConstText.AutoRedirectName) && LocalStorage.GetItem<bool>(ConstText.AutoRedirectName);
         if (autoRedirect && !string.IsNullOrEmpty(route))
         {

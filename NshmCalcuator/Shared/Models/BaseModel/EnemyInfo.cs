@@ -38,6 +38,8 @@ public class EnemyInfo
     /// <summary>
     /// 敌方元素抗，暂不作为必填属性
     /// </summary>
+    [Required]
+    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
     public int AntiElementAttack { get; set; }
 
     /// <summary>

@@ -46,7 +46,7 @@ public static class CalculatorUtility
         double b13 = (b2 * (1 + b1 * (baseInfo.BaseCriticalRate * 1.0 / 100 + criticalRate * 1.0 / 100 - 1)) + 0.5 - b2 / 2) / (b2 * (1 + b1 * (baseInfo.BaseCriticalRate * 1.0 / 100 - 1)) + 0.5 - b2 / 2) - 1;//会伤收益率
 
         rate.Item1 = (b6 + 1) * (b7 + 1) * (1 + b10) * (1 + b12) * (1 + b13) - 1;
-        rate.Item2 = b4;
+        rate.Item2 = fixHitMode ? baseInfo.BaseHit + hit >= enemyInfo.FullHit ? 1 : b4 : b4;
 
         return rate;
     }

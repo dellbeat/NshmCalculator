@@ -61,6 +61,8 @@ public class DamageRateCalculateInfo : PlayerBaseInfo
 
     #endregion
 
+    public EnemyInfo? EnemyInfo { get; set; }
+
     public DateTime? CalculateTime { get; set; }
 
     public DamageRateCalculateInfo()
