@@ -29,7 +29,12 @@
 
 	<ItemGroup>
 		<ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
-		<ProjectReference Include="..\Shared\NshmCalcuator.Shared.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="NshmCalculator.Shared">
+	    <HintPath>..\Shared\bin\Release\net6.0\NshmCalculator.Shared.dll</HintPath>
+	  </Reference>
 	</ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace NshmCalculator.Shared;
+namespace NshmCalculator.Shared.Models.CalculatorModel;
 
 public class TreatPlayerInfo
 {

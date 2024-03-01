@@ -1,4 +1,4 @@
-﻿namespace NshmCalculator.Shared.Models;
+﻿namespace NshmCalculator.Shared.Models.CalculatorModel.KI;
 
 public class KiInfo
 {
@@ -16,6 +16,4 @@ public class KiInfo
     /// 特性增伤百分比
     /// </summary>
     public double DamageIncreasePercent { get; set; }
-
-
 }

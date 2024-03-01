@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using NshmCalculator.Shared.Models.BaseModel;
 
-namespace NshmCalculator.Shared.Models;
+namespace NshmCalculator.Shared.Models.CalculatorModel.KI;
 
 public class KiPageParameterInfo : PlayerBaseInfo
 {
@@ -99,15 +100,12 @@ public class KiPageParameterInfo : PlayerBaseInfo
 
     public KiPageParameterInfo()
     {
-        PlayerBaseAttack = 2500;
-        PlayerBaseRestraint = 1000;
-        PlayerBaseElementAttack = 1000;
-        PlayerBaseBreakDefense = 1000;
-        PlayerBaseHit = 500;
-        PlayerBaseCriticalHits = 888;
-        PlayerBaseCriticalRate = 188;
-        EnemyBlock = 630;
-        EnemyDefense = 1680;
-        EnemyAntiElementAttack = 60;
+        BaseAttack = 2500;
+        BaseRestraint = 1000;
+        BaseElementAttack = 1000;
+        BaseBreakDefense = 1000;
+        BaseHit = 500;
+        BaseCriticalHits = 888;
+        BaseCriticalRate = 188;
     }
 }

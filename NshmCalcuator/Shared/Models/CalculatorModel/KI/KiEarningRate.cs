@@ -1,6 +1,6 @@
-﻿namespace NshmCalculator.Shared.Models;
+﻿namespace NshmCalculator.Shared.Models.CalculatorModel.KI;
 
-public class EarningRate
+public class KiEarningRate
 {
     /// <summary>
     /// 每点攻击及首领克制收益

@@ -1,8 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using NshmCalculator.Shared.Models.BaseModel;
 
-namespace NshmCalculator.Shared.Models;
+namespace NshmCalculator.Shared.Models.CalculatorModel;
 
-public class QuickPlayerInfo : PlayerBaseInfo
+/// <summary>
+/// 增伤计算器计算数值
+/// </summary>
+public class DamageRateCalculateInfo : PlayerBaseInfo
 {
     #region 新增数值
 
@@ -57,18 +61,16 @@ public class QuickPlayerInfo : PlayerBaseInfo
 
     #endregion
 
-    public DateTime? LastCalTime { get; set; }
+    public DateTime? CalculateTime { get; set; }
 
-    public QuickPlayerInfo()
+    public DamageRateCalculateInfo()
     {
-        PlayerBaseAttack = 2500;
-        PlayerBaseRestraint = 1000;
-        PlayerBaseElementAttack = 1000;
-        PlayerBaseBreakDefense = 1000;
-        PlayerBaseHit = 500;
-        PlayerBaseCriticalHits = 888;
-        PlayerBaseCriticalRate = 188;
-        EnemyBlock = 630;
-        EnemyDefense = 1680;
+        BaseAttack = 2500;
+        BaseRestraint = 1000;
+        BaseElementAttack = 1000;
+        BaseBreakDefense = 1000;
+        BaseHit = 500;
+        BaseCriticalHits = 888;
+        BaseCriticalRate = 188;
     }
 }
