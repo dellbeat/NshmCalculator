@@ -1,6 +1,7 @@
 ﻿@page "/treat"
 @using NshmCalculator.Shared
 @using Blazored.LocalStorage
+@using NshmCalculator.MudClient.Components
 @using NshmCalculator.MudClient.Utilities
 @inject ISyncLocalStorageService LocalStorage
 @* ReSharper disable once IdentifierTypo *@
@@ -27,37 +28,37 @@
                 <DataAnnotationsValidator />
                 <MudGrid>
                     <MudItem xs="6" sm="4">
-                        <MudTextField ShrinkLabel @bind-Value="_info.PlayerBaseTreatPercent" Label="基础治疗(%)" Variant="Variant.Outlined" />
+                        <MudTextField ShrinkLabel @bind-Value="_info.PlayerBaseTreatPercent" For="@(() => _info.PlayerBaseTreatPercent)" Label="基础治疗(%)" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" sm="4">
-                         <MudTextField ShrinkLabel @bind-Value="_info.PlayerBaseAttack" Label="基础攻击" Variant="Variant.Outlined" />
+                         <MudTextField ShrinkLabel @bind-Value="_info.PlayerBaseAttack" For="@(() => _info.PlayerBaseAttack)" Label="基础攻击" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" sm="4">
-                         <MudTextField ShrinkLabel @bind-Value="_info.PlayerBaseCriticalHits" Label="基础会心" Variant="Variant.Outlined" />
+                         <MudTextField ShrinkLabel @bind-Value="_info.PlayerBaseCriticalHits" For="@(() => _info.PlayerBaseCriticalHits)" Label="基础会心" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" sm="4">
-                         <MudTextField ShrinkLabel @bind-Value="_info.PlayerBaseCriticalRate" Label="基础会伤(%)" Variant="Variant.Outlined" />
+                         <MudTextField ShrinkLabel @bind-Value="_info.PlayerBaseCriticalRate" For="@(() => _info.PlayerBaseCriticalRate)" Label="基础会伤(%)" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" sm="4">
-                         <MudTextField ShrinkLabel @bind-Value="_info.PlayerBaseTreatCriticalRate" Label="治疗会伤" Variant="Variant.Outlined" />
+                         <MudTextField ShrinkLabel @bind-Value="_info.PlayerBaseTreatCriticalRate" For="@(() => _info.PlayerBaseTreatCriticalRate)" Label="治疗会伤" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" sm="4">
-                         <MudTextField ShrinkLabel @bind-Value="_info.PlayerBaseZtCriticalHitsRate" Label="周天会心率(%)" HelperText="计算金周天对治疗收益/凌风对点绛提升" Variant="Variant.Outlined" />
+                         <MudTextField ShrinkLabel @bind-Value="_info.PlayerBaseZtCriticalHitsRate" For="@(() => _info.PlayerBaseZtCriticalHitsRate)" Label="周天会心率(%)" HelperText="计算金周天对治疗收益/凌风对点绛提升" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="12">
                          <MudDivider FlexItem="true" />
                      </MudItem>
                      <MudItem xs="6" md="3">
-                         <MudTextField ShrinkLabel @bind-Value="_info.IncreaseAttack" Label="新增攻击" HelperText="输入面板实际新增加攻击" Variant="Variant.Outlined" />
+                         <MudTextField ShrinkLabel @bind-Value="_info.IncreaseAttack" For="@(() => _info.IncreaseAttack)" Label="新增攻击" HelperText="输入面板实际新增加攻击" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" md="3">
-                         <MudTextField ShrinkLabel @bind-Value="_info.IncreaseCriticalHits" Label="新增会心" Variant="Variant.Outlined" />
+                         <MudTextField ShrinkLabel @bind-Value="_info.IncreaseCriticalHits" For="@(() => _info.IncreaseCriticalHits)" Label="新增会心" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" md="3">
-                         <MudTextField ShrinkLabel @bind-Value="_info.IncreaseCriticalRate" Label="新增会伤率(%)" Variant="Variant.Outlined" />
+                         <MudTextField ShrinkLabel @bind-Value="_info.IncreaseCriticalRate" For="@(() => _info.IncreaseCriticalRate)" Label="新增会伤率(%)" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" md="3">
-                         <MudTextField ShrinkLabel @bind-Value="_info.IncreaseZtCriticalRate" Label="新增会心率(%)" Variant="Variant.Outlined" />
+                         <MudTextField ShrinkLabel @bind-Value="_info.IncreaseZtCriticalRate" For="@(() => _info.IncreaseZtCriticalRate)" Label="新增会心率(%)" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="12">
                          <MudDivider FlexItem="true" />
