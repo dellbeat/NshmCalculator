@@ -1,10 +1,12 @@
 ﻿using NshmCalculator.Shared.Models.BaseModel;
 using NshmCalculator.Shared.Models.CalculatorModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace NshmCalculator.Shared.Models.PageModel;
 
 public class AttributePageModel
 {
+    [ValidateComplexType]
     public AttributePlayerInfo PageCalculateInfo { get; set; } = new AttributePlayerInfo()
     {
         BaseAttack = 2500,
@@ -16,6 +18,7 @@ public class AttributePageModel
         BaseCriticalRate = 188,
     };
 
+    [ValidateComplexType]
     public EnemyInfo PageEnemyInfo { get; set; } = new()
     {
         Block = 630,

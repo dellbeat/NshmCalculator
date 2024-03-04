@@ -1,10 +1,12 @@
 ﻿using NshmCalculator.Shared.Models.BaseModel;
 using NshmCalculator.Shared.Models.CalculatorModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace NshmCalculator.Shared.Models.PageModel;
 
 public class DamageRatePageModel
 {
+    [ValidateComplexType]
     public DamageRateCalculateInfo PageCalculateInfo { get; set; } = new()
     {
         BaseAttack = 2500,
@@ -16,6 +18,7 @@ public class DamageRatePageModel
         BaseCriticalRate = 188.0
     };
 
+    [ValidateComplexType]
     public EnemyInfo PageEnemyInfo { get; set; } = new()
     {
         Block = 630,

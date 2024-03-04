@@ -26,23 +26,23 @@
     </MudItem>
     <MudItem xs="12">
         <MudPaper Class="pa-4 mt-4">
-            <EditForm Model="@_attributePageModel" OnValidSubmit="Calculate">
-                <DataAnnotationsValidator />
+            <EditForm Model="@_attributePageModel" OnValidSubmit="Calculate" OnInvalidSubmit="WarningTips">
+                <ObjectGraphDataAnnotationsValidator />
                 <MudGrid>
                     <MudItem xs="12">
                         <MudText Typo="Typo.subtitle2" Align="Align.Center">玩家基础面板</MudText>
                     </MudItem>
                     <MudItem xs="6" sm="4" md="3">
-                        <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.BaseAttack" For="@(() => _attributePageModel.PageCalculateInfo.BaseAttack)" Label="基础攻击" Variant="Variant.Outlined" />
+                        <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.BaseAttack" For="@(() => _attributePageModel.PageCalculateInfo.BaseAttack)" Label="基础攻击" HelperText="面板内/外功攻击力" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" sm="4" md="3">
                          <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.BaseBreakDefense" For="@(() => _attributePageModel.PageCalculateInfo.BaseBreakDefense)" Label="基础破防" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" sm="4" md="3">
-                         <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.BaseElementAttack" For="@(() => _attributePageModel.PageCalculateInfo.BaseElementAttack)" Label="基础元素攻击" Variant="Variant.Outlined" />
+                         <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.BaseElementAttack" For="@(() => _attributePageModel.PageCalculateInfo.BaseElementAttack)" Label="基础元素攻击" HelperText="技能属性对应的的元素攻击的值" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" sm="4" md="3">
-                         <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.BaseRestraint" For="@(() => _attributePageModel.PageCalculateInfo.BaseRestraint)" Label="基础克制数值" Variant="Variant.Outlined" />
+                         <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.BaseRestraint" For="@(() => _attributePageModel.PageCalculateInfo.BaseRestraint)" Label="基础克制数值" HelperText="若受击方为boss或木桩，则此处输入首领克制的数字值，即斜杠左边的值" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" sm="4" md="3">
                          <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.BaseHit" For="@(() => _attributePageModel.PageCalculateInfo.BaseHit)" Label="基础命中" Variant="Variant.Outlined" />
@@ -54,10 +54,10 @@
                          <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.BaseCriticalRate" For="@(() => _attributePageModel.PageCalculateInfo.BaseCriticalRate)" Label="基础会伤率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" sm="4" md="3">
-                         <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.BaseZtCriticalHitsRate" For="@(() => _attributePageModel.PageCalculateInfo.BaseZtCriticalHitsRate)" Label="周天会心率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Variant="Variant.Outlined" />
+                         <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.BaseZtCriticalHitsRate" For="@(() => _attributePageModel.PageCalculateInfo.BaseZtCriticalHitsRate)" Label="周天会心率" HelperText="例如：内功3金提供5%的会心率，则此处输入5" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" sm="4" md="3">
-                         <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.BaseRestrainedRate" For="@(() => _attributePageModel.PageCalculateInfo.BaseRestrainedRate)" Label="基础克制百分比" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Variant="Variant.Outlined" />
+                         <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.BaseRestrainedRate" For="@(() => _attributePageModel.PageCalculateInfo.BaseRestrainedRate)" Label="基础克制百分比" HelperText="若受击方为boss或木桩，则此处输入首领克制的百分比值，即斜杠右边的值" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="12">
                          <MudDivider FlexItem="true"></MudDivider>
@@ -93,7 +93,7 @@
                             <MudText Typo="Typo.subtitle2" Align="Align.Center">玩家新增面板</MudText>
                         </MudItem>
                         <MudItem xs="6" sm="4" md="3">
-                            <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.IncreaseAttack" For="@(() => _attributePageModel.PageCalculateInfo.IncreaseAttack)" Label="新增攻击" Variant="Variant.Outlined" />
+                            <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.IncreaseAttack" For="@(() => _attributePageModel.PageCalculateInfo.IncreaseAttack)" Label="新增攻击" HelperText="输入的是平均攻击的变化，如果是单独提升最大/最小攻击则需要除以2" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" sm="4" md="3">
                          <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.IncreaseRestraint" For="@(() => _attributePageModel.PageCalculateInfo.IncreaseRestraint)" Label="新增克制" Variant="Variant.Outlined" />
@@ -202,13 +202,19 @@
             }
 
             SaveInfo();
-
-            Snackbar.Add("计算完毕", Severity.Success);
+            Snackbar.Add(ConstText.SuccessText, Severity.Success);
         }
         catch (Exception e)
         {
             Snackbar.Add(ConstText.ExceptionText, Severity.Warning);
         }
+
+        return Task.CompletedTask;
+    }
+
+    private Task WarningTips()
+    {
+        Snackbar.Add(ConstText.WarningText, Severity.Warning);
 
         return Task.CompletedTask;
     }
