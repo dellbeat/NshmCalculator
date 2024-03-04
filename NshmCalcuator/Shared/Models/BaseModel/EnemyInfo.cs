@@ -36,11 +36,17 @@ public class EnemyInfo
     public int AntiCriticalHits { get; set; }
 
     /// <summary>
-    /// 敌方元素抗，暂不作为必填属性
+    /// 敌方元素抗
     /// </summary>
     [Required]
     [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
     public int AntiElementAttack { get; set; }
+
+    /// <summary>
+    /// 敌方气盾
+    /// </summary>
+    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
+    public int AirShield { get; set; }
 
     /// <summary>
     /// 满命中

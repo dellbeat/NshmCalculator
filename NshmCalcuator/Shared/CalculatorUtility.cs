@@ -73,4 +73,68 @@ public static class CalculatorUtility
 
         return rate;
     }
+
+    /// <summary>
+    /// 获取无首领加成的伤害
+    /// </summary>
+    /// <param name="attackOfPlayer">玩家攻击</param>
+    /// <param name="restraintNum">玩家克制数值</param>
+    /// <param name="elementAttackOfPlayer">玩家元素攻击</param>
+    /// <param name="breakDefenseOfPlayer">玩家破防值</param>
+    /// <param name="defenseOfMonster">敌方防御</param>
+    /// <param name="resistOfMonster">敌方抵御</param>
+    /// <param name="rate1">系数1</param>
+    /// <param name="rate2">系数2</param>
+    /// <param name="remainAirShield">剩余气盾，由于PVE目前暂不考虑该参数，故默认为0</param>
+    public static double CalculateBaseDamage(int attackOfPlayer, int restraintNum, int elementAttackOfPlayer, int breakDefenseOfPlayer, int defenseOfMonster, int resistOfMonster, double rate1, double rate2, int remainAirShield = 0)
+    {
+        double resistanceRemission = resistOfMonster * 1.0 / (resistOfMonster + 530);//敌方（怪物）抗性减免
+        int remainDefense = defenseOfMonster - breakDefenseOfPlayer;//敌方剩余防御，理论不会小于0，不做特别判断
+        if (remainDefense < 0)
+        {
+            remainDefense = 0;
+        }
+        double defenseRemission = remainDefense * 1.0 / (remainDefense + 2860);//防御减免
+
+        double baseDamage = ((rate1 + rate2 * (attackOfPlayer - remainAirShield + restraintNum - resistOfMonster)) * (1 - defenseRemission) + rate2 * elementAttackOfPlayer * (1 - resistanceRemission));//无首领克制加成的伤害
+
+        return baseDamage;
+    }
+
+    /// <summary>获取未会心伤害</summary>
+    /// <param name="baseDamage">无首领克制的伤害</param>
+    /// <param name="restrainedRate">首领克制百分比</param>
+    public static double CalculateNonCriticalDamage(double baseDamage, double restrainedRate)
+    {
+        return baseDamage * (1 + restrainedRate);
+    }
+
+
+    /// <summary>
+    /// 获取会心伤害
+    /// </summary>
+    /// <param name="nonCriticalDamage">未会心伤害</param>
+    /// <param name="hitNum">命中</param>
+    /// <param name="blockOfMonster">敌方格挡</param>
+    /// <param name="criticalSubRate">会心伤害百分比-100%</param>
+    /// <param name="criticalHit">会心</param>
+    /// <param name="criticalDefenseOfMonster">敌方会心抵抗</param>
+    /// <param name="extraCriticalRate">内功提供的额外会心率</param>
+    /// <param name="calCriticalRate">计算的会心率结果</param>
+    public static double CalculateCriticalDamage(double nonCriticalDamage, int hitNum, int blockOfMonster, double criticalSubRate, int criticalHit, int criticalDefenseOfMonster, double extraCriticalRate, out double calCriticalRate)
+    {
+        double panelHitRateOfPlayer = (143 * hitNum * 1.0 / (hitNum + 713) / 100 is double panelNum && panelNum > 1 ? 1 : panelNum);//玩家[攻击方]面板命中率
+        double panelDefenseRateOfMonster = 143 * 1.0 * blockOfMonster / (blockOfMonster + 713) / 100;//敌方[受击方]面板格挡率Da
+        double hitRateOfPlayer = 0.95 + panelHitRateOfPlayer - panelDefenseRateOfMonster;//玩家对敌方命中率
+        if (hitRateOfPlayer > 1)
+        {
+            hitRateOfPlayer = 1;
+        }
+        int remainCritical = (criticalHit - criticalDefenseOfMonster);//剩余会心
+        double criticalRate = (115 * remainCritical + 90) * 1.0 / (remainCritical + 940) / 100 + extraCriticalRate;//会心率
+        calCriticalRate = criticalRate;
+        double criticalDamage = nonCriticalDamage * hitRateOfPlayer * (1 + criticalSubRate * criticalRate) + 0.5 * nonCriticalDamage * (1 - hitRateOfPlayer);//会心伤害【未计算技能倍数】
+
+        return criticalDamage;
+    }
 }
