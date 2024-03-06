@@ -6,6 +6,7 @@ using MudBlazor.Services;
 using NshmCalculator.MudClient;
 using NshmCalculator.MudClient.Utilities;
 using NshmCalculator.Shared.Models;
+using System.Net.Http.Headers;
 using System.Text.Json;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -14,7 +15,11 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 var client = new HttpClient
 {
-    BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
+    BaseAddress = new Uri(builder.HostEnvironment.BaseAddress),
+};
+client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
+{
+    NoCache = true
 };
 builder.Services.AddScoped(sp => client);
 builder.Services.AddMudServices(config =>
