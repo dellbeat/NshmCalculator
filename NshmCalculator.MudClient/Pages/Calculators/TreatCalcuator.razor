@@ -41,10 +41,10 @@
                         <MudTextField ShrinkLabel @bind-Value="_treatInfo.PlayerBaseCriticalHits" For="@(() => _treatInfo.PlayerBaseCriticalHits)" Label="基础会心" Variant="Variant.Outlined"/>
                     </MudItem>
                     <MudItem xs="6" sm="4">
-                        <MudTextField ShrinkLabel @bind-Value="_treatInfo.PlayerBaseCriticalRate" For="@(() => _treatInfo.PlayerBaseCriticalRate)" Label="基础会伤(%)" Variant="Variant.Outlined"/>
+                         <MudTextField ShrinkLabel @bind-Value="_treatInfo.PlayerBaseCriticalRate" For="@(() => _treatInfo.PlayerBaseCriticalRate)" Label="基础会伤率" HelperText="填入数字即可" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="MudBlazor.Color.Dark" Variant="Variant.Outlined" />
                     </MudItem>
                     <MudItem xs="6" sm="4">
-                        <MudTextField ShrinkLabel @bind-Value="_treatInfo.PlayerBaseTreatCriticalRate" For="@(() => _treatInfo.PlayerBaseTreatCriticalRate)" Label="治疗会伤" Variant="Variant.Outlined"/>
+                         <MudTextField ShrinkLabel @bind-Value="_treatInfo.PlayerBaseTreatCriticalRate" For="@(() => _treatInfo.PlayerBaseTreatCriticalRate)" Label="治疗会伤率" HelperText="填入数字即可" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="MudBlazor.Color.Dark" Variant="Variant.Outlined" />
                     </MudItem>
                     <MudItem xs="6" sm="4">
                         <MudTextField ShrinkLabel @bind-Value="_treatInfo.PlayerBaseZtCriticalHitsRate" For="@(() => _treatInfo.PlayerBaseZtCriticalHitsRate)" Label="周天会心率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="MudBlazor.Color.Dark" HelperText="计算金周天对治疗收益/凌风对点绛提升，填入数字即可" Variant="Variant.Outlined"/>
