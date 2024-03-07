@@ -8,7 +8,7 @@ public static class ConstText
 
     public const string SuccessText = "<ul><li>计算完成</li></ul>";
 
-    public const string FooterText = "Version:0.5.2 | Powered by .NET 8.0";
+    public const string FooterText = "Version:0.6.0 | Powered by .NET 8.0";
 
     public const string LastVisitName = "lastVisit";//最近一次访问的计算器路由
 

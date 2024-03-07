@@ -19,8 +19,8 @@
         <MudPaper Class="d-flex align-center justify-center py-8">
             <MudStack AlignItems="AlignItems.Center">
                 <MudText Typo="Typo.h4">增伤率计算器</MudText>
-                <MudText Typo="Typo.h6" Align="Align.Center">
-                    <MudChip Icon="@Icons.Material.Filled.Person" Color="Color.Tertiary">B站@白宝正不正</MudChip>
+                <MudText Typo="Typo.h6" Align="MudBlazor.Align.Center">
+                    <MudChip Icon="@Icons.Material.Filled.Person" Color="MudBlazor.Color.Tertiary">B站@白宝正不正</MudChip>
                 </MudText>
             </MudStack>
         </MudPaper>
@@ -31,7 +31,7 @@
                 <ObjectGraphDataAnnotationsValidator />
                 <MudGrid>
                     <MudItem xs="12">
-                        <MudText Typo="Typo.subtitle2" Align="Align.Center">玩家基础面板</MudText>
+                        <MudText Typo="Typo.subtitle2" Align="MudBlazor.Align.Center">玩家基础面板</MudText>
                     </MudItem>
                     <MudItem xs="6" sm="3">
                         <MudTextField ShrinkLabel @bind-Value="_damageRatePageModel.PageCalculateInfo.BaseAttack" For="@(() => _damageRatePageModel.PageCalculateInfo.BaseAttack)" Label="基础攻击" Variant="Variant.Outlined" />
@@ -52,16 +52,16 @@
                          <MudTextField ShrinkLabel @bind-Value="_damageRatePageModel.PageCalculateInfo.BaseCriticalHits" For="@(() => _damageRatePageModel.PageCalculateInfo.BaseCriticalHits)" Label="基础会心" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" sm="3">
-                         <MudTextField ShrinkLabel @bind-Value="_damageRatePageModel.PageCalculateInfo.BaseCriticalRate" For="@(() => _damageRatePageModel.PageCalculateInfo.BaseCriticalRate)" Label="基础会伤" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Variant="Variant.Outlined" />
+                         <MudTextField ShrinkLabel @bind-Value="_damageRatePageModel.PageCalculateInfo.BaseCriticalRate" For="@(() => _damageRatePageModel.PageCalculateInfo.BaseCriticalRate)" Label="基础会伤" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="MudBlazor.Color.Dark" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" sm="3">
-                         <MudTextField ShrinkLabel @bind-Value="_damageRatePageModel.PageCalculateInfo.BaseZtCriticalHitsRate" For="@(() => _damageRatePageModel.PageCalculateInfo.BaseZtCriticalHitsRate)" HelperText="填入数字即可" Label="周天会心率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Variant="Variant.Outlined" />
+                         <MudTextField ShrinkLabel @bind-Value="_damageRatePageModel.PageCalculateInfo.BaseZtCriticalHitsRate" For="@(() => _damageRatePageModel.PageCalculateInfo.BaseZtCriticalHitsRate)" HelperText="填入数字即可" Label="周天会心率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="MudBlazor.Color.Dark" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="12">
                          <MudDivider FlexItem="true"></MudDivider>
                      </MudItem>
                      <MudItem xs="12">
-                         <MudText Typo="Typo.subtitle2" Align="Align.Center">敌方面板</MudText>
+                         <MudText Typo="Typo.subtitle2" Align="MudBlazor.Align.Center">敌方面板</MudText>
                      </MudItem>
                      <MudItem xs="6" sm="4">
                          <MudTextField ShrinkLabel @bind-Value="_damageRatePageModel.PageEnemyInfo.Defense" For="@(() => _damageRatePageModel.PageEnemyInfo.Defense)" Label="敌方防御" Variant="Variant.Outlined" />
@@ -79,16 +79,16 @@
                          <MudTextField ShrinkLabel ReadOnly="@_readOnlyMode" @bind-Value="_damageRatePageModel.PageEnemyInfo.AntiElementAttack" For="@(() => _damageRatePageModel.PageEnemyInfo.AntiElementAttack)" Label="敌方元素抗性（新）" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" sm="4" Class="d-flex align-center justify-center">
-                         <MudSwitch T="bool" @bind-Value="@_readOnlyMode" Color="Color.Info" UnCheckedColor="Color.Dark" Label="新属性只读"></MudSwitch>
+                         <MudSwitch T="bool" @bind-Value="@_readOnlyMode" Color="MudBlazor.Color.Info" UnCheckedColor="MudBlazor.Color.Dark" Label="新属性只读"></MudSwitch>
                      </MudItem>
                      <MudItem xs="12" Class="d-flex align-center justify-center">
-                         <MudChip Color="Color.Info">满命中：@_damageRatePageModel.PageEnemyInfo.FullHit</MudChip>
+                         <MudChip Color="MudBlazor.Color.Info">满命中：@_damageRatePageModel.PageEnemyInfo.FullHit</MudChip>
                         </MudItem>
                         <MudItem xs="12">
                             <MudDivider FlexItem="true" />
                         </MudItem>
                         <MudItem xs="12">
-                            <MudText Typo="Typo.subtitle2" Align="Align.Center">玩家新增面板</MudText>
+                            <MudText Typo="Typo.subtitle2" Align="MudBlazor.Align.Center">玩家新增面板</MudText>
                         </MudItem>
                         <MudItem xs="6" sm="3">
                             <MudTextField ShrinkLabel @bind-Value="_damageRatePageModel.PageCalculateInfo.IncreaseAttack" For="@(() => _damageRatePageModel.PageCalculateInfo.IncreaseAttack)" Label="新增攻击" Variant="Variant.Outlined" />
@@ -109,15 +109,15 @@
                          <MudTextField ShrinkLabel @bind-Value="_damageRatePageModel.PageCalculateInfo.IncreaseCriticalHits" For="@(() => _damageRatePageModel.PageCalculateInfo.IncreaseCriticalHits)" HelperText="填入数字即可" Label="新增会心" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" sm="3">
-                         <MudTextField ShrinkLabel @bind-Value="_damageRatePageModel.PageCalculateInfo.IncreaseCriticalRate" For="@(() => _damageRatePageModel.PageCalculateInfo.IncreaseCriticalRate)" HelperText="填入数字即可" Label="新增会伤率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Variant="Variant.Outlined" />
+                         <MudTextField ShrinkLabel @bind-Value="_damageRatePageModel.PageCalculateInfo.IncreaseCriticalRate" For="@(() => _damageRatePageModel.PageCalculateInfo.IncreaseCriticalRate)" HelperText="填入数字即可" Label="新增会伤率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="MudBlazor.Color.Dark" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="12">
                          <MudDivider FlexItem="true" />
                      </MudItem>
                      <MudItem xs="12" Class="d-flex align-center justify-center">
                          <MudStack Row="true" Spacing="4">
-                             <MudButton Variant="Variant.Filled" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Submit">计算</MudButton>
-                             <MudButton Variant="Variant.Filled" Color="Color.Default" Class="d-flex" ButtonType="ButtonType.Button" OnClick="ShowTips">帮助说明</MudButton>
+                             <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Info" Class="d-flex" ButtonType="ButtonType.Submit">计算</MudButton>
+                             <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Default" Class="d-flex" ButtonType="ButtonType.Button" OnClick="ShowTips">帮助说明</MudButton>
                          </MudStack>
                      </MudItem>
                  </MudGrid>
@@ -126,8 +126,8 @@
      </MudItem>
      <MudItem xs="12">
          <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-             <MudChip Color="Color.Info">增伤百分比：@_damageRatePageModel.PageCalculateInfo.Result.ToString("P2")</MudChip>
-                <MudChip Color="Color.Info">实际命中率：@_damageRatePageModel.PageCalculateInfo.HitRate.ToString("P2")</MudChip>
+             <MudChip Color="MudBlazor.Color.Info">增伤百分比：@_damageRatePageModel.PageCalculateInfo.Result.ToString("P2")</MudChip>
+                <MudChip Color="MudBlazor.Color.Info">实际命中率：@_damageRatePageModel.PageCalculateInfo.HitRate.ToString("P2")</MudChip>
             </MudPaper>
         </MudItem>
     </MudGrid>

@@ -107,6 +107,11 @@ public class AttributePlayerInfo : PlayerBaseInfo
     public double CalCriticalRate { get; set; }
 
     /// <summary>
+    /// 伤害期望提升百分比
+    /// </summary>
+    public double ImprovePercent { get; set; }
+
+    /// <summary>
     /// 上次计算时间
     /// </summary>
     public DateTime? LastCalTime { get; set; }

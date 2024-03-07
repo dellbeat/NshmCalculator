@@ -17,8 +17,8 @@
         <MudPaper Class="d-flex align-center justify-center py-8">
             <MudStack AlignItems="AlignItems.Center">
                 <MudText Typo="Typo.h4">素问治疗量计算器</MudText>
-                <MudText Typo="Typo.h6" Align="Align.Center">
-                    <MudChip Icon="@Icons.Material.Filled.Person" Color="Color.Tertiary">B站@白宝正不正</MudChip>
+                <MudText Typo="Typo.h6" Align="MudBlazor.Align.Center">
+                    <MudChip Icon="@Icons.Material.Filled.Person" Color="MudBlazor.Color.Tertiary">B站@白宝正不正</MudChip>
                 </MudText>
             </MudStack>
         </MudPaper>
@@ -29,7 +29,7 @@
                 <DataAnnotationsValidator />
                 <MudGrid>
                     <MudItem xs="12">
-                        <MudText Typo="Typo.subtitle2" Align="Align.Center">玩家基础面板</MudText>
+                        <MudText Typo="Typo.subtitle2" Align="MudBlazor.Align.Center">玩家基础面板</MudText>
                     </MudItem>
                     <MudItem xs="6" sm="4">
                         <MudTextField ShrinkLabel @bind-Value="_treatInfo.PlayerBaseTreatPercent" For="@(() => _treatInfo.PlayerBaseTreatPercent)" Label="基础治疗(%)" Variant="Variant.Outlined"/>
@@ -47,13 +47,13 @@
                         <MudTextField ShrinkLabel @bind-Value="_treatInfo.PlayerBaseTreatCriticalRate" For="@(() => _treatInfo.PlayerBaseTreatCriticalRate)" Label="治疗会伤" Variant="Variant.Outlined"/>
                     </MudItem>
                     <MudItem xs="6" sm="4">
-                        <MudTextField ShrinkLabel @bind-Value="_treatInfo.PlayerBaseZtCriticalHitsRate" For="@(() => _treatInfo.PlayerBaseZtCriticalHitsRate)" Label="周天会心率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" HelperText="计算金周天对治疗收益/凌风对点绛提升，填入数字即可" Variant="Variant.Outlined"/>
+                        <MudTextField ShrinkLabel @bind-Value="_treatInfo.PlayerBaseZtCriticalHitsRate" For="@(() => _treatInfo.PlayerBaseZtCriticalHitsRate)" Label="周天会心率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="MudBlazor.Color.Dark" HelperText="计算金周天对治疗收益/凌风对点绛提升，填入数字即可" Variant="Variant.Outlined"/>
                     </MudItem>
                     <MudItem xs="12">
                         <MudDivider FlexItem="true"/>
                     </MudItem>
                     <MudItem xs="12">
-                        <MudText Typo="Typo.subtitle2" Align="Align.Center">玩家新增面板</MudText>
+                        <MudText Typo="Typo.subtitle2" Align="MudBlazor.Align.Center">玩家新增面板</MudText>
                     </MudItem>
                     <MudItem xs="6" md="3">
                         <MudTextField ShrinkLabel @bind-Value="_treatInfo.IncreaseAttack" For="@(() => _treatInfo.IncreaseAttack)" Label="新增攻击" HelperText="输入面板实际新增加攻击" Variant="Variant.Outlined"/>
@@ -62,18 +62,18 @@
                         <MudTextField ShrinkLabel @bind-Value="_treatInfo.IncreaseCriticalHits" For="@(() => _treatInfo.IncreaseCriticalHits)" Label="新增会心" Variant="Variant.Outlined"/>
                     </MudItem>
                     <MudItem xs="6" md="3">
-                        <MudTextField ShrinkLabel @bind-Value="_treatInfo.IncreaseCriticalRate" For="@(() => _treatInfo.IncreaseCriticalRate)" HelperText="填入数字即可" Label="新增会伤率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Variant="Variant.Outlined"/>
+                        <MudTextField ShrinkLabel @bind-Value="_treatInfo.IncreaseCriticalRate" For="@(() => _treatInfo.IncreaseCriticalRate)" HelperText="填入数字即可" Label="新增会伤率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="MudBlazor.Color.Dark" Variant="Variant.Outlined"/>
                     </MudItem>
                     <MudItem xs="6" md="3">
-                        <MudTextField ShrinkLabel @bind-Value="_treatInfo.IncreaseZtCriticalRate" For="@(() => _treatInfo.IncreaseZtCriticalRate)" HelperText="填入数字即可" Label="新增会心率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Variant="Variant.Outlined"/>
+                        <MudTextField ShrinkLabel @bind-Value="_treatInfo.IncreaseZtCriticalRate" For="@(() => _treatInfo.IncreaseZtCriticalRate)" HelperText="填入数字即可" Label="新增会心率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="MudBlazor.Color.Dark" Variant="Variant.Outlined"/>
                     </MudItem>
                     <MudItem xs="12">
                         <MudDivider FlexItem="true"/>
                     </MudItem>
                     <MudItem xs="12" Class="d-flex align-center justify-center">
                         <MudStack Row="true" Spacing="4">
-                            <MudButton Variant="Variant.Filled" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Submit">计算</MudButton>
-                            <MudButton Variant="Variant.Filled" Color="Color.Default" Class="d-flex" ButtonType="ButtonType.Button" OnClick="ShowTips">帮助说明</MudButton>
+                            <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Info" Class="d-flex" ButtonType="ButtonType.Submit">计算</MudButton>
+                            <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Default" Class="d-flex" ButtonType="ButtonType.Button" OnClick="ShowTips">帮助说明</MudButton>
                         </MudStack>
                     </MudItem>
                 </MudGrid>
@@ -83,7 +83,7 @@
      <MudItem xs="12">
          <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
              治疗增加百分比：
-             <MudChip Color="Color.Info">@_treatInfo.Result.ToString("P2")</MudChip>
+             <MudChip Color="MudBlazor.Color.Info">@_treatInfo.Result.ToString("P2")</MudChip>
             </MudPaper>
         </MudItem>
     </MudGrid>

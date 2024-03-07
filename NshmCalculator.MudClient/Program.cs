@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor;
 using MudBlazor.Services;
-using NshmCalculator.MudClient;
 using NshmCalculator.MudClient.Utilities;
 using NshmCalculator.Shared.Models;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using NshmCalculator.MudClient;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");

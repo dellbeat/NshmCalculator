@@ -5,6 +5,8 @@
 @using NshmCalculator.MudClient.Utilities
 @using NshmCalculator.Shared
 @using NshmCalculator.Shared.Models.PageModel
+@implements IBrowserViewportObserver
+@implements IAsyncDisposable
 @inject ISyncLocalStorageService LocalStorage
 @* ReSharper disable once IdentifierTypo *@
 @inject ISnackbar Snackbar
@@ -12,14 +14,15 @@
 @* ReSharper disable once CollectionNeverUpdated.Local *@
 @inject Dictionary<string,string> TipsDictionary
 
+
 <PageTitle>逆水寒手游属性收益计算器</PageTitle>
 <MudGrid>
     <MudItem xs="12">
         <MudPaper Class="d-flex align-center justify-center py-8">
             <MudStack AlignItems="AlignItems.Center">
                 <MudText Typo="Typo.h4">属性收益计算器</MudText>
-                <MudText Typo="Typo.h6" Align="Align.Center">
-                    <MudChip Icon="@Icons.Material.Filled.Person" Color="Color.Tertiary">贴吧@星语困</MudChip>
+                <MudText Typo="Typo.h6" Align="MudBlazor.Align.Center">
+                    <MudChip Icon="@Icons.Material.Filled.Person" Color="MudBlazor.Color.Tertiary">贴吧@星语困</MudChip>
                 </MudText>
             </MudStack>
         </MudPaper>
@@ -30,7 +33,7 @@
                 <ObjectGraphDataAnnotationsValidator />
                 <MudGrid>
                     <MudItem xs="12">
-                        <MudText Typo="Typo.subtitle2" Align="Align.Center">玩家基础面板</MudText>
+                        <MudText Typo="Typo.subtitle2" Align="MudBlazor.Align.Center">玩家基础面板</MudText>
                     </MudItem>
                     <MudItem xs="6" sm="4" md="3">
                         <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.BaseAttack" For="@(() => _attributePageModel.PageCalculateInfo.BaseAttack)" Label="基础攻击" HelperText="面板内/外功攻击力" Variant="Variant.Outlined" />
@@ -51,19 +54,19 @@
                          <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.BaseCriticalHits" For="@(() => _attributePageModel.PageCalculateInfo.BaseCriticalHits)" Label="基础会心" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" sm="4" md="3">
-                         <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.BaseCriticalRate" For="@(() => _attributePageModel.PageCalculateInfo.BaseCriticalRate)" Label="基础会伤率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Variant="Variant.Outlined" />
+                         <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.BaseCriticalRate" For="@(() => _attributePageModel.PageCalculateInfo.BaseCriticalRate)" Label="基础会伤率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="MudBlazor.Color.Dark" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" sm="4" md="3">
-                         <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.BaseZtCriticalHitsRate" For="@(() => _attributePageModel.PageCalculateInfo.BaseZtCriticalHitsRate)" Label="周天会心率" HelperText="例如：内功3金提供5%的会心率，则此处输入5" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Variant="Variant.Outlined" />
+                         <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.BaseZtCriticalHitsRate" For="@(() => _attributePageModel.PageCalculateInfo.BaseZtCriticalHitsRate)" Label="周天会心率" HelperText="例如：内功3金提供5%的会心率，则此处输入5" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="MudBlazor.Color.Dark" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" sm="4" md="3">
-                         <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.BaseRestrainedRate" For="@(() => _attributePageModel.PageCalculateInfo.BaseRestrainedRate)" Label="基础克制百分比" HelperText="若受击方为boss或木桩，则此处输入首领克制的百分比值，即斜杠右边的值" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Variant="Variant.Outlined" />
+                         <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.BaseRestrainedRate" For="@(() => _attributePageModel.PageCalculateInfo.BaseRestrainedRate)" Label="基础克制百分比" HelperText="若受击方为boss或木桩，则此处输入首领克制的百分比值，即斜杠右边的值" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="MudBlazor.Color.Dark" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="12">
                          <MudDivider FlexItem="true"></MudDivider>
                      </MudItem>
                      <MudItem xs="12">
-                         <MudText Typo="Typo.subtitle2" Align="Align.Center">敌方面板</MudText>
+                         <MudText Typo="Typo.subtitle2" Align="MudBlazor.Align.Center">敌方面板</MudText>
                      </MudItem>
                      <MudItem xs="6" sm="4" md="3">
                          <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageEnemyInfo.Defense" For="@(() => _attributePageModel.PageEnemyInfo.Defense)" Label="敌方防御" Variant="Variant.Outlined" />
@@ -84,13 +87,13 @@
                          <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageEnemyInfo.AirShield" For="@(() => _attributePageModel.PageEnemyInfo.AirShield)" Label="敌方气盾" HelperText="暂未实装，不参与计算" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="12" Class="d-flex align-center justify-center">
-                         <MudChip Color="Color.Info">满命中：@_attributePageModel.PageEnemyInfo.FullHit</MudChip>
+                         <MudChip Color="MudBlazor.Color.Info">满命中：@_attributePageModel.PageEnemyInfo.FullHit</MudChip>
                         </MudItem>
                         <MudItem xs="12">
                             <MudDivider FlexItem="true" />
                         </MudItem>
                         <MudItem xs="12">
-                            <MudText Typo="Typo.subtitle2" Align="Align.Center">玩家新增面板</MudText>
+                            <MudText Typo="Typo.subtitle2" Align="MudBlazor.Align.Center">玩家新增面板</MudText>
                         </MudItem>
                         <MudItem xs="6" sm="4" md="3">
                             <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.IncreaseAttack" For="@(() => _attributePageModel.PageCalculateInfo.IncreaseAttack)" Label="新增攻击" HelperText="输入的是平均攻击的变化，如果是单独提升最大/最小攻击则需要除以2" Variant="Variant.Outlined" />
@@ -111,15 +114,15 @@
                          <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.IncreaseCriticalHits" For="@(() => _attributePageModel.PageCalculateInfo.IncreaseCriticalHits)" HelperText="填入数字即可" Label="新增会心" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="6" sm="4" md="3">
-                         <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.IncreaseCriticalRate" For="@(() => _attributePageModel.PageCalculateInfo.IncreaseCriticalRate)" HelperText="填入数字即可" Label="新增会伤率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Variant="Variant.Outlined" />
+                         <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageCalculateInfo.IncreaseCriticalRate" For="@(() => _attributePageModel.PageCalculateInfo.IncreaseCriticalRate)" HelperText="填入数字即可" Label="新增会伤率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="MudBlazor.Color.Dark" Variant="Variant.Outlined" />
                      </MudItem>
                      <MudItem xs="12">
                          <MudDivider FlexItem="true" />
                      </MudItem>
                      <MudItem xs="12" Class="d-flex align-center justify-center">
                          <MudStack Row="true" Spacing="4">
-                             <MudButton Variant="Variant.Filled" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Submit">计算</MudButton>
-                             <MudButton Variant="Variant.Filled" Color="Color.Default" Class="d-flex" ButtonType="ButtonType.Button" OnClick="ShowTips">帮助说明</MudButton>
+                             <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Info" Class="d-flex" ButtonType="ButtonType.Submit">计算</MudButton>
+                             <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Default" Class="d-flex" ButtonType="ButtonType.Button" OnClick="ShowTips">帮助说明</MudButton>
                          </MudStack>
                      </MudItem>
                  </MudGrid>
@@ -127,29 +130,66 @@
          </MudPaper>
      </MudItem>
      <MudItem xs="12">
-         <MudPaper Class="d-flex align-center justify-center py-8">
-             <MudGrid>
-                 <MudItem xs="6" md="3" Class="d-flex align-center justify-center">
-                     <MudChip Color="Color.Info">未会心伤害：@_attributePageModel.PageCalculateInfo.NonCriticalDamageFunValue.ToString("0.00")</MudChip>
-                    </MudItem>
-                    <MudItem xs="6" md="3" Class="d-flex align-center justify-center">
-                        <MudChip Color="Color.Info">含命中会心伤害期望：@_attributePageModel.PageCalculateInfo.CriticalDamageFunValue.ToString("0.00")</MudChip>
-                    </MudItem>
-                    <MudItem xs="6" md="3" Class="d-flex align-center justify-center">
-                        <MudChip Color="Color.Info">实际命中率：@_attributePageModel.PageCalculateInfo.HitRate.ToString("P2")</MudChip>
-                    </MudItem>
-                    <MudItem xs="6" md="3" Class="d-flex align-center justify-center">
-                        <MudChip Color="Color.Info">实际会心率：@_attributePageModel.PageCalculateInfo.CalCriticalRate.ToString("P2")</MudChip>
-                    </MudItem>
-                </MudGrid>
-            </MudPaper>
-        </MudItem>
-    </MudGrid>
+         <MudPaper Class="align-center justify-center py-8 mt-4">
+             <MudTabs Color="MudBlazor.Color.Default" MaxHeight="500">
+                 <MudTabPanel Text="计算结果">
+                     <MudGrid Class="justify-center py-8">
+                         <MudItem xs="6" sm="4" md="3" Class="d-flex align-center justify-center">
+                             <MudChip Color="MudBlazor.Color.Info">未会心伤害：@_attributePageModel.PageCalculateInfo.NonCriticalDamageFunValue.ToString("0.00")</MudChip>
+                            </MudItem>
+                            <MudItem xs="6" sm="4" md="3" Class="d-flex align-center justify-center">
+                                <MudChip Color="MudBlazor.Color.Info">伤害期望：@_attributePageModel.PageCalculateInfo.CriticalDamageFunValue.ToString("0.00")</MudChip>
+                            </MudItem>
+                            <MudItem xs="6" sm="4" md="3" Class="d-flex align-center justify-center">
+                                <MudChip Color="MudBlazor.Color.Info">实际命中率：@_attributePageModel.PageCalculateInfo.HitRate.ToString("P2")</MudChip>
+                            </MudItem>
+                            <MudItem xs="6" sm="4" md="3" Class="d-flex align-center justify-center">
+                                <MudChip Color="MudBlazor.Color.Info">实际会心率：@_attributePageModel.PageCalculateInfo.CalCriticalRate.ToString("P2")</MudChip>
+                            </MudItem>
+                            <MudItem xs="6" sm="4" md="3" Class="d-flex align-center justify-center">
+                                <MudChip Color="MudBlazor.Color.Info">伤害提升百分比：@_attributePageModel.PageCalculateInfo.ImprovePercent.ToString("P3")</MudChip>
+                            </MudItem>
+                        </MudGrid>
+                    </MudTabPanel>
+                    <MudTabPanel Text="提升率图表">
+                        <MudGrid Class="py-8">
+                            <MudItem xs="12" Class="align-center justify-center" Style="@_styleStr">
+                                <ApexChart TItem="DataPoint" @ref="_dataChart" Options="_options" Width="@("100%")" Title="@GetTitle()">
+                                    @foreach (var (key, value) in _pointDictionary)
+                                {
+                                    <ApexPointSeries TItem="DataPoint"
+                                                     Items="value"
+                                                     Name="@key"
+                                                     XValue="@(e => e.X)"
+                                                     YValue="@(e => Convert.ToDecimal(e.Y * 1000))"
+                                                     SeriesType="SeriesType.Line" />
+                                }
+                            </ApexChart>
+                        </MudItem>
+                        <MudItem xs="12" Class="d-flex align-center justify-center">
+                            <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Info" Class="d-flex" ButtonType="ButtonType.Button" OnClick="ReRenderChart">缩放重置</MudButton>
+                        </MudItem>
+                    </MudGrid>
+                </MudTabPanel>
+            </MudTabs>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
 
-    @code {
+@code {
     private readonly DialogParameters<TipsDialog> _tipsDialogParameters = new();
     private readonly DialogOptions _tipsDialogOptions = new();
     private AttributePageModel _attributePageModel = new();
+    private Dictionary<string, List<DataPoint>> _pointDictionary = new();
+    private static readonly string[] LabelArray = ["攻击", "元素攻击", "破防", "命中", "会心", "首克数值"];
+    private const int BaseIncreaseNum = 40;
+    private ApexChart<DataPoint> _dataChart = new();
+    private ApexChartOptions<DataPoint> _options = null!;
+    private string _styleStr { get; set; }
+    [Inject]
+    private IBrowserViewportService BrowserViewportService { get; set; }
+
+    #region 重载
 
     protected override void OnInitialized()
     {
@@ -157,6 +197,30 @@
         GetInfo();
         InitParameters();
         LocalStorage.SetItemAsString(ConstText.LastVisitName, "attribute");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await BrowserViewportService.SubscribeAsync(this, fireImmediately: true);
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    #endregion
+
+    #region 配置读取/存储/初始化
+
+    private void SaveInfo()
+    {
+        LocalStorage.SetItem(nameof(_attributePageModel), _attributePageModel);
+    }
+
+    private void GetInfo()
+    {
+        _attributePageModel = LocalStorage.GetItem<AttributePageModel>(nameof(_attributePageModel)) ?? new();
     }
 
     private void InitParameters()
@@ -168,17 +232,48 @@
         }
         _tipsDialogParameters.Add(nameof(TipsDialog.ContentText), new MarkupString(tips));
         _tipsDialogOptions.CloseButton = true;
+
+        foreach (var label in LabelArray)
+        {
+            _pointDictionary.Add(label, new List<DataPoint>());
+            for (int i = 1; i <= 20; i++)
+            {
+                _pointDictionary[label].Add(new DataPoint()
+                {
+                    X = BaseIncreaseNum * i,
+                    Y = 0
+                });
+            }
+        }
+
+        _options = new ApexChartOptions<DataPoint>
+        {
+            Yaxis = new List<YAxis>
+            {
+                new YAxis
+                {
+                    Labels = new YAxisLabels
+                    {
+                        Formatter = "function (value) {return parseFloat(value).toFixed(3)+'‰';}"
+                    }
+                }
+            },
+            Chart = new Chart()
+            {
+                Toolbar = new Toolbar()
+                {
+                    Show = false
+                }
+            },
+            Stroke = new Stroke { Curve = Curve.Straight, Width = 2 },
+            Markers = new Markers { Shape = ShapeEnum.Circle, Size = 4, FillOpacity = new Opacity(0.8d) },
+        };
+
+        _dataChart.RenderAsync();
     }
 
-    private void SaveInfo()
-    {
-        LocalStorage.SetItem(nameof(_attributePageModel), _attributePageModel);
-    }
+    #endregion
 
-    private void GetInfo()
-    {
-        _attributePageModel = LocalStorage.GetItem<AttributePageModel>(nameof(_attributePageModel)) ?? new();
-    }
 
     private Task Calculate(EditContext context)
     {
@@ -193,7 +288,13 @@
 
             calculateInfo.BaseDamageFunValue = CalculatorUtility.CalculateBaseDamage(calculateInfo.BaseAttack, calculateInfo.BaseRestraint, calculateInfo.BaseElementAttack, calculateInfo.BaseBreakDefense, enemyInfo.Defense, enemyInfo.AntiRestraint, rate1, rate2);
             calculateInfo.NonCriticalDamageFunValue = CalculatorUtility.CalculateNonCriticalDamage(calculateInfo.BaseDamageFunValue, calculateInfo.BaseRestrainedRate / 100.0);
-            calculateInfo.CriticalDamageFunValue = CalculatorUtility.CalculateCriticalDamage(calculateInfo.NonCriticalDamageFunValue, calculateInfo.BaseHit, enemyInfo.Block, (calculateInfo.BaseCriticalRate - 100) / 100.0, calculateInfo.BaseCriticalHits, enemyInfo.AntiCriticalHits, calculateInfo.BaseZtCriticalHitsRate / 100.0, out double newRate);
+            double baseCriticalDamageFunValue = CalculatorUtility.CalculateCriticalDamage(calculateInfo.NonCriticalDamageFunValue, calculateInfo.BaseHit, enemyInfo.Block, (calculateInfo.BaseCriticalRate - 100) / 100.0, calculateInfo.BaseCriticalHits, enemyInfo.AntiCriticalHits, calculateInfo.BaseZtCriticalHitsRate / 100.0, out _);
+
+
+            calculateInfo.BaseDamageFunValue = CalculatorUtility.CalculateBaseDamage(calculateInfo.BaseAttack + calculateInfo.IncreaseAttack, calculateInfo.BaseRestraint + calculateInfo.IncreaseRestraint, calculateInfo.BaseElementAttack + calculateInfo.IncreaseElementAttack, calculateInfo.BaseBreakDefense + calculateInfo.IncreaseBreakDefense, enemyInfo.Defense, enemyInfo.AntiRestraint, rate1, rate2);
+            calculateInfo.NonCriticalDamageFunValue = CalculatorUtility.CalculateNonCriticalDamage(calculateInfo.BaseDamageFunValue, (calculateInfo.BaseRestrainedRate + calculateInfo.IncreaseRestrainedRate) / 100.0);
+            calculateInfo.CriticalDamageFunValue = CalculatorUtility.CalculateCriticalDamage(calculateInfo.NonCriticalDamageFunValue, calculateInfo.BaseHit + calculateInfo.IncreaseHit, enemyInfo.Block, (calculateInfo.BaseCriticalRate + calculateInfo.IncreaseCriticalRate - 100) / 100.0, calculateInfo.BaseCriticalHits + calculateInfo.IncreaseCriticalHits, enemyInfo.AntiCriticalHits, calculateInfo.BaseZtCriticalHitsRate / 100.0, out double newRate);
+            calculateInfo.ImprovePercent = (calculateInfo.CriticalDamageFunValue - baseCriticalDamageFunValue) / baseCriticalDamageFunValue;
             calculateInfo.HitRate = (95 + 143 * (calculateInfo.BaseHit + calculateInfo.IncreaseHit) * 1.0 / (calculateInfo.BaseHit + calculateInfo.IncreaseHit + 713) - 143 * enemyInfo.Block * 1.0 / (enemyInfo.Block + 713)) / 100;
             calculateInfo.CalCriticalRate = newRate;
             if (calculateInfo.HitRate > 1)
@@ -201,6 +302,7 @@
                 calculateInfo.HitRate = 1;
             }
 
+            DrawChart(rate1, rate2);
             SaveInfo();
             Snackbar.Add(ConstText.SuccessText, Severity.Success);
         }
@@ -211,6 +313,81 @@
 
         return Task.CompletedTask;
     }
+
+    #region 图表相关
+
+    private async void DrawChart(double rate1, double rate2)
+    {
+        double oldAttack = _attributePageModel.PageCalculateInfo.BaseDamageFunValue;
+        double oldElement = _attributePageModel.PageCalculateInfo.BaseDamageFunValue;
+        double oldBreakDefense = _attributePageModel.PageCalculateInfo.BaseDamageFunValue;
+        double oldHit = _attributePageModel.PageCalculateInfo.CriticalDamageFunValue;
+        double oldCritical = _attributePageModel.PageCalculateInfo.CriticalDamageFunValue;
+        double oldRestraint = _attributePageModel.PageCalculateInfo.BaseDamageFunValue;
+
+        for (int i = 1; i <= 20; i++)
+        {
+            var calculateDamage = CalculatorUtility.CalculateBaseDamage(_attributePageModel.PageCalculateInfo.BaseAttack + _attributePageModel.PageCalculateInfo.IncreaseAttack + i * BaseIncreaseNum, _attributePageModel.PageCalculateInfo.BaseRestraint + _attributePageModel.PageCalculateInfo.IncreaseRestraint, _attributePageModel.PageCalculateInfo.BaseElementAttack + _attributePageModel.PageCalculateInfo.IncreaseElementAttack,
+                _attributePageModel.PageCalculateInfo.BaseBreakDefense + _attributePageModel.PageCalculateInfo.IncreaseBreakDefense, _attributePageModel.PageEnemyInfo.Defense, _attributePageModel.PageEnemyInfo.AntiRestraint, rate1, rate2);
+            _pointDictionary[LabelArray[0]][i - 1].Y = (calculateDamage - oldAttack) / oldAttack;
+            oldAttack = calculateDamage;
+
+            calculateDamage = CalculatorUtility.CalculateBaseDamage(_attributePageModel.PageCalculateInfo.BaseAttack + _attributePageModel.PageCalculateInfo.IncreaseAttack, _attributePageModel.PageCalculateInfo.BaseRestraint + _attributePageModel.PageCalculateInfo.IncreaseRestraint, _attributePageModel.PageCalculateInfo.BaseElementAttack + _attributePageModel.PageCalculateInfo.IncreaseElementAttack + i * BaseIncreaseNum,
+                _attributePageModel.PageCalculateInfo.BaseBreakDefense + _attributePageModel.PageCalculateInfo.IncreaseBreakDefense, _attributePageModel.PageEnemyInfo.Defense, _attributePageModel.PageEnemyInfo.AntiRestraint, rate1, rate2);
+            _pointDictionary[LabelArray[1]][i - 1].Y = (calculateDamage - oldElement) / oldElement;
+            oldElement = calculateDamage;
+
+            calculateDamage = CalculatorUtility.CalculateBaseDamage(_attributePageModel.PageCalculateInfo.BaseAttack + _attributePageModel.PageCalculateInfo.IncreaseAttack, _attributePageModel.PageCalculateInfo.BaseRestraint + _attributePageModel.PageCalculateInfo.IncreaseRestraint, _attributePageModel.PageCalculateInfo.BaseElementAttack + _attributePageModel.PageCalculateInfo.IncreaseElementAttack, 
+                _attributePageModel.PageCalculateInfo.BaseBreakDefense + _attributePageModel.PageCalculateInfo.IncreaseBreakDefense + i * BaseIncreaseNum, _attributePageModel.PageEnemyInfo.Defense, _attributePageModel.PageEnemyInfo.AntiRestraint, rate1, rate2);
+            _pointDictionary[LabelArray[2]][i - 1].Y = (calculateDamage - oldBreakDefense) / oldBreakDefense;
+            oldBreakDefense = calculateDamage;
+
+            calculateDamage = CalculatorUtility.CalculateCriticalDamage(_attributePageModel.PageCalculateInfo.NonCriticalDamageFunValue, _attributePageModel.PageCalculateInfo.BaseHit+ _attributePageModel.PageCalculateInfo.IncreaseHit + i * BaseIncreaseNum, _attributePageModel.PageEnemyInfo.Block, (_attributePageModel.PageCalculateInfo.BaseCriticalRate + _attributePageModel.PageCalculateInfo.IncreaseCriticalRate - 100) / 100.0, _attributePageModel.PageCalculateInfo.BaseCriticalHits + _attributePageModel.PageCalculateInfo.IncreaseCriticalHits,
+                _attributePageModel.PageEnemyInfo.AntiCriticalHits, _attributePageModel.PageCalculateInfo.BaseZtCriticalHitsRate / 100.0, out _);
+            _pointDictionary[LabelArray[3]][i - 1].Y = (calculateDamage - oldHit) / oldHit;
+            oldHit = calculateDamage;
+
+            calculateDamage = CalculatorUtility.CalculateCriticalDamage(_attributePageModel.PageCalculateInfo.NonCriticalDamageFunValue, _attributePageModel.PageCalculateInfo.BaseHit + _attributePageModel.PageCalculateInfo.IncreaseHit, _attributePageModel.PageEnemyInfo.Block, (_attributePageModel.PageCalculateInfo.BaseCriticalRate + _attributePageModel.PageCalculateInfo.IncreaseCriticalRate - 100) / 100.0, _attributePageModel.PageCalculateInfo.BaseCriticalHits + _attributePageModel.PageCalculateInfo.IncreaseCriticalHits + i * BaseIncreaseNum,
+                _attributePageModel.PageEnemyInfo.AntiCriticalHits, _attributePageModel.PageCalculateInfo.BaseZtCriticalHitsRate / 100.0, out _);
+            _pointDictionary[LabelArray[4]][i - 1].Y = (calculateDamage - oldCritical) / oldCritical;
+            oldCritical = calculateDamage;
+
+            calculateDamage = CalculatorUtility.CalculateBaseDamage(_attributePageModel.PageCalculateInfo.BaseAttack + _attributePageModel.PageCalculateInfo.IncreaseAttack, _attributePageModel.PageCalculateInfo.BaseRestraint + _attributePageModel.PageCalculateInfo.IncreaseRestraint + i * BaseIncreaseNum, _attributePageModel.PageCalculateInfo.BaseElementAttack + _attributePageModel.PageCalculateInfo.IncreaseElementAttack, 
+                _attributePageModel.PageCalculateInfo.BaseBreakDefense + _attributePageModel.PageCalculateInfo.IncreaseBreakDefense, _attributePageModel.PageEnemyInfo.Defense, _attributePageModel.PageEnemyInfo.AntiRestraint, rate1, rate2);
+            _pointDictionary[LabelArray[5]][i - 1].Y = (calculateDamage - oldRestraint) / oldRestraint;
+            oldRestraint = calculateDamage;
+        }
+
+        await _dataChart.UpdateSeriesAsync();
+        StateHasChanged();
+
+    }
+
+    private string GetTitle()
+    {
+        return $"属性数值每提升{BaseIncreaseNum}点的提升率千分比";
+    }
+
+    private async Task ReRenderChart()
+    {
+        await _dataChart.UpdateSeriesAsync().ConfigureAwait(false);
+    }
+
+    public async ValueTask DisposeAsync() => await BrowserViewportService.UnsubscribeAsync(this);
+
+    public Task NotifyBrowserViewportChangeAsync(BrowserViewportEventArgs browserViewportEventArgs)
+    {
+        var width = browserViewportEventArgs.BrowserWindowSize.Width;
+        _styleStr = width <= 600 ? "margin-left:2%;margin-right:2%" : width <= 1280 ? "margin-left:10%;margin-right:10%" : "margin-left:15%;margin-right:15%";
+
+        return InvokeAsync(StateHasChanged);
+    }
+
+    public Guid Id { get; }
+
+    #endregion
+
+    #region 界面相关
 
     private Task WarningTips()
     {
@@ -223,4 +400,7 @@
     {
         Dialog.Show<TipsDialog>("帮助说明", _tipsDialogParameters, _tipsDialogOptions);
     }
+
+    #endregion
+
 }

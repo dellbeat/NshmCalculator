@@ -1,16 +1,19 @@
 ﻿@using NshmCalculator.MudClient.Utilities
 @using Blazored.LocalStorage
+@using NshmCalculator.Shared.Models.PageModel
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 @inject ISyncLocalStorageService LocalStorage
+
+@rendermode InteractiveWebAssembly
 
 <MudThemeProvider Theme="_customTheme" />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
-    <MudAppBar Elevation="1" Color="Color.Info" Dense="true">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+    <MudAppBar Elevation="1" Color="MudBlazor.Color.Info" Dense="true">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <MudText Typo="Typo.h6">逆水寒手游计算器</MudText>
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
@@ -20,8 +23,16 @@
         <div class="content" px="4" style="padding-bottom:60px">
             @Body
         </div>
+        <div style="visibility: none;">
+            <ApexChart TItem="DataPoint" Height="0" Width="0">
+                <ApexPointSeries TItem="DataPoint"
+                                 XValue="@(e => e.X)"
+                                 YValue="@(e=>Convert.ToDecimal(e.Y*1000))"
+                                 SeriesType="SeriesType.Line" />
+            </ApexChart>
+        </div>
     </MudMainContent>
-    <MudAppBar Elevation="0" Color="Color.Dark" Style="top: auto; bottom: 0" Dense="true" Fixed="true">
+    <MudAppBar Elevation="0" Color="MudBlazor.Color.Dark" Style="top: auto; bottom: 0" Dense="true" Fixed="true">
         <MudGrid Justify="Justify.Center">
             <MudText Style="font-size:small">@ConstText.FooterText</MudText>
             </MudGrid>
