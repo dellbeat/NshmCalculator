@@ -161,12 +161,12 @@
         base.OnInitialized();
         GetInfo();
         InitParameters();
-        LocalStorage.SetItemAsString(ConstText.LastVisitName, "damagerate");
+        LocalStorage.SetItemAsString(ConstText.LastVisitName, "ki");
     }
 
     private void InitParameters()
     {
-        TipsDictionary.TryGetValue("damageRate", out string? tips);
+        TipsDictionary.TryGetValue("ki", out string? tips);
         _tipsDialogParameters.Add(nameof(TipsDialog.ContentText), new MarkupString(tips));
         _tipsDialogOptions.CloseButton = true;
     }
