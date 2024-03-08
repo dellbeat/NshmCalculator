@@ -4,10 +4,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NshmCalculator.Shared.Models.PageModel;
 
-public class AttributePageModel
+public class KIPageModel
 {
     [ValidateComplexType]
-    public AttributeCalculateInfo PageCalculateInfo { get; set; } = new()
+    public KICalculateInfo PageCalculateInfo { get; set; } = new()
     {
         BaseAttack = 2500,
         BaseRestraint = 1000,
@@ -16,6 +16,7 @@ public class AttributePageModel
         BaseHit = 500,
         BaseCriticalHits = 888,
         BaseCriticalRate = 188,
+        BaseZtCriticalHitsRate = 5
     };
 
     [ValidateComplexType]

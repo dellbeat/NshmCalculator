@@ -54,18 +54,20 @@ public static class CalculatorUtility
     /// <summary>
     /// 计算每点提升的收益
     /// </summary>
-    /// <param name="baseInfo"></param>
+    /// <param name="baseInfo">玩家面板</param>
+    /// <param name="enemyInfo">敌方数据</param>
+    /// <param name="deliveryData">投放数据，目前为定值</param>
     /// <returns>攻击克制,属性攻击,破防,命中,会心,会伤,气海,身法</returns>
-    public static KiEarningRate CalculatePerGains(PlayerBaseInfo baseInfo, EnemyInfo enemyInfo)
+    public static KiEarningRate CalculatePerGains(PlayerBaseInfo baseInfo, EnemyInfo enemyInfo, DeliveryData deliveryData)
     {
         KiEarningRate rate = new KiEarningRate
         {
-            AttackAndRestraint = CalculateIncreaseRate(baseInfo, enemyInfo, attack: 1).Item1,
-            ElementAttack = CalculateIncreaseRate(baseInfo, enemyInfo, elementAttack: 1).Item1,
-            BreakDefense = CalculateIncreaseRate(baseInfo, enemyInfo, breakDefense: 1).Item1,
-            Hit = CalculateIncreaseRate(baseInfo, enemyInfo, hit: 1, fixHitMode: true).Item1,
-            CriticalHits = CalculateIncreaseRate(baseInfo, enemyInfo, criticalHits: 1).Item1,
-            CriticalRate = CalculateIncreaseRate(baseInfo, enemyInfo, criticalRate: 1).Item1
+            AttackAndRestraint = CalculateIncreaseRate(baseInfo, enemyInfo, attack: deliveryData.Attack).Item1 / deliveryData.Attack,
+            ElementAttack = CalculateIncreaseRate(baseInfo, enemyInfo, elementAttack: deliveryData.ElementAttack).Item1 / deliveryData.ElementAttack,
+            BreakDefense = CalculateIncreaseRate(baseInfo, enemyInfo, breakDefense: deliveryData.BreakDefense).Item1 / deliveryData.BreakDefense,
+            Hit = CalculateIncreaseRate(baseInfo, enemyInfo, hit: deliveryData.Hit, fixHitMode: true).Item1 / deliveryData.Hit,
+            CriticalHits = CalculateIncreaseRate(baseInfo, enemyInfo, criticalHits: deliveryData.CriticalHits).Item1 / deliveryData.CriticalHits,
+            CriticalRate = CalculateIncreaseRate(baseInfo, enemyInfo, criticalRate: deliveryData.CriticalRate).Item1 / deliveryData.CriticalRate
         };
 
         rate.Vitality = rate.AttackAndRestraint * 5 + rate.BreakDefense * 2;

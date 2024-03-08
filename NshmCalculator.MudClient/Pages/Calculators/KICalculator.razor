@@ -1,0 +1,223 @@
+﻿@page "/ki"
+@using NshmCalculator.MudClient.Components
+@using NshmCalculator.MudClient.Utilities
+@using NshmCalculator.Shared.Models.PageModel
+@using Blazored.LocalStorage
+@using NshmCalculator.Shared
+@using NshmCalculator.Shared.Models.BaseModel
+@using NshmCalculator.Shared.Models.CalculatorModel.KI
+@inject ISyncLocalStorageService LocalStorage
+@* ReSharper disable once IdentifierTypo *@
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+@* ReSharper disable once CollectionNeverUpdated.Local *@
+@inject Dictionary<string, string> TipsDictionary
+
+<PageTitle>逆水寒手游内功收益计算器</PageTitle>
+<MudGrid>
+    <MudItem xs="12">
+        <MudPaper Class="d-flex align-center justify-center py-8">
+            <MudStack AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.h4">内功收益计算器</MudText>
+                <MudText Typo="Typo.h6" Align="MudBlazor.Align.Center">
+                    <MudChip Icon="@Icons.Material.Filled.Person" Color="MudBlazor.Color.Tertiary">NGA@UID:42330896</MudChip>
+                </MudText>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12">
+        <MudPaper Class="pa-4 mt-4">
+            <EditForm Model="@_kiPageModel" OnValidSubmit="Calculate" OnInvalidSubmit="WarningTips">
+                <ObjectGraphDataAnnotationsValidator/>
+                <MudGrid>
+                    <MudItem xs="12">
+                        <MudText Typo="Typo.subtitle2" Align="MudBlazor.Align.Center">玩家基础面板</MudText>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseAttack" For="@(() => _kiPageModel.PageCalculateInfo.BaseAttack)" Label="基础攻击" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseRestraint" For="@(() => _kiPageModel.PageCalculateInfo.BaseRestraint)" Label="基础克制" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseElementAttack" For="@(() => _kiPageModel.PageCalculateInfo.BaseElementAttack)" Label="基础属性攻击" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseBreakDefense" For="@(() => _kiPageModel.PageCalculateInfo.BaseBreakDefense)" Label="基础破防" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseHit" For="@(() => _kiPageModel.PageCalculateInfo.BaseHit)" Label="基础命中" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseCriticalHits" For="@(() => _kiPageModel.PageCalculateInfo.BaseCriticalHits)" Label="基础会心" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseCriticalRate" For="@(() => _kiPageModel.PageCalculateInfo.BaseCriticalRate)" Label="基础会伤" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="MudBlazor.Color.Dark" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseZtCriticalHitsRate" For="@(() => _kiPageModel.PageCalculateInfo.BaseZtCriticalHitsRate)" HelperText="原计算器内固定为5%，请根据实际情况调整" Label="周天会心率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="MudBlazor.Color.Dark" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudDivider FlexItem="true"></MudDivider>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudText Typo="Typo.subtitle2" Align="MudBlazor.Align.Center">敌方面板</MudText>
+                    </MudItem>
+                    <MudItem xs="6" sm="4">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageEnemyInfo.Defense" For="@(() => _kiPageModel.PageEnemyInfo.Defense)" Label="敌方防御" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="4">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageEnemyInfo.Block" For="@(() => _kiPageModel.PageEnemyInfo.Block)" Label="敌方格挡" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="4">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageEnemyInfo.AntiRestraint" For="@(() => _kiPageModel.PageEnemyInfo.AntiRestraint)" Label="敌方抵御（新）" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="4">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageEnemyInfo.AntiCriticalHits" For="@(() => _kiPageModel.PageEnemyInfo.AntiCriticalHits)" Label="敌方会心抗性（新）" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="4">
+                        <MudTextField ShrinkLabel ReadOnly="@_readOnlyMode" @bind-Value="_kiPageModel.PageEnemyInfo.AntiElementAttack" For="@(() => _kiPageModel.PageEnemyInfo.AntiElementAttack)" Label="敌方元素抗性（新）" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="4" Class="d-flex align-center justify-center">
+                        <MudSwitch T="bool" @bind-Value="@_readOnlyMode" Color="MudBlazor.Color.Info" UnCheckedColor="MudBlazor.Color.Dark" Label="新属性只读"></MudSwitch>
+                    </MudItem>
+                    <MudItem xs="12" Class="d-flex align-center justify-center">
+                        <MudChip Color="MudBlazor.Color.Info">满命中：@_kiPageModel.PageEnemyInfo.FullHit</MudChip>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudDivider FlexItem="true"/>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudText Typo="Typo.subtitle2" Align="MudBlazor.Align.Center">玩家新增面板</MudText>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.IncreaseStamina" For="@(() => _kiPageModel.PageCalculateInfo.IncreaseStamina)" Label="新增耐力" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.IncreaseVitality" For="@(() => _kiPageModel.PageCalculateInfo.IncreaseVitality)" Label="新增根骨" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.IncreaseStrength" For="@(() => _kiPageModel.PageCalculateInfo.IncreaseStrength)" Label="新增气海/力量" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.IncreaseLightness" For="@(() => _kiPageModel.PageCalculateInfo.IncreaseLightness)" Label="新增身法" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.IncreaseFullAttack" For="@(() => _kiPageModel.PageCalculateInfo.IncreaseFullAttack)" Label="新增攻击" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.IncreaseHalfAttack" For="@(() => _kiPageModel.PageCalculateInfo.IncreaseHalfAttack)" Label="新增大小攻击" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.IncreaseRestraint" For="@(() => _kiPageModel.PageCalculateInfo.IncreaseRestraint)" Label="新增克制" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.IncreaseElementAttack" For="@(() => _kiPageModel.PageCalculateInfo.IncreaseElementAttack)" Label="新增属性攻击" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.IncreaseBreakDefense" For="@(() => _kiPageModel.PageCalculateInfo.IncreaseBreakDefense)" Label="新增破防" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.IncreaseHit" For="@(() => _kiPageModel.PageCalculateInfo.IncreaseHit)" Label="新增命中" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.IncreaseCriticalHits" For="@(() => _kiPageModel.PageCalculateInfo.IncreaseCriticalHits)" HelperText="填入数字即可" Label="新增会心" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.IncreaseCriticalRate" For="@(() => _kiPageModel.PageCalculateInfo.IncreaseCriticalRate)" HelperText="填入数字即可" Label="新增会伤率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="MudBlazor.Color.Dark" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudDivider FlexItem="true" />
+                    </MudItem>
+                    <MudItem xs="12" Class="d-flex align-center justify-center">
+                        <MudStack Row="true" Spacing="4">
+                            <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Info" Class="d-flex" ButtonType="ButtonType.Submit">计算</MudButton>
+                            <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Default" Class="d-flex" ButtonType="ButtonType.Button" OnClick="ShowTips">帮助说明</MudButton>
+                        </MudStack>
+                    </MudItem>
+                </MudGrid>
+            </EditForm>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12">
+        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+             <MudChip Color="MudBlazor.Color.Info">攻击分：@_kiPageModel.PageCalculateInfo.Score.ToString("F2")</MudChip>
+            <MudChip Color="MudBlazor.Color.Info">提升率：@_kiPageModel.PageCalculateInfo.Result.ToString("P2")</MudChip>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    //TODO:内功攻击计算、内功存储器
+
+    private readonly DialogParameters<TipsDialog> _tipsDialogParameters = new();
+    private readonly DialogOptions _tipsDialogOptions = new();
+    private KIPageModel _kiPageModel = new();
+    private readonly DeliveryData _deliveryData = new();
+    private bool _readOnlyMode = true;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        GetInfo();
+        InitParameters();
+        LocalStorage.SetItemAsString(ConstText.LastVisitName, "damagerate");
+    }
+
+    private void InitParameters()
+    {
+        TipsDictionary.TryGetValue("damageRate", out string? tips);
+        _tipsDialogParameters.Add(nameof(TipsDialog.ContentText), new MarkupString(tips));
+        _tipsDialogOptions.CloseButton = true;
+    }
+
+    private void SaveInfo()
+    {
+        LocalStorage.SetItem(nameof(_kiPageModel), _kiPageModel);
+    }
+
+    private void GetInfo()
+    {
+        _kiPageModel = LocalStorage.GetItem<KIPageModel>(nameof(_kiPageModel)) ?? new();
+    }
+
+    private Task Calculate(EditContext context)
+    {
+        try
+        {
+            KiEarningRate baseRate = CalculatorUtility.CalculatePerGains(_kiPageModel.PageCalculateInfo, _kiPageModel.PageEnemyInfo, _deliveryData);
+
+            double increaseAttack = _kiPageModel.PageCalculateInfo.IncreaseStamina * 1.65 + _kiPageModel.PageCalculateInfo.IncreaseVitality * 1.65 + _kiPageModel.PageCalculateInfo.IncreaseStrength * 5 + _kiPageModel.PageCalculateInfo.IncreaseFullAttack + _kiPageModel.PageCalculateInfo.IncreaseHalfAttack * 0.5;
+            int increaseBreakDefense = _kiPageModel.PageCalculateInfo.IncreaseStrength * 2 + _kiPageModel.PageCalculateInfo.IncreaseBreakDefense;
+            double increaseHit = _kiPageModel.PageCalculateInfo.IncreaseHit + _kiPageModel.PageCalculateInfo.IncreaseLightness * 0.8;
+            double increaseCriticalHits = _kiPageModel.PageCalculateInfo.IncreaseLightness * 1.6 + _kiPageModel.PageCalculateInfo.IncreaseCriticalHits;
+
+            var results = CalculatorUtility.CalculateIncreaseRate(_kiPageModel.PageCalculateInfo, _kiPageModel.PageEnemyInfo, increaseAttack, increaseBreakDefense, _kiPageModel.PageCalculateInfo.IncreaseElementAttack, _kiPageModel.PageCalculateInfo.IncreaseRestraint, increaseHit, increaseCriticalHits, _kiPageModel.PageCalculateInfo.IncreaseCriticalRate, true);
+
+            _kiPageModel.PageCalculateInfo.Result = results.Item1;
+            _kiPageModel.PageCalculateInfo.Score = results.Item1 / baseRate.AttackAndRestraint;
+
+            SaveInfo();
+            Snackbar.Add(ConstText.SuccessText, Severity.Success);
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add(ConstText.ExceptionText, Severity.Warning);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task WarningTips()
+    {
+        Snackbar.Add(ConstText.WarningText, Severity.Warning);
+
+        return Task.CompletedTask;
+    }
+
+    private void ShowTips()
+    {
+        Dialog.Show<TipsDialog>("帮助说明", _tipsDialogParameters, _tipsDialogOptions);
+    }
+
+}

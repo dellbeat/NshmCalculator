@@ -3,7 +3,7 @@ using NshmCalculator.Shared.Models.BaseModel;
 
 namespace NshmCalculator.Shared.Models.CalculatorModel;
 
-public class AttributePlayerInfo : PlayerBaseInfo
+public class AttributeCalculateInfo : PlayerBaseInfo
 {
     #region 玩家基础属性
 
@@ -118,7 +118,7 @@ public class AttributePlayerInfo : PlayerBaseInfo
 
     #endregion
 
-    public AttributePlayerInfo()
+    public AttributeCalculateInfo()
     {
         BaseAttack = 2500;
         BaseRestraint = 1000;
