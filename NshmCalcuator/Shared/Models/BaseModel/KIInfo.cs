@@ -1,82 +1,64 @@
-﻿using NshmCalculator.Shared.Models.BaseModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using NshmCalculator.Shared.Models.Interface;
 
-namespace NshmCalculator.Shared.Models.CalculatorModel;
+namespace NshmCalculator.Shared.Models.BaseModel;
 
 /// <summary>
-/// 内功收益计算器计算数值
+/// 内功详情
 /// </summary>
-public class KICalculateInfo : PlayerBaseInfo, ICharacterAttributes
+public class KIInfo : ICharacterAttributes
 {
-    #region 新增数值
-    
-    [Required]
-    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
-    public int IncreaseStamina { get; set; }
-    
-    [Required]
-    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
-    public int IncreaseVitality { get; set; }
-    
-    [Required]
-    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
-    public int IncreaseStrength { get; set; }
-    
-    [Required]
-    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
-    public int IncreaseLightness { get; set; }
-    
-    [Required]
-    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
-    public int IncreaseFullAttack { get; set; }
-    
-    [Required]
-    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
-    public int IncreaseHalfAttack { get; set; }
-    
-    [Required]
-    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
-    public int IncreaseElementAttack { get; set; }
-    
-    [Required]
-    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
-    public int IncreaseRestraint { get; set; }
-    
-    [Required]
-    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
-    public int IncreaseCriticalHits { get; set; }
-    
-    [Required]
-    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
-    public int IncreaseBreakDefense { get; set; }
-    
-    [Required]
-    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
-    public int IncreaseHit { get; set; }
+    /// <summary>
+    /// 内功名称
+    /// </summary>
+    public string? Name { get; set; }
+
+    //TODO：考虑是否要加内功类型（图片可能暂时不太现实）
 
     /// <summary>
-    /// 新增会伤率
+    /// 内功评分
     /// </summary>
-    [Required]
-    [Range(0, 10, ErrorMessage = "请保证新增会伤百分比在0.0-10.0范围内")]
-    public double IncreaseCriticalRate { get; set; }
+    public int Score { get; set; }
+
+    #region 数值
+
+    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
+    public int IncreaseStamina { get; set; }
+
+    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
+    public int IncreaseVitality { get; set; }
+
+    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
+    public int IncreaseStrength { get; set; }
+
+    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
+    public int IncreaseLightness { get; set; }
+
+    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
+    public int IncreaseFullAttack { get; set; }
+
+    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
+    public int IncreaseHalfAttack { get; set; }
+
+    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
+    public int IncreaseElementAttack { get; set; }
+
+    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
+    public int IncreaseRestraint { get; set; }
+
+    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
+    public int IncreaseCriticalHits { get; set; }
+
+    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
+    public int IncreaseBreakDefense { get; set; }
+
+    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
+    public int IncreaseHit { get; set; }
 
     #endregion
 
     /// <summary>
-    /// 攻击分
+    /// 特性增伤百分比
     /// </summary>
-    public double Score { get; set; }
-
-    public KICalculateInfo()
-    {
-        BaseAttack = 2500;
-        BaseRestraint = 1000;
-        BaseElementAttack = 1000;
-        BaseBreakDefense = 1000;
-        BaseHit = 500;
-        BaseCriticalHits = 888;
-        BaseCriticalRate = 188;
-    }
+    public double DamageIncreasePercent { get; set; }
 }
