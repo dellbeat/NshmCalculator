@@ -1,0 +1,113 @@
+﻿@using NshmCalculator.Shared.Models.Interface
+@using NshmCalculator.Shared.Models.BaseModel
+@using NshmCalculator.MudClient.Utilities
+@* ReSharper disable once IdentifierTypo *@
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudContainer Style="max-height: 400px; overflow-y: scroll">
+            <EditForm Model="Info" @ref="_editForm">
+                <ObjectGraphDataAnnotationsValidator/>
+                <MudGrid>
+                    <MudItem xs="12">
+                        <MudTextField ShrinkLabel @bind-Value="Info.Name" For="@(() => Info.Name)" Label="内功名称" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudTextField ShrinkLabel @bind-Value="Info.RateScore" For="@(() => Info.RateScore)" Label="内功评分（可留空）" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="4" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="Info.IncreaseStamina" For="@(() => Info.IncreaseStamina)" Label="耐力" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="4" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="Info.IncreaseVitality" For="@(() => Info.IncreaseVitality)" Label="根骨" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="4" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="Info.IncreaseStrength" For="@(() => Info.IncreaseStrength)" Label="气海/力量" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="4" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="Info.IncreaseLightness" For="@(() => Info.IncreaseLightness)" Label="身法" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="4" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="Info.IncreaseFullAttack" For="@(() => Info.IncreaseFullAttack)" Label="攻击" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="4" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="Info.IncreaseHalfAttack" For="@(() => Info.IncreaseHalfAttack)" Label="大小攻击" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="4" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="Info.IncreaseRestraint" For="@(() => Info.IncreaseRestraint)" Label="首领克制" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="4" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="Info.IncreaseElementAttack" For="@(() => Info.IncreaseElementAttack)" Label="属性攻击" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="4" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="Info.IncreaseBreakDefense" For="@(() => Info.IncreaseBreakDefense)" Label="破防" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="4" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="Info.IncreaseHit" For="@(() => Info.IncreaseHit)" Label="命中" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="4" sm="3">
+                        <MudTextField ShrinkLabel @bind-Value="Info.IncreaseCriticalHits" For="@(() => Info.IncreaseCriticalHits)" HelperText="填入数字即可" Label="会心" Variant="Variant.Outlined"/>
+                    </MudItem>
+                </MudGrid>
+            </EditForm>
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">取消</MudButton>
+        <MudButton Color="MudBlazor.Color.Primary" OnClick="Submit">确定</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private EditForm _editForm;
+
+    [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
+
+    [Parameter] public ICharacterAttributes AttributeInfo { get; set; }
+
+    [Parameter] public EventCallback<KIInfo> OnHandle { get; set; }
+
+    private KIInfo Info { get; set; }
+
+    private bool _createMode { get; set; }
+
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        if (AttributeInfo is KIInfo info) //已有内功的编辑
+        {
+            _createMode = false;
+            MudDialog.Title = $"内功信息编辑-{info.Name}";
+            Info = info; //确认一下数据传递的情况
+        }
+        else //新内功的增加
+        {
+            _createMode = true;
+            MudDialog.Title = "内功";
+            Info = new KIInfo(AttributeInfo);
+        }
+    }
+
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private async Task Submit()
+    {
+        if (!_editForm.EditContext.Validate())
+        {
+            Snackbar.Add(ConstText.WarningText, Severity.Warning);
+            return;
+        }
+        
+        Info.UpdateSummary();
+        
+        await OnHandle.InvokeAsync(Info);
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+}
