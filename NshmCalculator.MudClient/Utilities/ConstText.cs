@@ -8,7 +8,9 @@ public static class ConstText
 
     public const string SuccessText = "<ul><li>计算完成</li></ul>";
 
-    public const string FooterText = "Version:0.7.0 | Powered by .NET 8.0";
+    public const string LimitText = "<ul><li>计算完成</li><li>本次破防/命中出现超限情况</li><li>已忽略超限部分的提升</li></ul>";
+
+    public const string FooterText = "Version:0.7.1 | Powered by .NET 8.0";
 
     public const string LastVisitName = "lastVisit";//最近一次访问的计算器路由
 

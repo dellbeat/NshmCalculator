@@ -1,11 +1,13 @@
 ﻿@page "/ki"
+@using Align = MudBlazor.Align
+@using Color = MudBlazor.Color
 @using NshmCalculator.MudClient.Components
 @using NshmCalculator.MudClient.Utilities
-@using NshmCalculator.Shared.Models.PageModel
-@using Blazored.LocalStorage
 @using NshmCalculator.Shared
 @using NshmCalculator.Shared.Models.BaseModel
 @using NshmCalculator.Shared.Models.CalculatorModel.KI
+@using NshmCalculator.Shared.Models.PageModel
+@using Blazored.LocalStorage
 @inject ISyncLocalStorageService LocalStorage
 @* ReSharper disable once IdentifierTypo *@
 @inject ISnackbar Snackbar
@@ -19,8 +21,8 @@
         <MudPaper Class="d-flex align-center justify-center py-8">
             <MudStack AlignItems="AlignItems.Center">
                 <MudText Typo="Typo.h4">内功收益计算器</MudText>
-                <MudText Typo="Typo.h6" Align="MudBlazor.Align.Center">
-                    <MudChip Icon="@Icons.Material.Filled.Person" Color="MudBlazor.Color.Tertiary">NGA@UID:42330896</MudChip>
+                <MudText Typo="Typo.h6" Align="Align.Center">
+                    <MudChip Icon="@Icons.Material.Filled.Person" Color="Color.Tertiary">NGA@UID:42330896</MudChip>
                 </MudText>
             </MudStack>
         </MudPaper>
@@ -31,7 +33,7 @@
                 <ObjectGraphDataAnnotationsValidator/>
                 <MudGrid>
                     <MudItem xs="12">
-                        <MudText Typo="Typo.subtitle2" Align="MudBlazor.Align.Center">玩家基础面板</MudText>
+                        <MudText Typo="Typo.subtitle2" Align="Align.Center">玩家基础面板</MudText>
                     </MudItem>
                     <MudItem xs="6" sm="3">
                         <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseAttack" For="@(() => _kiPageModel.PageCalculateInfo.BaseAttack)" Label="基础攻击" Variant="Variant.Outlined"/>
@@ -52,16 +54,16 @@
                         <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseCriticalHits" For="@(() => _kiPageModel.PageCalculateInfo.BaseCriticalHits)" Label="基础会心" Variant="Variant.Outlined"/>
                     </MudItem>
                     <MudItem xs="6" sm="3">
-                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseCriticalRate" For="@(() => _kiPageModel.PageCalculateInfo.BaseCriticalRate)" Label="基础会伤" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="MudBlazor.Color.Dark" Variant="Variant.Outlined"/>
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseCriticalRate" For="@(() => _kiPageModel.PageCalculateInfo.BaseCriticalRate)" Label="基础会伤" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Variant="Variant.Outlined"/>
                     </MudItem>
                     <MudItem xs="6" sm="3">
-                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseZtCriticalHitsRate" For="@(() => _kiPageModel.PageCalculateInfo.BaseZtCriticalHitsRate)" HelperText="原计算器内固定为5%，请根据实际情况调整" Label="周天会心率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="MudBlazor.Color.Dark" Variant="Variant.Outlined"/>
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseZtCriticalHitsRate" For="@(() => _kiPageModel.PageCalculateInfo.BaseZtCriticalHitsRate)" HelperText="原计算器内固定为5%，请根据实际情况调整" Label="周天会心率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Variant="Variant.Outlined"/>
                     </MudItem>
                     <MudItem xs="12">
                         <MudDivider FlexItem="true"></MudDivider>
                     </MudItem>
                     <MudItem xs="12">
-                        <MudText Typo="Typo.subtitle2" Align="MudBlazor.Align.Center">敌方面板</MudText>
+                        <MudText Typo="Typo.subtitle2" Align="Align.Center">敌方面板</MudText>
                     </MudItem>
                     <MudItem xs="6" sm="4">
                         <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageEnemyInfo.Defense" For="@(() => _kiPageModel.PageEnemyInfo.Defense)" Label="敌方防御" Variant="Variant.Outlined"/>
@@ -79,16 +81,16 @@
                         <MudTextField ShrinkLabel ReadOnly="@_readOnlyMode" @bind-Value="_kiPageModel.PageEnemyInfo.AntiElementAttack" For="@(() => _kiPageModel.PageEnemyInfo.AntiElementAttack)" Label="敌方元素抗性（新）" Variant="Variant.Outlined"/>
                     </MudItem>
                     <MudItem xs="6" sm="4" Class="d-flex align-center justify-center">
-                        <MudSwitch T="bool" @bind-Value="@_readOnlyMode" Color="MudBlazor.Color.Info" UnCheckedColor="MudBlazor.Color.Dark" Label="新属性只读"></MudSwitch>
+                        <MudSwitch T="bool" @bind-Value="@_readOnlyMode" Color="Color.Info" UnCheckedColor="Color.Dark" Label="新属性只读"></MudSwitch>
                     </MudItem>
                     <MudItem xs="12" Class="d-flex align-center justify-center">
-                        <MudChip Color="MudBlazor.Color.Info">满命中：@_kiPageModel.PageEnemyInfo.FullHit</MudChip>
+                        <MudChip Color="Color.Info">满命中：@_kiPageModel.PageEnemyInfo.FullHit</MudChip>
                     </MudItem>
                     <MudItem xs="12">
                         <MudDivider FlexItem="true"/>
                     </MudItem>
                     <MudItem xs="12">
-                        <MudText Typo="Typo.subtitle2" Align="MudBlazor.Align.Center">玩家新增面板</MudText>
+                        <MudText Typo="Typo.subtitle2" Align="Align.Center">玩家新增面板</MudText>
                     </MudItem>
                     <MudItem xs="6" sm="3">
                         <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.IncreaseStamina" For="@(() => _kiPageModel.PageCalculateInfo.IncreaseStamina)" Label="新增耐力" Variant="Variant.Outlined"/>
@@ -124,15 +126,16 @@
                         <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.IncreaseCriticalHits" For="@(() => _kiPageModel.PageCalculateInfo.IncreaseCriticalHits)" HelperText="填入数字即可" Label="新增会心" Variant="Variant.Outlined"/>
                     </MudItem>
                     <MudItem xs="6" sm="3">
-                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.IncreaseCriticalRate" For="@(() => _kiPageModel.PageCalculateInfo.IncreaseCriticalRate)" HelperText="填入数字即可" Label="新增会伤率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="MudBlazor.Color.Dark" Variant="Variant.Outlined"/>
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.IncreaseCriticalRate" For="@(() => _kiPageModel.PageCalculateInfo.IncreaseCriticalRate)" HelperText="填入数字即可" Label="新增会伤率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Variant="Variant.Outlined"/>
                     </MudItem>
                     <MudItem xs="12">
-                        <MudDivider FlexItem="true" />
+                        <MudDivider FlexItem="true"/>
                     </MudItem>
                     <MudItem xs="12" Class="d-flex align-center justify-center">
                         <MudStack Row="true" Spacing="4">
-                            <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Info" Class="d-flex" ButtonType="ButtonType.Submit">计算</MudButton>
-                            <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Default" Class="d-flex" ButtonType="ButtonType.Button" OnClick="ShowTips">帮助说明</MudButton>
+                            <MudButton Variant="Variant.Filled" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Button" OnClick="SaveToKI">另存为内功</MudButton>
+                            <MudButton Variant="Variant.Filled" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Submit">计算</MudButton>
+                            <MudButton Variant="Variant.Filled" Color="Color.Default" Class="d-flex" ButtonType="ButtonType.Button" OnClick="ShowTips">帮助说明</MudButton>
                         </MudStack>
                     </MudItem>
                 </MudGrid>
@@ -141,9 +144,45 @@
     </MudItem>
     <MudItem xs="12">
         <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-             <MudChip Color="MudBlazor.Color.Info">攻击分：@_kiPageModel.PageCalculateInfo.Score.ToString("F2")</MudChip>
-            <MudChip Color="MudBlazor.Color.Info">提升率：@_kiPageModel.PageCalculateInfo.Result.ToString("P2")</MudChip>
+            <MudChip Color="Color.Info">攻击分：@_kiPageModel.PageCalculateInfo.Score.ToString("F2")</MudChip>
+            <MudChip Color="Color.Info">提升率：@_kiPageModel.PageCalculateInfo.Result.ToString("P3")</MudChip>
         </MudPaper>
+    </MudItem>
+    <MudItem xs="12">
+        <MudGrid>
+            <MudItem xs="12">
+                <MudPaper Class="pa-4 mt-4">
+                    <MudTable T="KIInfo" @bind-SelectedItem="_selectedItem" Bordered="true" Dense="true" Hover="true" Items="@_kiPageModel.KIInfos" Striped="true" OnRowClick="RowClickEvent">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h6">内功列表</MudText>
+                            <MudSpacer />
+                            <MudSwitch T="bool" @bind-Value="@_allowEditMode" Color="Color.Info" UnCheckedColor="Color.Dark" Label="选中弹出详情"></MudSwitch>
+                        </ToolBarContent>
+                        <HeaderContent>
+                            <MudTh>序号</MudTh>
+                            <MudTh>内功名称</MudTh>
+                            <MudTh>评分</MudTh>
+                            <MudTh>内功数值</MudTh>
+                            <MudTh>增伤百分比</MudTh>
+                            <MudTh>攻击分</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="序号">@context.ID</MudTd>
+                            <MudTd DataLabel="内功名称">@context.Name </MudTd>
+                            <MudTd DataLabel="评分">@context.RateScore </MudTd>
+                            <MudTd DataLabel="内功数值">
+                                <MudElement Style="white-space: pre-line">@context.NumberSummary</MudElement>
+                            </MudTd>
+                            <MudTd DataLabel="增伤百分比">@context.DamageIncreasePercent.ToString("P3")</MudTd>
+                            <MudTd DataLabel="攻击分">@context.AttackScore.ToString("F1")</MudTd>
+                        </RowTemplate>
+                        <PagerContent>
+                            <MudTablePager InfoFormat="第{first_item}-{last_item}条 共{all_items}条" RowsPerPageString="每页行数:" PageSizeOptions=@options/>
+                        </PagerContent>
+                    </MudTable>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
     </MudItem>
 </MudGrid>
 
@@ -151,10 +190,14 @@
     //TODO:内功攻击计算、内功存储器
 
     private readonly DialogParameters<TipsDialog> _tipsDialogParameters = new();
+    private readonly DialogParameters<KIInfomationDialog> _kiDialogParameter = new();
     private readonly DialogOptions _tipsDialogOptions = new();
     private KIPageModel _kiPageModel = new();
     private readonly DeliveryData _deliveryData = new();
     private bool _readOnlyMode = true;
+    private bool _allowEditMode = true;
+    private KIInfo _selectedItem { get; set; }
+    private int[] options = [5, 10, 20];
 
     protected override void OnInitialized()
     {
@@ -168,6 +211,9 @@
     {
         TipsDictionary.TryGetValue("ki", out string? tips);
         _tipsDialogParameters.Add(nameof(TipsDialog.ContentText), new MarkupString(tips));
+        _kiDialogParameter.Add(nameof(KIInfomationDialog.AttributeInfo), _kiPageModel.PageCalculateInfo);
+        _kiDialogParameter.Add(x => x.AttributeInfo, _kiPageModel.PageCalculateInfo);
+        _kiDialogParameter.Add(x => x.OnHandle, EventCallback.Factory.Create<KIInfo>(this, HandleKI));
         _tipsDialogOptions.CloseButton = true;
     }
 
@@ -185,6 +231,8 @@
     {
         try
         {
+            bool limitFlag = _kiPageModel.PageCalculateInfo.BaseHit + _kiPageModel.PageCalculateInfo.IncreaseHit > _kiPageModel.PageEnemyInfo.FullHit ||
+                             _kiPageModel.PageCalculateInfo.BaseBreakDefense + _kiPageModel.PageCalculateInfo.IncreaseBreakDefense > _kiPageModel.PageEnemyInfo.Defense;
             KiEarningRate baseRate = CalculatorUtility.CalculatePerGains(_kiPageModel.PageCalculateInfo, _kiPageModel.PageEnemyInfo, _deliveryData);
 
             double increaseAttack = _kiPageModel.PageCalculateInfo.IncreaseStamina * 1.65 + _kiPageModel.PageCalculateInfo.IncreaseVitality * 1.65 + _kiPageModel.PageCalculateInfo.IncreaseStrength * 5 + _kiPageModel.PageCalculateInfo.IncreaseFullAttack + _kiPageModel.PageCalculateInfo.IncreaseHalfAttack * 0.5;
@@ -197,8 +245,17 @@
             _kiPageModel.PageCalculateInfo.Result = results.Item1;
             _kiPageModel.PageCalculateInfo.Score = results.Item1 / baseRate.AttackAndRestraint;
 
+            foreach (var kiInfo in _kiPageModel.KIInfos)
+            {
+                kiInfo.DamageIncreasePercent = kiInfo.IncreaseStrength * baseRate.Strength + kiInfo.IncreaseLightness * baseRate.Lightness
+                                               + ((kiInfo.IncreaseStamina + kiInfo.IncreaseVitality) * 1.65 + kiInfo.IncreaseFullAttack + kiInfo.IncreaseHalfAttack * 0.5 + kiInfo.IncreaseRestraint) * baseRate.AttackAndRestraint
+                                               + kiInfo.IncreaseBreakDefense * baseRate.BreakDefense + kiInfo.IncreaseElementAttack * baseRate.ElementAttack
+                                               + kiInfo.IncreaseCriticalHits * baseRate.CriticalHits + kiInfo.IncreaseHit * baseRate.Hit;
+                kiInfo.AttackScore = kiInfo.DamageIncreasePercent / baseRate.AttackAndRestraint;
+            }
+
             SaveInfo();
-            Snackbar.Add(ConstText.SuccessText, Severity.Success);
+            Snackbar.Add(limitFlag ? ConstText.LimitText : ConstText.SuccessText, Severity.Success);
         }
         catch (Exception e)
         {
@@ -220,4 +277,30 @@
         Dialog.Show<TipsDialog>("帮助说明", _tipsDialogParameters, _tipsDialogOptions);
     }
 
+    private void SaveToKI()
+    {
+        _kiDialogParameter["AttributeInfo"] = _kiPageModel.PageCalculateInfo;
+        Dialog.Show<KIInfomationDialog>("", _kiDialogParameter, null);
+    }
+
+    private void HandleKI(KIInfo info)
+    {
+        if (info.ID == -1)
+        {
+            Snackbar.Add($"添加新内功:{info.Name}成功", Severity.Success);
+            info.ID = _kiPageModel.KIInfos.Count + 1;
+            _kiPageModel.KIInfos.Add(info);
+        }
+
+        SaveInfo();
+    }
+
+    private void RowClickEvent(TableRowClickEventArgs<KIInfo> tableRowClickEventArgs)
+    {
+        if (_allowEditMode)
+        {
+            _kiDialogParameter["AttributeInfo"] = tableRowClickEventArgs.Item;
+            Dialog.Show<KIInfomationDialog>("", _kiDialogParameter, null);
+        }
+    }
 }

@@ -26,5 +26,8 @@ public class KIPageModel
         Defense = 1680
     };
 
+    [ValidateComplexType]
+    public List<KIInfo> KIInfos { get; set; } = new();
+
     public List<AttributeCalculateInfo> DamageInfoHistory = new();
 }

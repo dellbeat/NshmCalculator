@@ -22,7 +22,8 @@ public class AttributePageModel
     public EnemyInfo PageEnemyInfo { get; set; } = new()
     {
         Block = 630,
-        Defense = 1680
+        Defense = 1680,
+        AntiElementAttack = 60
     };
 
     public List<AttributeCalculateInfo> DamageInfoHistory = new();

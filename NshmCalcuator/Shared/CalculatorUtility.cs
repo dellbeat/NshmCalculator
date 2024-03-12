@@ -70,7 +70,7 @@ public static class CalculatorUtility
             CriticalRate = CalculateIncreaseRate(baseInfo, enemyInfo, criticalRate: deliveryData.CriticalRate).Item1 / deliveryData.CriticalRate
         };
 
-        rate.Vitality = rate.AttackAndRestraint * 5 + rate.BreakDefense * 2;
+        rate.Strength = rate.AttackAndRestraint * 5 + rate.BreakDefense * 2;
         rate.Lightness = rate.Hit * 0.8 + rate.CriticalHits * 1.6;
 
         return rate;

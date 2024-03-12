@@ -33,9 +33,9 @@ public class KiEarningRate
     public double CriticalRate { get; init; }
 
     /// <summary>
-    /// 每点气海收益
+    /// 每点力量/气海收益
     /// </summary>
-    public double Vitality { get; set; }
+    public double Strength { get; set; }
 
     /// <summary>
     /// 每点身法收益
