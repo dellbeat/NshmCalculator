@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using System.Text.Json.Serialization;
 using NshmCalculator.Shared.Models.Interface;
 
 namespace NshmCalculator.Shared.Models.BaseModel;
@@ -64,6 +65,15 @@ public class KIInfo : ICharacterAttributes
 
     #endregion
 
+    /// <summary>
+    /// 传参状态
+    /// </summary>
+    [JsonIgnore]
+    public ParaEnum ParaStatus { get; set; }
+    
+    /// <summary>
+    /// 数值摘要
+    /// </summary>
     public string NumberSummary { get; set; }
 
     /// <summary>

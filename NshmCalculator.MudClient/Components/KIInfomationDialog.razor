@@ -16,42 +16,63 @@
                     <MudItem xs="12">
                         <MudTextField ShrinkLabel @bind-Value="Info.RateScore" For="@(() => Info.RateScore)" Label="内功评分（可留空）" Variant="Variant.Outlined"/>
                     </MudItem>
-                    <MudItem xs="4" sm="3">
+                    <MudItem xs="4">
                         <MudTextField ShrinkLabel @bind-Value="Info.IncreaseStamina" For="@(() => Info.IncreaseStamina)" Label="耐力" Variant="Variant.Outlined"/>
                     </MudItem>
-                    <MudItem xs="4" sm="3">
+                    <MudItem xs="4">
                         <MudTextField ShrinkLabel @bind-Value="Info.IncreaseVitality" For="@(() => Info.IncreaseVitality)" Label="根骨" Variant="Variant.Outlined"/>
                     </MudItem>
-                    <MudItem xs="4" sm="3">
+                    <MudItem xs="4">
                         <MudTextField ShrinkLabel @bind-Value="Info.IncreaseStrength" For="@(() => Info.IncreaseStrength)" Label="气海/力量" Variant="Variant.Outlined"/>
                     </MudItem>
-                    <MudItem xs="4" sm="3">
+                    <MudItem xs="4">
                         <MudTextField ShrinkLabel @bind-Value="Info.IncreaseLightness" For="@(() => Info.IncreaseLightness)" Label="身法" Variant="Variant.Outlined"/>
                     </MudItem>
-                    <MudItem xs="4" sm="3">
+                    <MudItem xs="4">
                         <MudTextField ShrinkLabel @bind-Value="Info.IncreaseFullAttack" For="@(() => Info.IncreaseFullAttack)" Label="攻击" Variant="Variant.Outlined"/>
                     </MudItem>
-                    <MudItem xs="4" sm="3">
+                    <MudItem xs="4">
                         <MudTextField ShrinkLabel @bind-Value="Info.IncreaseHalfAttack" For="@(() => Info.IncreaseHalfAttack)" Label="大小攻击" Variant="Variant.Outlined"/>
                     </MudItem>
-                    <MudItem xs="4" sm="3">
+                    <MudItem xs="4">
                         <MudTextField ShrinkLabel @bind-Value="Info.IncreaseRestraint" For="@(() => Info.IncreaseRestraint)" Label="首领克制" Variant="Variant.Outlined"/>
                     </MudItem>
-                    <MudItem xs="4" sm="3">
+                    <MudItem xs="4">
                         <MudTextField ShrinkLabel @bind-Value="Info.IncreaseElementAttack" For="@(() => Info.IncreaseElementAttack)" Label="属性攻击" Variant="Variant.Outlined"/>
                     </MudItem>
-                    <MudItem xs="4" sm="3">
+                    <MudItem xs="4">
                         <MudTextField ShrinkLabel @bind-Value="Info.IncreaseBreakDefense" For="@(() => Info.IncreaseBreakDefense)" Label="破防" Variant="Variant.Outlined"/>
                     </MudItem>
-                    <MudItem xs="4" sm="3">
+                    <MudItem xs="4">
                         <MudTextField ShrinkLabel @bind-Value="Info.IncreaseHit" For="@(() => Info.IncreaseHit)" Label="命中" Variant="Variant.Outlined"/>
                     </MudItem>
-                    <MudItem xs="4" sm="3">
+                    <MudItem xs="4">
                         <MudTextField ShrinkLabel @bind-Value="Info.IncreaseCriticalHits" For="@(() => Info.IncreaseCriticalHits)" HelperText="填入数字即可" Label="会心" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="4" Style="display: flex; justify-content: center;">
+                        <MudButton StartIcon="@Icons.Material.Filled.DeleteForever" Variant="Variant.Filled" Color="MudBlazor.Color.Error" Class="@DeleteBtnClass" OnClick="OnDelete">删除内功</MudButton>
                     </MudItem>
                 </MudGrid>
             </EditForm>
         </MudContainer>
+        
+        <MudMessageBox @ref="mbox" Title="删除提示" CancelText="点错了">
+            <MessageContent>
+                是否要删除名称为
+                <MudElement HtmlTag="a"
+                            Class="ms-1"
+                            Style="color:red;font-weight:bold;"
+                            href="https://github.com/MudBlazor/MudBlazor"
+                            target="blank"
+                            rel="noopener noreferrer">
+                    @Info.Name
+                </MudElement>
+                的内功<p/>一旦删除则<b><i>无法恢复</i></b>，是否继续？
+            </MessageContent>
+            <YesButton>
+                <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever">继续</MudButton>
+            </YesButton>
+        </MudMessageBox>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">取消</MudButton>
@@ -67,10 +88,16 @@
     [Parameter] public ICharacterAttributes AttributeInfo { get; set; }
 
     [Parameter] public EventCallback<KIInfo> OnHandle { get; set; }
+    
+    [Inject] private IDialogService DialogService { get; set; }
 
     private KIInfo Info { get; set; }
 
     private bool _createMode { get; set; }
+    
+    private string DeleteBtnClass { get; set; }
+    
+    MudMessageBox mbox { get; set; }
 
 
     protected override void OnInitialized()
@@ -88,6 +115,8 @@
             MudDialog.Title = "内功";
             Info = new KIInfo(AttributeInfo);
         }
+
+        DeleteBtnClass = _createMode ? "pl-3 pf-3 pb-1 pt-1 mt-2 mb-6 invisible" : "pl-3 pf-3 pb-1 pt-1 mt-2 mb-6";
     }
 
 
@@ -103,11 +132,25 @@
             Snackbar.Add(ConstText.WarningText, Severity.Warning);
             return;
         }
-        
+
+        Info.ParaStatus = _createMode ? ParaEnum.Create : ParaEnum.Normal;
         Info.UpdateSummary();
         
         await OnHandle.InvokeAsync(Info);
         MudDialog.Close(DialogResult.Ok(true));
     }
 
+    private async void OnDelete()
+    {
+        bool? result = await mbox.Show();
+        if (result != true)
+        {
+            return;
+        }
+
+        Info.ParaStatus = ParaEnum.Delete;
+        
+        await OnHandle.InvokeAsync(Info);
+        MudDialog.Close(DialogResult.Ok(true));
+    }
 }

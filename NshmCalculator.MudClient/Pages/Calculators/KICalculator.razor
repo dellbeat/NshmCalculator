@@ -155,7 +155,7 @@
                     <MudTable T="KIInfo" @bind-SelectedItem="_selectedItem" Bordered="true" Dense="true" Hover="true" Items="@_kiPageModel.KIInfos" Striped="true" OnRowClick="RowClickEvent">
                         <ToolBarContent>
                             <MudText Typo="Typo.h6">内功列表</MudText>
-                            <MudSpacer />
+                            <MudSpacer/>
                             <MudSwitch T="bool" @bind-Value="@_allowEditMode" Color="Color.Info" UnCheckedColor="Color.Dark" Label="选中弹出详情"></MudSwitch>
                         </ToolBarContent>
                         <HeaderContent>
@@ -248,9 +248,9 @@
             foreach (var kiInfo in _kiPageModel.KIInfos)
             {
                 kiInfo.DamageIncreasePercent = kiInfo.IncreaseStrength * baseRate.Strength + kiInfo.IncreaseLightness * baseRate.Lightness
-                                               + ((kiInfo.IncreaseStamina + kiInfo.IncreaseVitality) * 1.65 + kiInfo.IncreaseFullAttack + kiInfo.IncreaseHalfAttack * 0.5 + kiInfo.IncreaseRestraint) * baseRate.AttackAndRestraint
-                                               + kiInfo.IncreaseBreakDefense * baseRate.BreakDefense + kiInfo.IncreaseElementAttack * baseRate.ElementAttack
-                                               + kiInfo.IncreaseCriticalHits * baseRate.CriticalHits + kiInfo.IncreaseHit * baseRate.Hit;
+                                                                                           + ((kiInfo.IncreaseStamina + kiInfo.IncreaseVitality) * 1.65 + kiInfo.IncreaseFullAttack + kiInfo.IncreaseHalfAttack * 0.5 + kiInfo.IncreaseRestraint) * baseRate.AttackAndRestraint
+                                                                                           + kiInfo.IncreaseBreakDefense * baseRate.BreakDefense + kiInfo.IncreaseElementAttack * baseRate.ElementAttack
+                                                                                           + kiInfo.IncreaseCriticalHits * baseRate.CriticalHits + kiInfo.IncreaseHit * baseRate.Hit;
                 kiInfo.AttackScore = kiInfo.DamageIncreasePercent / baseRate.AttackAndRestraint;
             }
 
@@ -285,13 +285,21 @@
 
     private void HandleKI(KIInfo info)
     {
-        if (info.ID == -1)
+        switch (info.ParaStatus)
         {
-            Snackbar.Add($"添加新内功:{info.Name}成功", Severity.Success);
-            info.ID = _kiPageModel.KIInfos.Count + 1;
-            _kiPageModel.KIInfos.Add(info);
+            case ParaEnum.Create:
+                info.ID = (_kiPageModel.KIInfos.Count == 0 ? 0 : _kiPageModel.KIInfos.Max(s => s.ID)) + 1;
+                _kiPageModel.KIInfos.Add(info);
+                Snackbar.Add($"添加新内功:{info.Name}成功", Severity.Success);
+                break;
+            case ParaEnum.Normal:
+                break;
+            case ParaEnum.Delete:
+                Snackbar.Add($"内功:{info.Name}已删除", Severity.Success);
+                _kiPageModel.KIInfos.Remove(info);
+                break;
         }
-
+        
         SaveInfo();
     }
 
@@ -303,4 +311,5 @@
             Dialog.Show<KIInfomationDialog>("", _kiDialogParameter, null);
         }
     }
+
 }
