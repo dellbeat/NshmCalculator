@@ -128,9 +128,9 @@ public static class CalculatorUtility
         double remainAirShield = airShieldEnable
             ? breakAirShieldOfPlayer >= airShieldOfMonster
                 ? 0
-                : (breakDefenseOfPlayer * 1.0 <= airShieldOfMonster * 1.0 / 3
-                    ? airShieldOfMonster - 2 * breakDefenseOfPlayer
-                    : 0.5 * (airShieldOfMonster - breakDefenseOfPlayer))
+                : breakAirShieldOfPlayer * 1.0 <= airShieldOfMonster * 1.0 / 3
+                    ? airShieldOfMonster - 2 * breakAirShieldOfPlayer
+                    : 0.5 * (airShieldOfMonster - breakAirShieldOfPlayer)
             : 0;
         double resistanceRemission = resistOfMonster * 1.0 / (resistOfMonster + 530); //敌方（怪物）抗性减免
         int remainDefense = defenseOfMonster - breakDefenseOfPlayer; //敌方剩余防御，理论不会小于0，不做特别判断
