@@ -75,13 +75,6 @@ public class AttributeCalculateInfo : PlayerBaseInfo
     public double IncreaseCriticalRate { get; set; }
 
     /// <summary>
-    /// 新增会伤百分比
-    /// </summary>
-    [Required]
-    [Range(0, 5, ErrorMessage = "请保证新增会心百分比在0.0-5.0范围内")]
-    public double IncreaseCriticalHitsRate { get; set; }
-
-    /// <summary>
     /// 新增克制百分比
     /// </summary>
     [Required]

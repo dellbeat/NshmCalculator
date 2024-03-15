@@ -1,5 +1,4 @@
-﻿using NshmCalculator.Shared.Models;
-using NshmCalculator.Shared.Models.BaseModel;
+﻿using NshmCalculator.Shared.Models.BaseModel;
 using NshmCalculator.Shared.Models.CalculatorModel.KI;
 
 namespace NshmCalculator.Shared;
@@ -55,6 +54,7 @@ public static class CalculatorUtility
             (b2 * (1 + b1 * (baseInfo.BaseCriticalRate * 1.0 / 100 - 1)) + 0.5 - b2 / 2) - 1; //暴击提升率
         double b7 = (2 * b5 * b1 * (baseInfo.BaseCriticalRate * 1.0 / 100 - 1) + b5) /
                     (2 * b2 * b1 * (baseInfo.BaseCriticalRate * 1.0 / 100 - 1) + b2 + 1); //中间值
+        // ReSharper disable once UnusedVariable
         double b8 = (2860 + enemyInfo.Defense) * 1.0 / (2860 + defenseSubBase); //破防收益
         double b9 = (baseInfo.BaseAttack + baseInfo.BaseRestraint - enemyInfo.AntiRestraint + 920) * 2860 * 1.0 /
             (2860 + defenseSubBase) + baseInfo.BaseElementAttack - enemyInfo.AntiElementAttack; //等效元素攻击
@@ -85,8 +85,9 @@ public static class CalculatorUtility
     {
         KiEarningRate rate = new KiEarningRate
         {
-            AttackAndRestraint = CalculateIncreaseRate(baseInfo, enemyInfo, attack: deliveryData.Attack).Item1 /
-                                 deliveryData.Attack,
+            AttackAndRestraint =
+                CalculateIncreaseRate(baseInfo, enemyInfo, attack: deliveryData.Attack + deliveryData.Restraint).Item1 /
+                (deliveryData.Attack + deliveryData.Restraint),
             ElementAttack =
                 CalculateIncreaseRate(baseInfo, enemyInfo, elementAttack: deliveryData.ElementAttack).Item1 /
                 deliveryData.ElementAttack,
@@ -117,13 +118,14 @@ public static class CalculatorUtility
     /// <param name="resistOfMonster">敌方抵御</param>
     /// <param name="rate1">系数1</param>
     /// <param name="rate2">系数2</param>
-    /// <param name="remainAirShield">剩余气盾，由于PVE目前暂不考虑该参数，故默认为0</param>
     /// <param name="breakAirShieldOfPlayer">玩家破盾</param>
     /// <param name="airShieldOfMonster">敌方气盾</param>
     /// <param name="airShieldEnable">是否计算破盾影响</param>
+    /// <param name="enemyAntiElement">敌方元素抗性</param>
     public static double CalculateBaseDamage(int attackOfPlayer, int restraintNum, int elementAttackOfPlayer,
         int breakDefenseOfPlayer, int defenseOfMonster, int resistOfMonster, double rate1, double rate2,
-        int breakAirShieldOfPlayer = 0, int airShieldOfMonster = 0, bool airShieldEnable = false)
+        int breakAirShieldOfPlayer = 0, int airShieldOfMonster = 0, bool airShieldEnable = false,
+        int enemyAntiElement = 0)
     {
         double remainAirShield = airShieldEnable
             ? breakAirShieldOfPlayer >= airShieldOfMonster
@@ -132,7 +134,7 @@ public static class CalculatorUtility
                     ? airShieldOfMonster - 2 * breakAirShieldOfPlayer
                     : 0.5 * (airShieldOfMonster - breakAirShieldOfPlayer)
             : 0;
-        double resistanceRemission = resistOfMonster * 1.0 / (resistOfMonster + 530); //敌方（怪物）抗性减免
+        double resistanceRemission = enemyAntiElement * 1.0 / (enemyAntiElement + 530); //敌方元素抗性减免
         int remainDefense = defenseOfMonster - breakDefenseOfPlayer; //敌方剩余防御，理论不会小于0，不做特别判断
         if (remainDefense < 0)
         {
@@ -173,7 +175,7 @@ public static class CalculatorUtility
         out double calCriticalRate)
     {
         double panelHitRateOfPlayer =
-            (143 * hitNum * 1.0 / (hitNum + 713) / 100 is double panelNum && panelNum > 1
+            (143 * hitNum * 1.0 / (hitNum + 713) / 100 is var panelNum && panelNum > 1
                 ? 1
                 : panelNum); //玩家[攻击方]面板命中率
         double panelDefenseRateOfMonster = 143 * 1.0 * blockOfMonster / (blockOfMonster + 713) / 100; //敌方[受击方]面板格挡率Da
