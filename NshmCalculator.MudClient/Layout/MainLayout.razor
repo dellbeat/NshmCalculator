@@ -7,57 +7,72 @@
 
 @rendermode InteractiveWebAssembly
 
-<MudThemeProvider Theme="_customTheme" />
-<MudDialogProvider />
-<MudSnackbarProvider />
+<MudThemeProvider Theme="_customTheme"/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
 
 <MudLayout>
     <MudAppBar Elevation="1" Color="MudBlazor.Color.Info" Dense="true">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Inherit" Edge="Edge.Start" OnClick="@((_) => DrawerToggle())"/>
         <MudText Typo="Typo.h6">逆水寒手游计算器</MudText>
+        <MudSpacer/>
+        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="MudBlazor.Color.Inherit" Edge="Edge.End" OnClick="@OnGithubClick"/>
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
-        <NavMenu />
+        <NavMenu/>
     </MudDrawer>
     <MudMainContent style="margin:12px">
         <div class="content" px="4" style="padding-bottom:60px">
             @Body
+            <MudMessageBox @ref="mbox" Title="仓库地址">
+                <MessageContent>
+                    点击进入<a href="https://github.com/dellbeat/NshmCalculator" style="color:red;font-weight:bold;" target="_blank" rel="noopener noreferrer">项目Github仓库</a>
+                    <p/>
+                    欢迎提出宝贵建议（如果是Star、Pr就更好了(*^▽^*)）
+                </MessageContent>
+                <YesButton>
+                    <MudButton>好的</MudButton>
+                </YesButton>
+            </MudMessageBox>
         </div>
-        <div style="visibility: none;">
+        <div style="visibility: hidden;">
             <ApexChart TItem="DataPoint" Height="0" Width="0">
                 <ApexPointSeries TItem="DataPoint"
                                  XValue="@(e => e.X)"
-                                 YValue="@(e=>Convert.ToDecimal(e.Y*1000))"
-                                 SeriesType="SeriesType.Line" />
+                                 YValue="@(e => Convert.ToDecimal(e.Y * 1000))"
+                                 SeriesType="SeriesType.Line"/>
             </ApexChart>
         </div>
     </MudMainContent>
     <MudAppBar Elevation="0" Color="MudBlazor.Color.Dark" Style="top: auto; bottom: 0" Dense="true" Fixed="true">
         <MudGrid Justify="Justify.Center">
             <MudText Style="font-size:small">@ConstText.FooterText</MudText>
-            </MudGrid>
-        </MudAppBar>
-    </MudLayout>
+        </MudGrid>
+    </MudAppBar>
+</MudLayout>
 
-    @code {
+@code {
+
+    MudMessageBox mbox { get; set; }
+    
     readonly MudTheme _customTheme = new()
+    {
+        Palette = new PaletteLight()
         {
-            Palette = new PaletteLight()
-            {
-                AppbarBackground = new MudBlazor.Utilities.MudColor("#003D59"),
-                Primary = new MudBlazor.Utilities.MudColor("#003D59"),
-                Secondary = new MudBlazor.Utilities.MudColor("#013243"),
-                Background = new MudBlazor.Utilities.MudColor(222, 222, 225, 100)
-            },
-            PaletteDark = new PaletteDark()
-            {
-                AppbarBackground = new MudBlazor.Utilities.MudColor("#1DACD6"),
-                Primary = new MudBlazor.Utilities.MudColor("#1DACD6"),
-                Secondary = new MudBlazor.Utilities.MudColor("#48D1CC"),
-            }
-        };
+            AppbarBackground = new MudBlazor.Utilities.MudColor("#003D59"),
+            Primary = new MudBlazor.Utilities.MudColor("#003D59"),
+            Secondary = new MudBlazor.Utilities.MudColor("#013243"),
+            Background = new MudBlazor.Utilities.MudColor(222, 222, 225, 100)
+        },
+        PaletteDark = new PaletteDark()
+        {
+            AppbarBackground = new MudBlazor.Utilities.MudColor("#1DACD6"),
+            Primary = new MudBlazor.Utilities.MudColor("#1DACD6"),
+            Secondary = new MudBlazor.Utilities.MudColor("#48D1CC"),
+        }
+    };
 
-    bool _drawerOpen = false;
+    bool _drawerOpen;
 
     void DrawerToggle()
     {
@@ -78,4 +93,10 @@
             NavigationManager.NavigateTo($"/{route}");
         }
     }
+
+    private async void OnGithubClick()
+    {
+        await mbox.Show();
+    }
+
 }

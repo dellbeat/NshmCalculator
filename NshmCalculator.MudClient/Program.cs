@@ -8,6 +8,7 @@ using NshmCalculator.Shared.Models;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using NshmCalculator.MudClient;
+using NshmCalculator.Shared.Models.CalculatorModel.KI;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -40,6 +41,7 @@ builder.Services.AddBlazoredLocalStorage();
 
 UpdateLog[] updateLogs = new UpdateLog[] { };
 Dictionary<string, string> tipsDictionary = new Dictionary<string, string>();
+List<BaseAttributeImprove> attributeImproves = new List<BaseAttributeImprove>();
 
 var newJson = await client.GetStringAsync(ConstText.UpdateLogPath);//需要处理缓存未更新的情况
 if (!string.IsNullOrEmpty(newJson))
@@ -61,8 +63,19 @@ if (!string.IsNullOrEmpty(tipsJson))
     }
 }
 
+var improveJson = await client.GetStringAsync(ConstText.ImprovePath);
+if (!string.IsNullOrEmpty(improveJson))
+{
+    var scores = JsonSerializer.Deserialize<List<BaseAttributeImprove>>(improveJson);
+    if (scores != null)
+    {
+        attributeImproves.AddRange(scores);
+    }
+}
+
 builder.Services.AddSingleton(updateLogs);
 builder.Services.AddSingleton(tipsDictionary);
+builder.Services.AddSingleton(attributeImproves);
 
 #endregion
 

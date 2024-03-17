@@ -9,21 +9,24 @@ public class KIPageModel
     [ValidateComplexType]
     public KICalculateInfo PageCalculateInfo { get; set; } = new()
     {
-        BaseAttack = 2500,
-        BaseRestraint = 1000,
-        BaseElementAttack = 1000,
-        BaseBreakDefense = 1000,
-        BaseHit = 500,
-        BaseCriticalHits = 888,
-        BaseCriticalRate = 188,
+        BaseAttack = 4000,
+        BaseRestraint = 2800,
+        BaseElementAttack = 1200,
+        BaseBreakDefense = 1800,
+        BaseHit = 850,
+        BaseCriticalHits = 1300,
+        BaseCriticalRate = 189,
         BaseZtCriticalHitsRate = 5
     };
 
     [ValidateComplexType]
     public EnemyInfo PageEnemyInfo { get; set; } = new()
     {
-        Block = 630,
-        Defense = 1680
+        Block = 820,
+        Defense = 3950,
+        AntiRestraint = 1500,
+        AntiCriticalHits = 500,
+        AntiElementAttack = 60
     };
 
     [ValidateComplexType]

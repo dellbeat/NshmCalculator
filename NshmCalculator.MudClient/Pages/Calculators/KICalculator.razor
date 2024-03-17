@@ -14,6 +14,7 @@
 @inject IDialogService Dialog
 @* ReSharper disable once CollectionNeverUpdated.Local *@
 @inject Dictionary<string, string> TipsDictionary
+@inject List<BaseAttributeImprove> ImproveList
 
 <PageTitle>逆水寒手游内功收益计算器</PageTitle>
 <MudGrid>
@@ -144,8 +145,34 @@
     </MudItem>
     <MudItem xs="12">
         <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-            <MudChip Color="Color.Info">攻击分：@_kiPageModel.PageCalculateInfo.Score.ToString("F2")</MudChip>
-            <MudChip Color="Color.Info">提升率：@_kiPageModel.PageCalculateInfo.Result.ToString("P3")</MudChip>
+            <MudGrid>
+                <MudItem xs="12" Class="d-flex align-center justify-center">
+                    <MudStack Row="true" Spacing="4">
+                        <MudChip Color="Color.Info">攻击分：@_kiPageModel.PageCalculateInfo.Score.ToString("F2")</MudChip>
+                        <MudChip Color="Color.Info">提升率：@_kiPageModel.PageCalculateInfo.Result.ToString("P3")</MudChip>
+                    </MudStack>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudExpansionPanels MultiExpansion="true" Class="ma-4">
+                        <MudExpansionPanel Text="最大基础词条加成参考（计算后显示）">
+                            <MudTable T="BaseAttributeImprove" Items="@ImproveList" Bordered="true" Dense="true" Hover="true" Striped="true">
+                                <HeaderContent>
+                                    <MudTh>词条</MudTh>
+                                    <MudTh>最大值</MudTh>
+                                    <MudTh>攻击分</MudTh>
+                                    <MudTh>提升率</MudTh>
+                                </HeaderContent>
+                                <RowTemplate>
+                                    <MudTd DataLabel="基础词条">@context.Name</MudTd>
+                                    <MudTd DataLabel="最大投放值">@context.MaxValue </MudTd>
+                                    <MudTd DataLabel="攻击分">@context.AttackScore.ToString("F1")</MudTd>
+                                    <MudTd DataLabel="增伤百分比">@context.ImprovePercent.ToString("P2")</MudTd>
+                                </RowTemplate>
+                            </MudTable>
+                        </MudExpansionPanel>
+                    </MudExpansionPanels>
+                </MudItem>
+            </MudGrid>
         </MudPaper>
     </MudItem>
     <MudItem xs="12">
@@ -198,6 +225,7 @@
     private bool _allowEditMode = true;
     private KIInfo _selectedItem { get; set; }
     private int[] options = [5, 10, 20];
+    private List<KIInfo> _baseAtrributeKi { get; set; }
 
     protected override void OnInitialized()
     {
@@ -215,6 +243,15 @@
         _kiDialogParameter.Add(x => x.AttributeInfo, _kiPageModel.PageCalculateInfo);
         _kiDialogParameter.Add(x => x.OnHandle, EventCallback.Factory.Create<KIInfo>(this, HandleKI));
         _tipsDialogOptions.CloseButton = true;
+        _baseAtrributeKi = new();
+        foreach (var baseAttributeImprove in ImproveList)
+        {
+            var ki = new KIInfo(baseAttributeImprove);
+            if (ki.Name == baseAttributeImprove.Name)
+            {
+                _baseAtrributeKi.Add(ki);
+            }
+        }
     }
 
     private void SaveInfo()
@@ -247,11 +284,21 @@
 
             foreach (var kiInfo in _kiPageModel.KIInfos)
             {
-                kiInfo.DamageIncreasePercent = kiInfo.IncreaseStrength * baseRate.Strength + kiInfo.IncreaseLightness * baseRate.Lightness
-                                                                                           + ((kiInfo.IncreaseStamina + kiInfo.IncreaseVitality) * 1.65 + kiInfo.IncreaseFullAttack + kiInfo.IncreaseHalfAttack * 0.5 + kiInfo.IncreaseRestraint) * baseRate.AttackAndRestraint
-                                                                                           + kiInfo.IncreaseBreakDefense * baseRate.BreakDefense + kiInfo.IncreaseElementAttack * baseRate.ElementAttack
-                                                                                           + kiInfo.IncreaseCriticalHits * baseRate.CriticalHits + kiInfo.IncreaseHit * baseRate.Hit;
-                kiInfo.AttackScore = kiInfo.DamageIncreasePercent / baseRate.AttackAndRestraint;
+                CalculateKi(kiInfo, baseRate);
+            }
+            
+            foreach (var kiInfo in _baseAtrributeKi)
+            {
+                CalculateKi(kiInfo,baseRate);
+            }
+            
+            foreach (var kiInfo in _baseAtrributeKi)
+            {
+                if (ImproveList.FirstOrDefault(s => s.Name == kiInfo.Name) is { } improve)
+                {
+                    improve.AttackScore = kiInfo.AttackScore;
+                    improve.ImprovePercent = kiInfo.DamageIncreasePercent;
+                }
             }
 
             SaveInfo();
@@ -263,6 +310,15 @@
         }
 
         return Task.CompletedTask;
+    }
+
+    private void CalculateKi(KIInfo kiInfo, KiEarningRate baseRate)
+    {
+        kiInfo.DamageIncreasePercent = kiInfo.IncreaseStrength * baseRate.Strength + kiInfo.IncreaseLightness * baseRate.Lightness
+                                                                                   + ((kiInfo.IncreaseStamina + kiInfo.IncreaseVitality) * 1.65 + kiInfo.IncreaseFullAttack + kiInfo.IncreaseHalfAttack * 0.5 + kiInfo.IncreaseRestraint) * baseRate.AttackAndRestraint
+                                                                                   + kiInfo.IncreaseBreakDefense * baseRate.BreakDefense + kiInfo.IncreaseElementAttack * baseRate.ElementAttack
+                                                                                   + kiInfo.IncreaseCriticalHits * baseRate.CriticalHits + kiInfo.IncreaseHit * baseRate.Hit;
+        kiInfo.AttackScore = kiInfo.DamageIncreasePercent / baseRate.AttackAndRestraint;
     }
 
     private Task WarningTips()
@@ -299,7 +355,7 @@
                 _kiPageModel.KIInfos.Remove(info);
                 break;
         }
-        
+
         SaveInfo();
     }
 

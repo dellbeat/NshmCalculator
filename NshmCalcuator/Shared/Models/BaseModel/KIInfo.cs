@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using NshmCalculator.Shared.Models.CalculatorModel.KI;
 using NshmCalculator.Shared.Models.Interface;
 
 namespace NshmCalculator.Shared.Models.BaseModel;
@@ -70,7 +72,7 @@ public class KIInfo : ICharacterAttributes
     /// </summary>
     [JsonIgnore]
     public ParaEnum ParaStatus { get; set; }
-    
+
     /// <summary>
     /// 数值摘要
     /// </summary>
@@ -80,15 +82,15 @@ public class KIInfo : ICharacterAttributes
     /// 特性增伤百分比
     /// </summary>
     public double DamageIncreasePercent { get; set; }
-    
+
     /// <summary>
     /// 攻击分
     /// </summary>
     public double AttackScore { get; set; }
 
     private readonly PropertyInfo[] _infos;
-    private static Dictionary<string,string> _nameDic { get; set; }
-    
+    private static Dictionary<string, string> _nameDic { get; set; }
+
     static KIInfo()
     {
         _nameDic = new Dictionary<string, string>
@@ -97,7 +99,7 @@ public class KIInfo : ICharacterAttributes
             { nameof(IncreaseVitality), "根骨" },
             { nameof(IncreaseStrength), "气海力量" },
             { nameof(IncreaseLightness), "身法" },
-            { nameof(IncreaseFullAttack), "攻击力" },
+            { nameof(IncreaseFullAttack), "攻击" },
             { nameof(IncreaseHalfAttack), "大小攻" },
             { nameof(IncreaseElementAttack), "属性攻击" },
             { nameof(IncreaseRestraint), "首领克制" },
@@ -106,10 +108,10 @@ public class KIInfo : ICharacterAttributes
             { nameof(IncreaseHit), "命中" }
         };
     }
-    
+
     public KIInfo()
     {
-        _infos= GetType().GetProperties().Where(p => p.PropertyType == typeof(int) && p.Name != "ID").ToArray();
+        _infos = GetType().GetProperties().Where(p => p.PropertyType == typeof(int) && p.Name != "ID").ToArray();
     }
 
     public KIInfo(ICharacterAttributes attributes) : this()
@@ -125,6 +127,51 @@ public class KIInfo : ICharacterAttributes
         IncreaseCriticalHits = attributes.IncreaseCriticalHits;
         IncreaseBreakDefense = attributes.IncreaseBreakDefense;
         IncreaseHit = attributes.IncreaseHit;
+    }
+
+    public KIInfo(BaseAttributeImprove entity) : this()
+    {
+        Name = "Temp";
+        if (_nameDic.ContainsValue(entity.Name))
+        {
+            Name = entity.Name;
+            switch (_nameDic.First(s => s.Value == entity.Name).Key)
+            {
+                case nameof(IncreaseStamina):
+                    IncreaseStamina = entity.MaxValue;
+                    break;
+                case nameof(IncreaseVitality):
+                    IncreaseVitality = entity.MaxValue;
+                    break;
+                case nameof(IncreaseStrength):
+                    IncreaseStrength = entity.MaxValue;
+                    break;
+                case nameof(IncreaseLightness):
+                    IncreaseLightness = entity.MaxValue;
+                    break;
+                case nameof(IncreaseFullAttack):
+                    IncreaseFullAttack = entity.MaxValue;
+                    break;
+                case nameof(IncreaseHalfAttack):
+                    IncreaseHalfAttack = entity.MaxValue;
+                    break;
+                case nameof(IncreaseElementAttack):
+                    IncreaseElementAttack = entity.MaxValue;
+                    break;
+                case nameof(IncreaseRestraint):
+                    IncreaseRestraint = entity.MaxValue;
+                    break;
+                case nameof(IncreaseCriticalHits):
+                    IncreaseCriticalHits = entity.MaxValue;
+                    break;
+                case nameof(IncreaseBreakDefense):
+                    IncreaseBreakDefense = entity.MaxValue;
+                    break;
+                case nameof(IncreaseHit):
+                    IncreaseHit = entity.MaxValue;
+                    break;
+            }
+        }
     }
 
     public void UpdateSummary()
@@ -143,6 +190,7 @@ public class KIInfo : ICharacterAttributes
                 {
                     NumberSummary += "/";
                 }
+
                 NumberSummary += $"{_nameDic[propertyInfo.Name]}:{number}";
                 validCount++;
             }
