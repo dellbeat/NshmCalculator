@@ -4,6 +4,7 @@
 @using NshmCalculator.MudClient.Components
 @using NshmCalculator.MudClient.Utilities
 @using NshmCalculator.Shared
+@using NshmCalculator.Shared.Models.BaseModel.Enums
 @using NshmCalculator.Shared.Models.PageModel
 @implements IBrowserViewportObserver
 @implements IAsyncDisposable
@@ -90,7 +91,7 @@
                         <MudTextField ShrinkLabel @bind-Value="_attributePageModel.PageEnemyInfo.AirShield" For="@(() => _attributePageModel.PageEnemyInfo.AirShield)" Label="敌方气盾" HelperText="实验特性，下方开关开启后生效" Variant="Variant.Outlined"/>
                     </MudItem>
                     <MudItem xs="12" Class="d-flex align-center justify-center">
-                        <MudChip Color="MudBlazor.Color.Info">满命中：@_attributePageModel.PageEnemyInfo.FullHit</MudChip>
+                        <MudChip Color="MudBlazor.Color.Info">满命中(1.3调整)：@_attributePageModel.PageEnemyInfo.FullHit</MudChip>
                     </MudItem>
                     <MudItem xs="12">
                         <MudDivider FlexItem="true"/>
@@ -127,7 +128,12 @@
                     </MudItem>
                     <MudItem xs="12" Class="d-flex align-center justify-center">
                         <MudStack Row="true" Spacing="4">
-                            <MudSwitch T="bool" @bind-Value="@_experimentMode" Color="MudBlazor.Color.Info" UnCheckedColor="MudBlazor.Color.Dark" Label="气盾计算（实验）"></MudSwitch>
+                            <MudSwitch T="bool" @bind-Value="@_attributePageModel.ExperimentMode" Color="MudBlazor.Color.Info" UnCheckedColor="MudBlazor.Color.Dark" Label="气盾计算（实验）"></MudSwitch>
+                            <MudSwitch T="bool" @bind-Value="@_attributePageModel.Version13Mode" Color="MudBlazor.Color.Info" UnCheckedColor="MudBlazor.Color.Dark" Label="1.3命中调整"></MudSwitch>
+                        </MudStack>
+                    </MudItem>
+                    <MudItem xs="12" Class="d-flex align-center justify-center">
+                        <MudStack Row="true" Spacing="4">
                             <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Info" Class="d-flex" ButtonType="ButtonType.Submit">计算</MudButton>
                             <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Default" Class="d-flex" ButtonType="ButtonType.Button" OnClick="ShowTips">帮助说明</MudButton>
                         </MudStack>
@@ -187,13 +193,12 @@
     private readonly DialogParameters<TipsDialog> _tipsDialogParameters = new();
     private readonly DialogOptions _tipsDialogOptions = new();
     private AttributePageModel _attributePageModel = new();
-    private Dictionary<string, List<DataPoint>> _pointDictionary = new();
+    private readonly Dictionary<string, List<DataPoint>> _pointDictionary = new();
     private static readonly string[] LabelArray = ["攻击", "元素攻击", "破防", "命中", "会心", "首克数值"];
     private const int BaseIncreaseNum = 40;
     private ApexChart<DataPoint> _dataChart = new();
     private ApexChartOptions<DataPoint> _options = null!;
     private string _styleStr { get; set; }
-    private bool _experimentMode { get; set; }
     [Inject] private IBrowserViewportService BrowserViewportService { get; set; }
 
     #region 重载
@@ -238,7 +243,7 @@
             tips = "暂无内容";
         }
 
-        _experimentMode = true;
+        _attributePageModel.ExperimentMode = true;
         _tipsDialogParameters.Add(nameof(TipsDialog.ContentText), new MarkupString(tips));
         _tipsDialogOptions.CloseButton = true;
 
@@ -257,8 +262,8 @@
 
         _options = new ApexChartOptions<DataPoint>
         {
-            Yaxis = new List<YAxis>
-            {
+            Yaxis =
+            [
                 new YAxis
                 {
                     Labels = new YAxisLabels
@@ -266,7 +271,7 @@
                         Formatter = "function (value) {return parseFloat(value).toFixed(3)+'‰';}"
                     }
                 }
-            },
+            ],
             Chart = new Chart()
             {
                 Toolbar = new Toolbar()
@@ -295,14 +300,14 @@
             var calculateInfo = _attributePageModel.PageCalculateInfo;
             var enemyInfo = _attributePageModel.PageEnemyInfo;
 
-            calculateInfo.BaseDamageFunValue = CalculatorUtility.CalculateBaseDamage(calculateInfo.BaseAttack, calculateInfo.BaseRestraint, calculateInfo.BaseElementAttack, calculateInfo.BaseBreakDefense, enemyInfo.Defense, enemyInfo.AntiRestraint, rate1, rate2, calculateInfo.BaseBreakAirShield + calculateInfo.IncreaseBreakAirShield, enemyInfo.AirShield, _experimentMode, enemyInfo.AntiElementAttack);
+            calculateInfo.BaseDamageFunValue = CalculatorUtility.CalculateBaseDamage(calculateInfo.BaseAttack, calculateInfo.BaseRestraint, calculateInfo.BaseElementAttack, calculateInfo.BaseBreakDefense, enemyInfo.Defense, enemyInfo.AntiRestraint, rate1, rate2, calculateInfo.BaseBreakAirShield + calculateInfo.IncreaseBreakAirShield, enemyInfo.AirShield, _attributePageModel.ExperimentMode, enemyInfo.AntiElementAttack);
             calculateInfo.NonCriticalDamageFunValue = CalculatorUtility.CalculateNonCriticalDamage(calculateInfo.BaseDamageFunValue, calculateInfo.BaseRestrainedRate / 100.0);
-            double baseCriticalDamageFunValue = CalculatorUtility.CalculateCriticalDamage(calculateInfo.NonCriticalDamageFunValue, calculateInfo.BaseHit, enemyInfo.Block, (calculateInfo.BaseCriticalRate - 100) / 100.0, calculateInfo.BaseCriticalHits, enemyInfo.AntiCriticalHits, calculateInfo.BaseZtCriticalHitsRate / 100.0, out _);
+            double baseCriticalDamageFunValue = CalculatorUtility.CalculateCriticalDamage(calculateInfo.NonCriticalDamageFunValue, calculateInfo.BaseHit, enemyInfo.Block, (calculateInfo.BaseCriticalRate - 100) / 100.0, calculateInfo.BaseCriticalHits, enemyInfo.AntiCriticalHits, calculateInfo.BaseZtCriticalHitsRate / 100.0, out _, _attributePageModel.Version13Mode ? HitCalculateVersion.Version13 : HitCalculateVersion.Version11);
 
 
-            calculateInfo.BaseDamageFunValue = CalculatorUtility.CalculateBaseDamage(calculateInfo.BaseAttack + calculateInfo.IncreaseAttack, calculateInfo.BaseRestraint + calculateInfo.IncreaseRestraint, calculateInfo.BaseElementAttack + calculateInfo.IncreaseElementAttack, calculateInfo.BaseBreakDefense + calculateInfo.IncreaseBreakDefense, enemyInfo.Defense, enemyInfo.AntiRestraint, rate1, rate2, calculateInfo.BaseBreakAirShield + calculateInfo.IncreaseBreakAirShield, enemyInfo.AirShield, _experimentMode,enemyInfo.AntiElementAttack);
+            calculateInfo.BaseDamageFunValue = CalculatorUtility.CalculateBaseDamage(calculateInfo.BaseAttack + calculateInfo.IncreaseAttack, calculateInfo.BaseRestraint + calculateInfo.IncreaseRestraint, calculateInfo.BaseElementAttack + calculateInfo.IncreaseElementAttack, calculateInfo.BaseBreakDefense + calculateInfo.IncreaseBreakDefense, enemyInfo.Defense, enemyInfo.AntiRestraint, rate1, rate2, calculateInfo.BaseBreakAirShield + calculateInfo.IncreaseBreakAirShield, enemyInfo.AirShield, _attributePageModel.ExperimentMode, enemyInfo.AntiElementAttack);
             calculateInfo.NonCriticalDamageFunValue = CalculatorUtility.CalculateNonCriticalDamage(calculateInfo.BaseDamageFunValue, (calculateInfo.BaseRestrainedRate + calculateInfo.IncreaseRestrainedRate) / 100.0);
-            calculateInfo.CriticalDamageFunValue = CalculatorUtility.CalculateCriticalDamage(calculateInfo.NonCriticalDamageFunValue, calculateInfo.BaseHit + calculateInfo.IncreaseHit, enemyInfo.Block, (calculateInfo.BaseCriticalRate + calculateInfo.IncreaseCriticalRate - 100) / 100.0, calculateInfo.BaseCriticalHits + calculateInfo.IncreaseCriticalHits, enemyInfo.AntiCriticalHits, calculateInfo.BaseZtCriticalHitsRate / 100.0, out double newRate);
+            calculateInfo.CriticalDamageFunValue = CalculatorUtility.CalculateCriticalDamage(calculateInfo.NonCriticalDamageFunValue, calculateInfo.BaseHit + calculateInfo.IncreaseHit, enemyInfo.Block, (calculateInfo.BaseCriticalRate + calculateInfo.IncreaseCriticalRate - 100) / 100.0, calculateInfo.BaseCriticalHits + calculateInfo.IncreaseCriticalHits, enemyInfo.AntiCriticalHits, calculateInfo.BaseZtCriticalHitsRate / 100.0, out double newRate, _attributePageModel.Version13Mode ? HitCalculateVersion.Version13 : HitCalculateVersion.Version11);
             calculateInfo.ImprovePercent = (calculateInfo.CriticalDamageFunValue - baseCriticalDamageFunValue) / baseCriticalDamageFunValue;
             calculateInfo.HitRate = (95 + 143 * (calculateInfo.BaseHit + calculateInfo.IncreaseHit) * 1.0 / (calculateInfo.BaseHit + calculateInfo.IncreaseHit + 713) - 143 * enemyInfo.Block * 1.0 / (enemyInfo.Block + 713)) / 100;
             calculateInfo.CalCriticalRate = newRate;
@@ -337,17 +342,17 @@
         for (int i = 1; i <= 20; i++)
         {
             var calculateDamage = CalculatorUtility.CalculateBaseDamage(_attributePageModel.PageCalculateInfo.BaseAttack + _attributePageModel.PageCalculateInfo.IncreaseAttack + i * BaseIncreaseNum, _attributePageModel.PageCalculateInfo.BaseRestraint + _attributePageModel.PageCalculateInfo.IncreaseRestraint, _attributePageModel.PageCalculateInfo.BaseElementAttack + _attributePageModel.PageCalculateInfo.IncreaseElementAttack,
-                _attributePageModel.PageCalculateInfo.BaseBreakDefense + _attributePageModel.PageCalculateInfo.IncreaseBreakDefense, _attributePageModel.PageEnemyInfo.Defense, _attributePageModel.PageEnemyInfo.AntiRestraint, rate1, rate2, _attributePageModel.PageCalculateInfo.BaseBreakAirShield + _attributePageModel.PageCalculateInfo.IncreaseBreakAirShield, _attributePageModel.PageEnemyInfo.AirShield, _experimentMode, _attributePageModel.PageEnemyInfo.AntiElementAttack);
+                _attributePageModel.PageCalculateInfo.BaseBreakDefense + _attributePageModel.PageCalculateInfo.IncreaseBreakDefense, _attributePageModel.PageEnemyInfo.Defense, _attributePageModel.PageEnemyInfo.AntiRestraint, rate1, rate2, _attributePageModel.PageCalculateInfo.BaseBreakAirShield + _attributePageModel.PageCalculateInfo.IncreaseBreakAirShield, _attributePageModel.PageEnemyInfo.AirShield, _attributePageModel.ExperimentMode, _attributePageModel.PageEnemyInfo.AntiElementAttack);
             _pointDictionary[LabelArray[0]][i - 1].Y = (calculateDamage - oldAttack) / oldAttack;
             oldAttack = calculateDamage;
 
             calculateDamage = CalculatorUtility.CalculateBaseDamage(_attributePageModel.PageCalculateInfo.BaseAttack + _attributePageModel.PageCalculateInfo.IncreaseAttack, _attributePageModel.PageCalculateInfo.BaseRestraint + _attributePageModel.PageCalculateInfo.IncreaseRestraint, _attributePageModel.PageCalculateInfo.BaseElementAttack + _attributePageModel.PageCalculateInfo.IncreaseElementAttack + i * BaseIncreaseNum,
-                _attributePageModel.PageCalculateInfo.BaseBreakDefense + _attributePageModel.PageCalculateInfo.IncreaseBreakDefense, _attributePageModel.PageEnemyInfo.Defense, _attributePageModel.PageEnemyInfo.AntiRestraint, rate1, rate2, _attributePageModel.PageCalculateInfo.BaseBreakAirShield + _attributePageModel.PageCalculateInfo.IncreaseBreakAirShield, _attributePageModel.PageEnemyInfo.AirShield, _experimentMode,_attributePageModel.PageEnemyInfo.AntiElementAttack);
+                _attributePageModel.PageCalculateInfo.BaseBreakDefense + _attributePageModel.PageCalculateInfo.IncreaseBreakDefense, _attributePageModel.PageEnemyInfo.Defense, _attributePageModel.PageEnemyInfo.AntiRestraint, rate1, rate2, _attributePageModel.PageCalculateInfo.BaseBreakAirShield + _attributePageModel.PageCalculateInfo.IncreaseBreakAirShield, _attributePageModel.PageEnemyInfo.AirShield, _attributePageModel.ExperimentMode, _attributePageModel.PageEnemyInfo.AntiElementAttack);
             _pointDictionary[LabelArray[1]][i - 1].Y = (calculateDamage - oldElement) / oldElement;
             oldElement = calculateDamage;
 
             calculateDamage = CalculatorUtility.CalculateBaseDamage(_attributePageModel.PageCalculateInfo.BaseAttack + _attributePageModel.PageCalculateInfo.IncreaseAttack, _attributePageModel.PageCalculateInfo.BaseRestraint + _attributePageModel.PageCalculateInfo.IncreaseRestraint, _attributePageModel.PageCalculateInfo.BaseElementAttack + _attributePageModel.PageCalculateInfo.IncreaseElementAttack,
-                _attributePageModel.PageCalculateInfo.BaseBreakDefense + _attributePageModel.PageCalculateInfo.IncreaseBreakDefense + i * BaseIncreaseNum, _attributePageModel.PageEnemyInfo.Defense, _attributePageModel.PageEnemyInfo.AntiRestraint, rate1, rate2, _attributePageModel.PageCalculateInfo.BaseBreakAirShield + _attributePageModel.PageCalculateInfo.IncreaseBreakAirShield, _attributePageModel.PageEnemyInfo.AirShield, _experimentMode, _attributePageModel.PageEnemyInfo.AntiElementAttack);
+                _attributePageModel.PageCalculateInfo.BaseBreakDefense + _attributePageModel.PageCalculateInfo.IncreaseBreakDefense + i * BaseIncreaseNum, _attributePageModel.PageEnemyInfo.Defense, _attributePageModel.PageEnemyInfo.AntiRestraint, rate1, rate2, _attributePageModel.PageCalculateInfo.BaseBreakAirShield + _attributePageModel.PageCalculateInfo.IncreaseBreakAirShield, _attributePageModel.PageEnemyInfo.AirShield, _attributePageModel.ExperimentMode, _attributePageModel.PageEnemyInfo.AntiElementAttack);
             _pointDictionary[LabelArray[2]][i - 1].Y = (calculateDamage - oldBreakDefense) / oldBreakDefense;
             oldBreakDefense = calculateDamage;
 
@@ -362,7 +367,7 @@
             oldCritical = calculateDamage;
 
             calculateDamage = CalculatorUtility.CalculateBaseDamage(_attributePageModel.PageCalculateInfo.BaseAttack + _attributePageModel.PageCalculateInfo.IncreaseAttack, _attributePageModel.PageCalculateInfo.BaseRestraint + _attributePageModel.PageCalculateInfo.IncreaseRestraint + i * BaseIncreaseNum, _attributePageModel.PageCalculateInfo.BaseElementAttack + _attributePageModel.PageCalculateInfo.IncreaseElementAttack,
-                _attributePageModel.PageCalculateInfo.BaseBreakDefense + _attributePageModel.PageCalculateInfo.IncreaseBreakDefense, _attributePageModel.PageEnemyInfo.Defense, _attributePageModel.PageEnemyInfo.AntiRestraint, rate1, rate2, _attributePageModel.PageCalculateInfo.BaseBreakAirShield + _attributePageModel.PageCalculateInfo.IncreaseBreakAirShield, _attributePageModel.PageEnemyInfo.AirShield, _experimentMode, _attributePageModel.PageEnemyInfo.AntiElementAttack);
+                _attributePageModel.PageCalculateInfo.BaseBreakDefense + _attributePageModel.PageCalculateInfo.IncreaseBreakDefense, _attributePageModel.PageEnemyInfo.Defense, _attributePageModel.PageEnemyInfo.AntiRestraint, rate1, rate2, _attributePageModel.PageCalculateInfo.BaseBreakAirShield + _attributePageModel.PageCalculateInfo.IncreaseBreakAirShield, _attributePageModel.PageEnemyInfo.AirShield, _attributePageModel.ExperimentMode, _attributePageModel.PageEnemyInfo.AntiElementAttack);
             _pointDictionary[LabelArray[5]][i - 1].Y = (calculateDamage - oldRestraint) / oldRestraint;
             oldRestraint = calculateDamage;
         }

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using NshmCalculator.Shared.Models.BaseModel.Enums;
 using NshmCalculator.Shared.Models.CalculatorModel.KI;
 using NshmCalculator.Shared.Models.Interface;
 

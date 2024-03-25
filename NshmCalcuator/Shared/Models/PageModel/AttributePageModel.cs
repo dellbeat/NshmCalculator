@@ -27,4 +27,14 @@ public class AttributePageModel
     };
 
     public List<AttributeCalculateInfo> DamageInfoHistory = new();
+
+    /// <summary>
+    /// 1.3命中
+    /// </summary>
+    public bool Version13Mode { get; set; } = false;
+
+    /// <summary>
+    /// 气盾模式（实验）
+    /// </summary>
+    public bool ExperimentMode { get; set; } = false;
 }

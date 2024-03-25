@@ -1,4 +1,5 @@
 ﻿using NshmCalculator.Shared.Models.BaseModel;
+using NshmCalculator.Shared.Models.BaseModel.Enums;
 using NshmCalculator.Shared.Models.CalculatorModel.KI;
 
 namespace NshmCalculator.Shared;
@@ -17,11 +18,13 @@ public static class CalculatorUtility
     /// <param name="hit">新增命中</param>
     /// <param name="criticalHits">新增会心数值</param>
     /// <param name="criticalRate">新增会伤率</param>
-    /// <param name="fixHitMode">命中修复模式</param>
+    /// <param name="fixHitMode">命中限制模式</param>
+    /// <param name="version">算法版本</param>
     /// <returns>返回元组，分别为提升百分比和命中率</returns>
     public static (double, double) CalculateIncreaseRate(PlayerBaseInfo baseInfo, EnemyInfo enemyInfo,
-        double attack = 0, int breakDefense = 0, int elementAttack = 0, int restraint = 0, double hit = 0,
-        double criticalHits = 0, double criticalRate = 0, bool fixHitMode = false)
+        double attack = 0, int breakDefense = 0, int elementAttack = 0, double restraint = 0, double hit = 0,
+        double criticalHits = 0, double criticalRate = 0, bool fixHitMode = false,
+        HitCalculateVersion version = HitCalculateVersion.Version13)
     {
         (double, double) rate = (0, 0); //分别为提升百分比和命中率
 
@@ -31,24 +34,15 @@ public static class CalculatorUtility
         int defenseSubFull = enemyInfo.Defense - baseInfo.BaseBreakDefense - breakDefense >= 0
             ? enemyInfo.Defense - baseInfo.BaseBreakDefense - breakDefense
             : 0;
-        double baseHit = fixHitMode
-            ? baseInfo.BaseHit > enemyInfo.FullHit ? enemyInfo.FullHit : baseInfo.BaseHit
-            : baseInfo.BaseHit;
-        double addedHit = fixHitMode
-            ? (baseInfo.BaseHit + hit > enemyInfo.FullHit ? enemyInfo.FullHit : baseInfo.BaseHit + hit)
-            : baseInfo.BaseHit + hit;
 
         double b1 = (115 * (baseInfo.BaseCriticalHits - enemyInfo.AntiCriticalHits) + 90) * 1.0 /
                     (baseInfo.BaseCriticalHits - enemyInfo.AntiCriticalHits + 940) / 100 +
                     baseInfo.BaseZtCriticalHitsRate * 1.0 / 100; //暴击百分比
-        double b2 =
-            (95 + 143 * baseHit * 1.0 / (baseHit + 713) - 143 * enemyInfo.Block * 1.0 / (enemyInfo.Block + 713)) /
-            100; //命中值
+        double b2 = CalculateHitRate(baseInfo.BaseHit, enemyInfo.Block, version, fixHitMode); //命中值
         double b3 = (115 * (baseInfo.BaseCriticalHits - enemyInfo.AntiCriticalHits + criticalHits) + 90) * 1.0 /
                     (baseInfo.BaseCriticalHits - enemyInfo.AntiCriticalHits + criticalHits + 940) / 100 +
                     baseInfo.BaseZtCriticalHitsRate * 1.0 / 100; //新增后暴击百分比
-        double b4 = (95 + 143 * addedHit * 1.0 / (addedHit + 713) -
-                     143 * enemyInfo.Block * 1.0 / (enemyInfo.Block + 713)) / 100; //新增后命中值
+        double b4 = CalculateHitRate(baseInfo.BaseHit + hit, enemyInfo.Block, version, fixHitMode); //新增后命中值
         double b5 = b4 - b2; //新增命中百分比
         double b6 = (b2 * (1 + b3 * (baseInfo.BaseCriticalRate * 1.0 / 100 - 1)) + 0.5 - b2 / 2) /
             (b2 * (1 + b1 * (baseInfo.BaseCriticalRate * 1.0 / 100 - 1)) + 0.5 - b2 / 2) - 1; //暴击提升率
@@ -68,7 +62,7 @@ public static class CalculatorUtility
             (b2 * (1 + b1 * (baseInfo.BaseCriticalRate * 1.0 / 100 - 1)) + 0.5 - b2 / 2) - 1; //会伤收益率
 
         rate.Item1 = (b6 + 1) * (b7 + 1) * (1 + b10) * (1 + b12) * (1 + b13) - 1;
-        rate.Item2 = fixHitMode ? baseInfo.BaseHit + hit >= enemyInfo.FullHit ? 1 : b4 : b4;
+        rate.Item2 = fixHitMode ? Math.Min(1, b4) : b4;
 
         return rate;
     }
@@ -79,9 +73,10 @@ public static class CalculatorUtility
     /// <param name="baseInfo">玩家面板</param>
     /// <param name="enemyInfo">敌方数据</param>
     /// <param name="deliveryData">投放数据，目前为定值</param>
+    /// <param name="version">算法版本</param>
     /// <returns>攻击克制,属性攻击,破防,命中,会心,会伤,气海,身法</returns>
     public static KiEarningRate CalculatePerGains(PlayerBaseInfo baseInfo, EnemyInfo enemyInfo,
-        DeliveryData deliveryData)
+        DeliveryData deliveryData, HitCalculateVersion version = HitCalculateVersion.Version11)
     {
         KiEarningRate rate = new KiEarningRate
         {
@@ -93,10 +88,13 @@ public static class CalculatorUtility
                 deliveryData.ElementAttack,
             BreakDefense = CalculateIncreaseRate(baseInfo, enemyInfo, breakDefense: deliveryData.BreakDefense).Item1 /
                            deliveryData.BreakDefense,
-            Hit = CalculateIncreaseRate(baseInfo, enemyInfo, hit: deliveryData.Hit, fixHitMode: true).Item1 /
+            Hit = CalculateIncreaseRate(baseInfo, enemyInfo, hit: deliveryData.Hit, fixHitMode: true, version: version)
+                      .Item1 /
                   deliveryData.Hit,
-            CriticalHits = CalculateIncreaseRate(baseInfo, enemyInfo, criticalHits: deliveryData.CriticalHits).Item1 /
-                           deliveryData.CriticalHits,
+            CriticalHits =
+                CalculateIncreaseRate(baseInfo, enemyInfo, criticalHits: deliveryData.CriticalHits, version: version)
+                    .Item1 /
+                deliveryData.CriticalHits,
             CriticalRate = CalculateIncreaseRate(baseInfo, enemyInfo, criticalRate: deliveryData.CriticalRate).Item1 /
                            deliveryData.CriticalRate
         };
@@ -127,13 +125,8 @@ public static class CalculatorUtility
         int breakAirShieldOfPlayer = 0, int airShieldOfMonster = 0, bool airShieldEnable = false,
         int enemyAntiElement = 0)
     {
-        double remainAirShield = airShieldEnable
-            ? breakAirShieldOfPlayer >= airShieldOfMonster
-                ? 0
-                : breakAirShieldOfPlayer * 1.0 <= airShieldOfMonster * 1.0 / 3
-                    ? airShieldOfMonster - 2 * breakAirShieldOfPlayer
-                    : 0.5 * (airShieldOfMonster - breakAirShieldOfPlayer)
-            : 0;
+        double remainAirShield =
+            airShieldEnable ? CalculateRemainAirShield(breakAirShieldOfPlayer, airShieldOfMonster) : 0;
         double resistanceRemission = enemyAntiElement * 1.0 / (enemyAntiElement + 530); //敌方元素抗性减免
         int remainDefense = defenseOfMonster - breakDefenseOfPlayer; //敌方剩余防御，理论不会小于0，不做特别判断
         if (remainDefense < 0)
@@ -170,16 +163,12 @@ public static class CalculatorUtility
     /// <param name="criticalDefenseOfMonster">敌方会心抵抗</param>
     /// <param name="extraCriticalRate">内功提供的额外会心率</param>
     /// <param name="calCriticalRate">计算的会心率结果</param>
+    /// <param name="version">算法版本</param>
     public static double CalculateCriticalDamage(double nonCriticalDamage, int hitNum, int blockOfMonster,
         double criticalSubRate, int criticalHit, int criticalDefenseOfMonster, double extraCriticalRate,
-        out double calCriticalRate)
+        out double calCriticalRate, HitCalculateVersion version = HitCalculateVersion.Version11)
     {
-        double panelHitRateOfPlayer =
-            (143 * hitNum * 1.0 / (hitNum + 713) / 100 is var panelNum && panelNum > 1
-                ? 1
-                : panelNum); //玩家[攻击方]面板命中率
-        double panelDefenseRateOfMonster = 143 * 1.0 * blockOfMonster / (blockOfMonster + 713) / 100; //敌方[受击方]面板格挡率Da
-        double hitRateOfPlayer = 0.95 + panelHitRateOfPlayer - panelDefenseRateOfMonster; //玩家对敌方命中率
+        double hitRateOfPlayer = CalculateHitRate(hitNum, blockOfMonster, version, false); //玩家对敌方命中率
         if (hitRateOfPlayer > 1)
         {
             hitRateOfPlayer = 1;
@@ -194,4 +183,47 @@ public static class CalculatorUtility
 
         return criticalDamage;
     }
+
+    #region 特定数值计算方法
+
+    /// <summary>
+    /// 计算命中率（不处理满命中后的情况，需要由调用方自行处理）
+    /// </summary>
+    /// <param name="fullHit">玩家命中</param>
+    /// <param name="block">敌方格挡</param>
+    /// <param name="versionEnum">算法版本</param>
+    /// <param name="fixMode">最大值是否限制为1，用于兼容部分计算器的情况</param>
+    /// <returns>命中率</returns>
+    public static double CalculateHitRate(double fullHit, int block, HitCalculateVersion versionEnum, bool fixMode)
+    {
+        double rate = 0;
+        switch (versionEnum)
+        {
+            case HitCalculateVersion.Version11:
+                rate = (95 + 143 * fullHit * 1.0 / (fullHit + 713) - 143 * block * 1.0 / (block + 713)) / 100;
+                break;
+            case HitCalculateVersion.Version13:
+                rate = (95 + 141.9 * (fullHit - block) * 1.0 / (fullHit - block + 3640)) / 100;
+                break;
+        }
+
+        return fixMode ? Math.Min(1, rate) : rate;
+    }
+
+    /// <summary>
+    /// 剩余气盾计算方法
+    /// </summary>
+    /// <param name="breakAirShieldOfPlayer">玩家破盾</param>
+    /// <param name="airShieldOfMonster">敌方气盾</param>
+    /// <returns>剩余气盾</returns>
+    public static double CalculateRemainAirShield(int breakAirShieldOfPlayer, int airShieldOfMonster)
+    {
+        return breakAirShieldOfPlayer >= airShieldOfMonster
+            ? 0
+            : breakAirShieldOfPlayer * 1.0 <= airShieldOfMonster * 1.0 / 3
+                ? airShieldOfMonster - 2 * breakAirShieldOfPlayer
+                : 0.5 * (airShieldOfMonster - breakAirShieldOfPlayer);
+    }
+
+    #endregion
 }

@@ -51,5 +51,5 @@ public class EnemyInfo
     /// <summary>
     /// 满命中
     /// </summary>
-    public int FullHit => Convert.ToInt32(Math.Floor((105524 * Block + 2541845) * 1.0 / (98394 - 5 * Block)));
+    public int FullHit => Block + 133;//133为方程 1.419*X/(3640+X)=0.05的向上取整值
 }

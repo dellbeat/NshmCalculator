@@ -1,4 +1,4 @@
-﻿namespace NshmCalculator.Shared.Models.BaseModel;
+﻿namespace NshmCalculator.Shared.Models.BaseModel.Enums;
 
 /// <summary>
 /// 表示<see cref="KIInfo"/>实例传出时的状态

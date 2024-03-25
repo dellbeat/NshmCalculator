@@ -1,4 +1,5 @@
 using NshmCalculator.Shared.Models.BaseModel;
+using NshmCalculator.Shared.Models.BaseModel.Enums;
 using NshmCalculator.Shared.Models.CalculatorModel;
 using NshmCalculator.Shared.Models.CalculatorModel.KI;
 using NshmCalculator.Shared.Models.PageModel;
@@ -33,14 +34,16 @@ public partial class CalculatorUtilityTest
             AirShield = airShield
         };
 
-        double damage1 = Shared.CalculatorUtility.CalculateBaseDamage(calculateInfo.BaseAttack + calculateInfo.IncreaseAttack,
+        double damage1 = Shared.CalculatorUtility.CalculateBaseDamage(
+            calculateInfo.BaseAttack + calculateInfo.IncreaseAttack,
             calculateInfo.BaseRestraint + calculateInfo.IncreaseRestraint,
             calculateInfo.BaseElementAttack + calculateInfo.IncreaseElementAttack,
             calculateInfo.BaseBreakDefense + calculateInfo.IncreaseBreakDefense, enemy.Defense, enemy.AntiRestraint,
             Rate1, Rate2, calculateInfo.BaseBreakAirShield + calculateInfo.IncreaseBreakAirShield, enemy.AirShield,
             true);
 
-        double damage2 = Shared.CalculatorUtility.CalculateBaseDamage(calculateInfo.BaseAttack + calculateInfo.IncreaseAttack,
+        double damage2 = Shared.CalculatorUtility.CalculateBaseDamage(
+            calculateInfo.BaseAttack + calculateInfo.IncreaseAttack,
             calculateInfo.BaseRestraint + calculateInfo.IncreaseRestraint,
             calculateInfo.BaseElementAttack + calculateInfo.IncreaseElementAttack,
             calculateInfo.BaseBreakDefense + calculateInfo.IncreaseBreakDefense, enemy.Defense, enemy.AntiRestraint,
@@ -71,7 +74,8 @@ public partial class CalculatorUtilityTest
             AirShield = airShield
         };
 
-        double damage1 = Shared.CalculatorUtility.CalculateBaseDamage(calculateInfo.BaseAttack + calculateInfo.IncreaseAttack,
+        double damage1 = Shared.CalculatorUtility.CalculateBaseDamage(
+            calculateInfo.BaseAttack + calculateInfo.IncreaseAttack,
             calculateInfo.BaseRestraint + calculateInfo.IncreaseRestraint,
             calculateInfo.BaseElementAttack + calculateInfo.IncreaseElementAttack,
             calculateInfo.BaseBreakDefense + calculateInfo.IncreaseBreakDefense, enemy.Defense, enemy.AntiRestraint,
@@ -80,7 +84,8 @@ public partial class CalculatorUtilityTest
 
         calculateInfo.IncreaseRestraint = 0; //降低剩余气盾，同时降低与之相对的克制数值
 
-        double damage2 = Shared.CalculatorUtility.CalculateBaseDamage(calculateInfo.BaseAttack + calculateInfo.IncreaseAttack,
+        double damage2 = Shared.CalculatorUtility.CalculateBaseDamage(
+            calculateInfo.BaseAttack + calculateInfo.IncreaseAttack,
             calculateInfo.BaseRestraint + calculateInfo.IncreaseRestraint,
             calculateInfo.BaseElementAttack + calculateInfo.IncreaseElementAttack,
             calculateInfo.BaseBreakDefense + calculateInfo.IncreaseBreakDefense, enemy.Defense, enemy.AntiRestraint,
@@ -112,7 +117,8 @@ public partial class CalculatorUtilityTest
             AirShield = airShield
         };
 
-        double damage1 = Shared.CalculatorUtility.CalculateBaseDamage(calculateInfo.BaseAttack + calculateInfo.IncreaseAttack,
+        double damage1 = Shared.CalculatorUtility.CalculateBaseDamage(
+            calculateInfo.BaseAttack + calculateInfo.IncreaseAttack,
             calculateInfo.BaseRestraint + calculateInfo.IncreaseRestraint,
             calculateInfo.BaseElementAttack + calculateInfo.IncreaseElementAttack,
             calculateInfo.BaseBreakDefense + calculateInfo.IncreaseBreakDefense, enemy.Defense, enemy.AntiRestraint,
@@ -121,7 +127,8 @@ public partial class CalculatorUtilityTest
 
         calculateInfo.IncreaseRestraint = 0; //降低剩余气盾，同时降低与之相对的克制数值
 
-        double damage2 = Shared.CalculatorUtility.CalculateBaseDamage(calculateInfo.BaseAttack + calculateInfo.IncreaseAttack,
+        double damage2 = Shared.CalculatorUtility.CalculateBaseDamage(
+            calculateInfo.BaseAttack + calculateInfo.IncreaseAttack,
             calculateInfo.BaseRestraint + calculateInfo.IncreaseRestraint,
             calculateInfo.BaseElementAttack + calculateInfo.IncreaseElementAttack,
             calculateInfo.BaseBreakDefense + calculateInfo.IncreaseBreakDefense, enemy.Defense, enemy.AntiRestraint,
@@ -137,7 +144,7 @@ public partial class CalculatorUtilityTest
     #region 属性收益计算器相关
 
     /// <summary>
-    /// 属性收益计算器测试方法
+    /// 属性收益计算器测试方法(1.3之前）
     /// </summary>
     /// <param name="model"></param>
     [Test, TestCaseSource(nameof(ResultTestData))]
@@ -154,7 +161,8 @@ public partial class CalculatorUtilityTest
             enemyInfo.AntiRestraint, Rate1, Rate2,
             calculateInfo.BaseBreakAirShield + calculateInfo.IncreaseBreakAirShield, enemyInfo.AirShield, true,
             enemyInfo.AntiElementAttack);
-        var nonCriticalDamageFunValue = Shared.CalculatorUtility.CalculateNonCriticalDamage(calculateInfo.BaseDamageFunValue,
+        var nonCriticalDamageFunValue = Shared.CalculatorUtility.CalculateNonCriticalDamage(
+            calculateInfo.BaseDamageFunValue,
             (calculateInfo.BaseRestrainedRate + calculateInfo.IncreaseRestrainedRate) / 100.0);
         var criticalDamageFunValue = Shared.CalculatorUtility.CalculateCriticalDamage(nonCriticalDamageFunValue,
             calculateInfo.BaseHit + calculateInfo.IncreaseHit, enemyInfo.Block,
@@ -175,7 +183,7 @@ public partial class CalculatorUtilityTest
     #region 增伤率计算器相关
 
     /// <summary>
-    /// 增伤计算器测试方法
+    /// 增伤计算器测试方法(1.1命中算法)
     /// </summary>
     /// <param name="model">需测试的数据</param>
     [Test, TestCaseSource(nameof(DamageRateTestData))]
@@ -186,7 +194,8 @@ public partial class CalculatorUtilityTest
 
         var percent = Shared.CalculatorUtility.CalculateIncreaseRate(baseInfo, enemyInfo, baseInfo.IncreaseAttack,
             baseInfo.IncreaseBreakDefense, baseInfo.IncreaseElementAttack, baseInfo.IncreaseRestraint,
-            baseInfo.IncreaseHit, baseInfo.IncreaseCriticalHits, baseInfo.IncreaseCriticalRate, true);
+            baseInfo.IncreaseHit, baseInfo.IncreaseCriticalHits, baseInfo.IncreaseCriticalRate, true,
+            HitCalculateVersion.Version11);
 
         Assert.True(Math.Abs(percent.Item1 - baseInfo.Result) < DeviationLimit);
 
@@ -195,7 +204,7 @@ public partial class CalculatorUtilityTest
 
     #endregion
 
-    [Test,TestCaseSource(nameof(PerGainsTestData))]
+    [Test, TestCaseSource(nameof(PerGainsTestData))]
     public void PerGainsTest(PlayerBaseInfo baseInfo, EnemyInfo enemyInfo, KiEarningRate rate)
     {
         var calRate = Shared.CalculatorUtility.CalculatePerGains(baseInfo, enemyInfo, _deliveryData);
@@ -208,7 +217,7 @@ public partial class CalculatorUtilityTest
         Assert.True(Math.Abs(calRate.CriticalRate - rate.CriticalRate) < DeviationLimit);
         Assert.True(Math.Abs(calRate.Strength - rate.Strength) < DeviationLimit);
         Assert.True(Math.Abs(calRate.Lightness - rate.Lightness) < DeviationLimit);
-        
+
         Assert.Pass("提升收益-测试通过");
     }
 }

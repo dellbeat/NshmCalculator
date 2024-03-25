@@ -8,6 +8,7 @@
 @using NshmCalculator.Shared.Models.CalculatorModel.KI
 @using NshmCalculator.Shared.Models.PageModel
 @using Blazored.LocalStorage
+@using NshmCalculator.Shared.Models.BaseModel.Enums
 @inject ISyncLocalStorageService LocalStorage
 @* ReSharper disable once IdentifierTypo *@
 @inject ISnackbar Snackbar
@@ -85,7 +86,7 @@
                         <MudSwitch T="bool" @bind-Value="@_readOnlyMode" Color="Color.Info" UnCheckedColor="Color.Dark" Label="新属性只读"></MudSwitch>
                     </MudItem>
                     <MudItem xs="12" Class="d-flex align-center justify-center">
-                        <MudChip Color="Color.Info">满命中：@_kiPageModel.PageEnemyInfo.FullHit</MudChip>
+                        <MudChip Color="Color.Info">满命中(1.3调整)：@_kiPageModel.PageEnemyInfo.FullHit</MudChip>
                     </MudItem>
                     <MudItem xs="12">
                         <MudDivider FlexItem="true"/>
@@ -131,6 +132,11 @@
                     </MudItem>
                     <MudItem xs="12">
                         <MudDivider FlexItem="true"/>
+                    </MudItem>
+                    <MudItem xs="12" Class="d-flex align-center justify-center">
+                        <MudStack Row="true" Spacing="4">
+                            <MudSwitch T="bool" @bind-Value="@_kiPageModel.Version13Mode" Color="Color.Info" UnCheckedColor="Color.Dark" Label="1.3命中调整"></MudSwitch>
+                        </MudStack>
                     </MudItem>
                     <MudItem xs="12" Class="d-flex align-center justify-center">
                         <MudStack Row="true" Spacing="4">
@@ -204,7 +210,7 @@
                             <MudTd DataLabel="攻击分">@context.AttackScore.ToString("F1")</MudTd>
                         </RowTemplate>
                         <PagerContent>
-                            <MudTablePager InfoFormat="第{first_item}-{last_item}条 共{all_items}条" RowsPerPageString="每页行数:" PageSizeOptions=@options/>
+                            <MudTablePager InfoFormat="第{first_item}-{last_item}条 共{all_items}条" RowsPerPageString="每页行数:" PageSizeOptions=@_options/>
                         </PagerContent>
                     </MudTable>
                 </MudPaper>
@@ -224,7 +230,7 @@
     private bool _readOnlyMode = true;
     private bool _allowEditMode = true;
     private KIInfo _selectedItem { get; set; }
-    private int[] options = [5, 10, 20];
+    private readonly int[] _options = [5, 10, 20];
     private List<KIInfo> _baseAtrributeKi { get; set; }
 
     protected override void OnInitialized()
@@ -270,14 +276,14 @@
         {
             bool limitFlag = _kiPageModel.PageCalculateInfo.BaseHit + _kiPageModel.PageCalculateInfo.IncreaseHit > _kiPageModel.PageEnemyInfo.FullHit ||
                              _kiPageModel.PageCalculateInfo.BaseBreakDefense + _kiPageModel.PageCalculateInfo.IncreaseBreakDefense > _kiPageModel.PageEnemyInfo.Defense;
-            KiEarningRate baseRate = CalculatorUtility.CalculatePerGains(_kiPageModel.PageCalculateInfo, _kiPageModel.PageEnemyInfo, _deliveryData);
+            KiEarningRate baseRate = CalculatorUtility.CalculatePerGains(_kiPageModel.PageCalculateInfo, _kiPageModel.PageEnemyInfo, _deliveryData, _kiPageModel.Version13Mode ? HitCalculateVersion.Version13 : HitCalculateVersion.Version11);
 
             double increaseAttack = _kiPageModel.PageCalculateInfo.IncreaseStamina * 1.65 + _kiPageModel.PageCalculateInfo.IncreaseVitality * 1.65 + _kiPageModel.PageCalculateInfo.IncreaseStrength * 5 + _kiPageModel.PageCalculateInfo.IncreaseFullAttack + _kiPageModel.PageCalculateInfo.IncreaseHalfAttack * 0.5;
             int increaseBreakDefense = _kiPageModel.PageCalculateInfo.IncreaseStrength * 2 + _kiPageModel.PageCalculateInfo.IncreaseBreakDefense;
             double increaseHit = _kiPageModel.PageCalculateInfo.IncreaseHit + _kiPageModel.PageCalculateInfo.IncreaseLightness * 0.8;
             double increaseCriticalHits = _kiPageModel.PageCalculateInfo.IncreaseLightness * 1.6 + _kiPageModel.PageCalculateInfo.IncreaseCriticalHits;
 
-            var results = CalculatorUtility.CalculateIncreaseRate(_kiPageModel.PageCalculateInfo, _kiPageModel.PageEnemyInfo, increaseAttack, increaseBreakDefense, _kiPageModel.PageCalculateInfo.IncreaseElementAttack, _kiPageModel.PageCalculateInfo.IncreaseRestraint, increaseHit, increaseCriticalHits, _kiPageModel.PageCalculateInfo.IncreaseCriticalRate, true);
+            var results = CalculatorUtility.CalculateIncreaseRate(_kiPageModel.PageCalculateInfo, _kiPageModel.PageEnemyInfo, increaseAttack, increaseBreakDefense, _kiPageModel.PageCalculateInfo.IncreaseElementAttack, _kiPageModel.PageCalculateInfo.IncreaseRestraint, increaseHit, increaseCriticalHits, _kiPageModel.PageCalculateInfo.IncreaseCriticalRate, true, _kiPageModel.Version13Mode ? HitCalculateVersion.Version13 : HitCalculateVersion.Version11);
 
             _kiPageModel.PageCalculateInfo.Result = results.Item1;
             _kiPageModel.PageCalculateInfo.Score = results.Item1 / baseRate.AttackAndRestraint;
@@ -286,12 +292,12 @@
             {
                 CalculateKi(kiInfo, baseRate);
             }
-            
+
             foreach (var kiInfo in _baseAtrributeKi)
             {
-                CalculateKi(kiInfo,baseRate);
+                CalculateKi(kiInfo, baseRate);
             }
-            
+
             foreach (var kiInfo in _baseAtrributeKi)
             {
                 if (ImproveList.FirstOrDefault(s => s.Name == kiInfo.Name) is { } improve)

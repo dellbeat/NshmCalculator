@@ -33,4 +33,9 @@ public class KIPageModel
     public List<KIInfo> KIInfos { get; set; } = new();
 
     public List<AttributeCalculateInfo> DamageInfoHistory = new();
+    
+    /// <summary>
+    /// 1.3命中
+    /// </summary>
+    public bool Version13Mode { get; set; } = false;
 }
