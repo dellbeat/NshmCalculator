@@ -4,7 +4,7 @@
 
 ![License](https://img.shields.io/github/license/dellbeat/NshmCalculator)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
-![Version](https://img.shields.io/badge/version-1.0.0-brightgreen)
+![Version](https://img.shields.io/badge/version-1.0.2-brightgreen)
 ![PWA Support](https://img.shields.io/badge/PWA-support-blue)
 
 一款集合了网络上部分计算手游属性数值的在线计算器，方便手机端的小伙伴使用。
@@ -29,15 +29,17 @@
 
 ## 内容来源及鸣谢
 
-B站@白宝正不正：[属性计算器不再纠结词条特技装备收益与选择](https://www.bilibili.com/video/BV1G94y1x7sW) （增伤百分比计算器）
+B站<b>@白宝正不正</b>：[属性计算器不再纠结词条特技装备收益与选择](https://www.bilibili.com/video/BV1G94y1x7sW) （增伤百分比计算器）
 
-B站@白宝正不正：[新手向治疗素问养成一图流全攻略](https://www.bilibili.com/video/BV1DP411Y7MK) （素问治疗量计算器）
+B站<b>@白宝正不正</b>：[新手向治疗素问养成一图流全攻略](https://www.bilibili.com/video/BV1DP411Y7MK) （素问治疗量计算器）
 
-贴吧@星语困： [独家首发！！逆水寒手游属性收益计算器！](https://tieba.baidu.com/p/8530450428) （属性收益计算器）
+贴吧<b>@星语困</b>： [独家首发！！逆水寒手游属性收益计算器！](https://tieba.baidu.com/p/8530450428) （属性收益计算器）
 
-NGA@UID:42330896： [[攻略]内功计算器1.2.2南问雪版](https://g.nga.cn/read.php?tid=38987417&rand=308) （内功收益计算器）
+NGA<b>@UID:42330896</b>： [[攻略]内功计算器1.2.2南问雪版](https://g.nga.cn/read.php?tid=38987417&rand=308) （内功收益计算器）
 
 [arkntools/arknights-toolbox](https://github.com/arkntools/arknights-toolbox) （设计思路参考）
+
+B站<b>@乾珏Zzz</b>：[不用在辛苦找人调号啦！PVE属性收益计算器，解决你装备内功选择困难症](https://www.bilibili.com/video/BV1f6421G7Vm/)（计算公式参考）
 
 ## 开发契机和历程
 
