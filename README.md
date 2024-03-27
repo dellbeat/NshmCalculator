@@ -4,7 +4,7 @@
 
 ![License](https://img.shields.io/github/license/dellbeat/NshmCalculator)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
-![Version](https://img.shields.io/badge/version-1.0.2-brightgreen)
+![Version](https://img.shields.io/badge/version-1.0.3-brightgreen)
 ![PWA Support](https://img.shields.io/badge/PWA-support-blue)
 
 一款集合了网络上部分计算手游属性数值的在线计算器，方便手机端的小伙伴使用。
