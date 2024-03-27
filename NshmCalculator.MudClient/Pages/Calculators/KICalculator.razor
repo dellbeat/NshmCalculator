@@ -37,28 +37,31 @@
                     <MudItem xs="12">
                         <MudText Typo="Typo.subtitle2" Align="Align.Center">玩家基础面板</MudText>
                     </MudItem>
-                    <MudItem xs="6" sm="3">
+                    <MudItem xs="6" sm="4">
                         <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseAttack" For="@(() => _kiPageModel.PageCalculateInfo.BaseAttack)" Label="基础攻击" Variant="Variant.Outlined"/>
                     </MudItem>
-                    <MudItem xs="6" sm="3">
+                    <MudItem xs="6" sm="4">
                         <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseRestraint" For="@(() => _kiPageModel.PageCalculateInfo.BaseRestraint)" Label="基础克制" Variant="Variant.Outlined"/>
                     </MudItem>
-                    <MudItem xs="6" sm="3">
+                    <MudItem xs="6" sm="4">
                         <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseElementAttack" For="@(() => _kiPageModel.PageCalculateInfo.BaseElementAttack)" Label="基础属性攻击" Variant="Variant.Outlined"/>
                     </MudItem>
-                    <MudItem xs="6" sm="3">
+                    <MudItem xs="6" sm="4">
                         <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseBreakDefense" For="@(() => _kiPageModel.PageCalculateInfo.BaseBreakDefense)" Label="基础破防" Variant="Variant.Outlined"/>
                     </MudItem>
-                    <MudItem xs="6" sm="3">
+                    <MudItem xs="6" sm="4">
                         <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseHit" For="@(() => _kiPageModel.PageCalculateInfo.BaseHit)" Label="基础命中" Variant="Variant.Outlined"/>
                     </MudItem>
-                    <MudItem xs="6" sm="3">
+                    <MudItem xs="6" sm="4">
                         <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseCriticalHits" For="@(() => _kiPageModel.PageCalculateInfo.BaseCriticalHits)" Label="基础会心" Variant="Variant.Outlined"/>
                     </MudItem>
-                    <MudItem xs="6" sm="3">
+                    <MudItem xs="6" sm="4">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseBreakAirShield" For="@(() => _kiPageModel.PageCalculateInfo.BaseBreakAirShield)" Label="基础破盾" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="4">
                         <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseCriticalRate" For="@(() => _kiPageModel.PageCalculateInfo.BaseCriticalRate)" Label="基础会伤" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Variant="Variant.Outlined"/>
                     </MudItem>
-                    <MudItem xs="6" sm="3">
+                    <MudItem xs="6" sm="4">
                         <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageCalculateInfo.BaseZtCriticalHitsRate" For="@(() => _kiPageModel.PageCalculateInfo.BaseZtCriticalHitsRate)" HelperText="原计算器内固定为5%，请根据实际情况调整" Label="周天会心率" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Variant="Variant.Outlined"/>
                     </MudItem>
                     <MudItem xs="12">
@@ -74,16 +77,16 @@
                         <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageEnemyInfo.Block" For="@(() => _kiPageModel.PageEnemyInfo.Block)" Label="敌方格挡" Variant="Variant.Outlined"/>
                     </MudItem>
                     <MudItem xs="6" sm="4">
-                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageEnemyInfo.AntiRestraint" For="@(() => _kiPageModel.PageEnemyInfo.AntiRestraint)" Label="敌方抵御（新）" Variant="Variant.Outlined"/>
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageEnemyInfo.AntiRestraint" For="@(() => _kiPageModel.PageEnemyInfo.AntiRestraint)" Label="敌方抵御" Variant="Variant.Outlined" />
                     </MudItem>
                     <MudItem xs="6" sm="4">
-                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageEnemyInfo.AntiCriticalHits" For="@(() => _kiPageModel.PageEnemyInfo.AntiCriticalHits)" Label="敌方会心抗性（新）" Variant="Variant.Outlined"/>
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageEnemyInfo.AntiCriticalHits" For="@(() => _kiPageModel.PageEnemyInfo.AntiCriticalHits)" Label="敌方会心抗性" Variant="Variant.Outlined" />
                     </MudItem>
                     <MudItem xs="6" sm="4">
-                        <MudTextField ShrinkLabel ReadOnly="@_readOnlyMode" @bind-Value="_kiPageModel.PageEnemyInfo.AntiElementAttack" For="@(() => _kiPageModel.PageEnemyInfo.AntiElementAttack)" Label="敌方元素抗性（新）" Variant="Variant.Outlined"/>
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageEnemyInfo.AntiElementAttack" For="@(() => _kiPageModel.PageEnemyInfo.AntiElementAttack)" Label="敌方元素抗性" Variant="Variant.Outlined" />
                     </MudItem>
-                    <MudItem xs="6" sm="4" Class="d-flex align-center justify-center">
-                        <MudSwitch T="bool" @bind-Value="@_readOnlyMode" Color="Color.Info" UnCheckedColor="Color.Dark" Label="新属性只读"></MudSwitch>
+                    <MudItem xs="6" sm="4">
+                        <MudTextField ShrinkLabel @bind-Value="_kiPageModel.PageEnemyInfo.AirShield" For="@(() => _kiPageModel.PageEnemyInfo.AirShield)" Label="敌方气盾" Variant="Variant.Outlined" />
                     </MudItem>
                     <MudItem xs="12" Class="d-flex align-center justify-center">
                         <MudChip Color="Color.Info">满命中(1.3调整)：@_kiPageModel.PageEnemyInfo.FullHit</MudChip>

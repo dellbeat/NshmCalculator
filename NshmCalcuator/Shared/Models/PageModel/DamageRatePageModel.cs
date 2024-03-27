@@ -26,4 +26,6 @@ public class DamageRatePageModel
     };
 
     public List<DamageRateCalculateInfo> DamageInfoHistory { get; set; } = new();
+
+    public bool ReadOnlyMode { get; set; } = false;
 }

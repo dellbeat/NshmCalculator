@@ -61,6 +61,13 @@ namespace NshmCalculator.Shared.Models.BaseModel
         [Required]
         [Range(0, 5, ErrorMessage = "请保证周天会心百分比在0.0-5.0范围内")]
         public double BaseZtCriticalHitsRate { get; set; }
+        
+        /// <summary>
+        /// 玩家基础破盾
+        /// </summary>
+        [Required]
+        [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
+        public int BaseBreakAirShield { get; set; }
 
         #endregion
 

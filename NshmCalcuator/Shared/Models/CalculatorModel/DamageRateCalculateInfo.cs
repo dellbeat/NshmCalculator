@@ -51,6 +51,13 @@ public class DamageRateCalculateInfo : PlayerBaseInfo
     [Required]
     [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
     public int IncreaseCriticalHits { get; set; }
+    
+    /// <summary>
+    /// 新增气盾
+    /// </summary>
+    [Required]
+    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
+    public int IncreaseBreakAirShield { get; set; }
 
     /// <summary>
     /// 新增会伤率

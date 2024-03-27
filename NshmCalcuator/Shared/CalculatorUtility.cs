@@ -17,6 +17,7 @@ public static class CalculatorUtility
     /// <param name="restraint">新增首领克制数值</param>
     /// <param name="hit">新增命中</param>
     /// <param name="criticalHits">新增会心数值</param>
+    /// <param name="breakAirShield">新增破盾</param>
     /// <param name="criticalRate">新增会伤率</param>
     /// <param name="fixHitMode">命中限制模式</param>
     /// <param name="version">算法版本</param>
@@ -35,6 +36,8 @@ public static class CalculatorUtility
             ? enemyInfo.Defense - baseInfo.BaseBreakDefense - breakDefense
             : 0;
 
+        double remainAirShield = CalculateRemainAirShield(baseInfo.BaseBreakAirShield, enemyInfo.AirShield);
+
         double b1 = (115 * (baseInfo.BaseCriticalHits - enemyInfo.AntiCriticalHits) + 90) * 1.0 /
                     (baseInfo.BaseCriticalHits - enemyInfo.AntiCriticalHits + 940) / 100 +
                     baseInfo.BaseZtCriticalHitsRate * 1.0 / 100; //暴击百分比
@@ -50,10 +53,12 @@ public static class CalculatorUtility
                     (2 * b2 * b1 * (baseInfo.BaseCriticalRate * 1.0 / 100 - 1) + b2 + 1); //中间值
         // ReSharper disable once UnusedVariable
         double b8 = (2860 + enemyInfo.Defense) * 1.0 / (2860 + defenseSubBase); //破防收益
-        double b9 = (baseInfo.BaseAttack + baseInfo.BaseRestraint - enemyInfo.AntiRestraint + 920) * 2860 * 1.0 /
+        double b9 = (baseInfo.BaseAttack + baseInfo.BaseRestraint - remainAirShield - enemyInfo.AntiRestraint + 920) *
+            2860 * 1.0 /
             (2860 + defenseSubBase) + baseInfo.BaseElementAttack - enemyInfo.AntiElementAttack; //等效元素攻击
         double b10 = ((attack + restraint) * 2860 * 1.0 / (2860 + defenseSubBase) + elementAttack) / b9; //新增攻击率
-        double b12 = ((baseInfo.BaseAttack + baseInfo.BaseRestraint - enemyInfo.AntiRestraint + 920) * 2860 * 1.0 /
+        double b12 = ((baseInfo.BaseAttack + baseInfo.BaseRestraint - remainAirShield - enemyInfo.AntiRestraint + 920) *
+                      2860 * 1.0 /
                       (2860 + defenseSubBase) *
                       (2860 + defenseSubBase) / (2860 + defenseSubFull) + baseInfo.BaseElementAttack -
                       enemyInfo.AntiElementAttack) / b9 - 1; //破防收益率

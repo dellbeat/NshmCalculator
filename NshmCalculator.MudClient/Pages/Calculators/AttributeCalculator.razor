@@ -300,7 +300,7 @@
             var calculateInfo = _attributePageModel.PageCalculateInfo;
             var enemyInfo = _attributePageModel.PageEnemyInfo;
 
-            calculateInfo.BaseDamageFunValue = CalculatorUtility.CalculateBaseDamage(calculateInfo.BaseAttack, calculateInfo.BaseRestraint, calculateInfo.BaseElementAttack, calculateInfo.BaseBreakDefense, enemyInfo.Defense, enemyInfo.AntiRestraint, rate1, rate2, calculateInfo.BaseBreakAirShield + calculateInfo.IncreaseBreakAirShield, enemyInfo.AirShield, _attributePageModel.ExperimentMode, enemyInfo.AntiElementAttack);
+            calculateInfo.BaseDamageFunValue = CalculatorUtility.CalculateBaseDamage(calculateInfo.BaseAttack, calculateInfo.BaseRestraint, calculateInfo.BaseElementAttack, calculateInfo.BaseBreakDefense, enemyInfo.Defense, enemyInfo.AntiRestraint, rate1, rate2, calculateInfo.BaseBreakAirShield, enemyInfo.AirShield, _attributePageModel.ExperimentMode, enemyInfo.AntiElementAttack);
             calculateInfo.NonCriticalDamageFunValue = CalculatorUtility.CalculateNonCriticalDamage(calculateInfo.BaseDamageFunValue, calculateInfo.BaseRestrainedRate / 100.0);
             double baseCriticalDamageFunValue = CalculatorUtility.CalculateCriticalDamage(calculateInfo.NonCriticalDamageFunValue, calculateInfo.BaseHit, enemyInfo.Block, (calculateInfo.BaseCriticalRate - 100) / 100.0, calculateInfo.BaseCriticalHits, enemyInfo.AntiCriticalHits, calculateInfo.BaseZtCriticalHitsRate / 100.0, out _, _attributePageModel.Version13Mode ? HitCalculateVersion.Version13 : HitCalculateVersion.Version11);
 
