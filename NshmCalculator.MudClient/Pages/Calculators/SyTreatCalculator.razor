@@ -1,0 +1,186 @@
+﻿@page "/syTreat"
+@using Blazored.LocalStorage
+@using NshmCalculator.MudClient.Components
+@using NshmCalculator.MudClient.Utilities
+@using NshmCalculator.Shared.Models.CalculatorModel
+@using NshmCalculator.Shared.Models.PageModel
+@using Color = MudBlazor.Color
+@inject ISyncLocalStorageService LocalStorage
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+@inject Dictionary<string, string> TipsDictionary
+<PageTitle>素问治疗计算器</PageTitle>
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudPaper Class="d-flex align-center justify-center py-8">
+            <MudStack AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.h4">素问治疗计算器</MudText>
+                <MudText Typo="Typo.h6" Align="MudBlazor.Align.Center">
+                    <MudChip Icon="@Icons.Material.Filled.Person" Color="MudBlazor.Color.Tertiary">小红书/抖音:师尹</MudChip>
+                    <MudChip Color="Color.Info">源文件版本:2.1.2</MudChip>
+                </MudText>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12">
+        <MudPaper Class="pa-4 mt-4">
+            <EditForm Model="_pageModel" OnValidSubmit="Calculate" OnInvalidSubmit="WarningTips">
+                <ObjectGraphDataAnnotationsValidator/>
+                <MudGrid>
+                    <MudItem xs="12">
+                        <MudText Typo="Typo.subtitle2" Align="MudBlazor.Align.Center">基础治疗面板</MudText>
+                    </MudItem>
+                    <MudItem xs="6" sm="4">
+                        <MudTextField ShrinkLabel @bind-Value="_pageModel.BaseTreatInfo.Attack" For="@(() => _pageModel.BaseTreatInfo.Attack)" Label="攻击" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="4">
+                        <MudTextField ShrinkLabel @bind-Value="_pageModel.BaseTreatInfo.TreatIntensity" For="@(() => _pageModel.BaseTreatInfo.TreatIntensity)" Label="治疗强度" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="4">
+                        <MudTextField ShrinkLabel @bind-Value="_pageModel.BaseTreatInfo.CriticalHits" For="@(() => _pageModel.BaseTreatInfo.CriticalHits)" Label="会心" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="4">
+                        <MudTextField ShrinkLabel @bind-Value="_pageModel.BaseTreatInfo.CriticalDamageRate" For="@(() => _pageModel.BaseTreatInfo.CriticalDamageRate)" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Label="会伤百分比" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="6" sm="4">
+                        <MudTextField ShrinkLabel @bind-Value="_pageModel.BaseTreatInfo.ZtCriticalHitsRate" For="@(() => _pageModel.BaseTreatInfo.ZtCriticalHitsRate)" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Label="金周天会心率" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudTabs @bind-ActivePanelIndex="_pageModel.ActiveIndex" Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                            <MudTabPanel Text="属性变化计算">
+                                <MudGrid>
+                                    <MudItem xs="6" sm="4">
+                                        <MudTextField ShrinkLabel @bind-Value="_pageModel.DifferenceTreatInfo.Attack" For="@(() => _pageModel.DifferenceTreatInfo.Attack)" Label="攻击" Variant="Variant.Outlined"/>
+                                    </MudItem>
+                                    <MudItem xs="6" sm="4">
+                                        <MudTextField ShrinkLabel @bind-Value="_pageModel.DifferenceTreatInfo.TreatIntensity" For="@(() => _pageModel.DifferenceTreatInfo.TreatIntensity)" Label="治疗强度" Variant="Variant.Outlined"/>
+                                    </MudItem>
+                                    <MudItem xs="6" sm="4">
+                                        <MudTextField ShrinkLabel @bind-Value="_pageModel.DifferenceTreatInfo.CriticalDamageRate" For="@(() => _pageModel.DifferenceTreatInfo.CriticalDamageRate)" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Label="会伤百分比" Variant="Variant.Outlined"/>
+                                    </MudItem>
+                                    <MudItem xs="6" sm="4">
+                                        <MudTextField ShrinkLabel @bind-Value="_pageModel.DifferenceTreatInfo.ZtCriticalHitsRate" For="@(() => _pageModel.DifferenceTreatInfo.ZtCriticalHitsRate)" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Label="会心率" Variant="Variant.Outlined"/>
+                                    </MudItem>
+                                    <MudItem xs="6" sm="4">
+                                        <MudTextField ShrinkLabel @bind-Value="_pageModel.DifferenceTreatInfo.CriticalHits" For="@(() => _pageModel.DifferenceTreatInfo.CriticalHits)" Label="会心" Variant="Variant.Outlined"/>
+                                    </MudItem>
+                                </MudGrid>
+                            </MudTabPanel>
+                            <MudTabPanel Text="新面板计算">
+                                <MudGrid>
+                                    <MudItem xs="6" sm="4">
+                                        <MudTextField ShrinkLabel @bind-Value="_pageModel.DifferenceTreatInfo.Attack" For="@(() => _pageModel.DifferenceTreatInfo.Attack)" Label="攻击" Variant="Variant.Outlined"/>
+                                    </MudItem>
+                                    <MudItem xs="6" sm="4">
+                                        <MudTextField ShrinkLabel @bind-Value="_pageModel.DifferenceTreatInfo.TreatIntensity" For="@(() => _pageModel.DifferenceTreatInfo.TreatIntensity)" Label="治疗强度" Variant="Variant.Outlined"/>
+                                    </MudItem>
+                                    <MudItem xs="6" sm="4">
+                                        <MudTextField ShrinkLabel @bind-Value="_pageModel.DifferenceTreatInfo.CriticalHits" For="@(() => _pageModel.DifferenceTreatInfo.CriticalHits)" Label="会心" Variant="Variant.Outlined"/>
+                                    </MudItem>
+                                    <MudItem xs="6" sm="4">
+                                        <MudTextField ShrinkLabel @bind-Value="_pageModel.DifferenceTreatInfo.CriticalDamageRate" For="@(() => _pageModel.DifferenceTreatInfo.CriticalDamageRate)" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Label="会伤百分比" Variant="Variant.Outlined"/>
+                                    </MudItem>
+                                    <MudItem xs="6" sm="4">
+                                        <MudTextField ShrinkLabel @bind-Value="_pageModel.DifferenceTreatInfo.ZtCriticalHitsRate" For="@(() => _pageModel.DifferenceTreatInfo.ZtCriticalHitsRate)" Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Label="金周天会心率" Variant="Variant.Outlined"/>
+                                    </MudItem>
+                                </MudGrid>
+                            </MudTabPanel>
+                            <MudTabPanel Text="转换疗强计算">
+                                <MudGrid>
+                                    <MudItem xs="4" sm="4">
+                                        <MudTextField ShrinkLabel @bind-Value="_pageModel.TreatAttribution.Attack" For="@(() => _pageModel.TreatAttribution.Attack)" Label="攻击" Variant="Variant.Outlined"/>
+                                    </MudItem>
+                                    <MudItem xs="4" sm="4">
+                                        <MudTextField ShrinkLabel @bind-Value="_pageModel.TreatAttribution.Strength" For="@(() => _pageModel.TreatAttribution.Strength)" Label="气海" Variant="Variant.Outlined"/>
+                                    </MudItem>
+                                    <MudItem xs="4" sm="4">
+                                        <MudTextField ShrinkLabel @bind-Value="_pageModel.TreatAttribution.HalfAttackSum" For="@(() => _pageModel.TreatAttribution.HalfAttackSum)" Label="大小攻" Variant="Variant.Outlined"/>
+                                    </MudItem>
+                                    <MudItem xs="4" sm="4">
+                                        <MudTextField ShrinkLabel @bind-Value="_pageModel.TreatAttribution.BreakDefense" For="@(() => _pageModel.TreatAttribution.BreakDefense)" Label="破防" Variant="Variant.Outlined"/>
+                                    </MudItem>
+                                    <MudItem xs="4" sm="4">
+                                        <MudTextField ShrinkLabel @bind-Value="_pageModel.TreatAttribution.ElementAttack" For="@(() => _pageModel.TreatAttribution.ElementAttack)" Label="元素攻击" Variant="Variant.Outlined"/>
+                                    </MudItem>
+                                    <MudItem xs="4" sm="4">
+                                        <MudTextField ShrinkLabel @bind-Value="_pageModel.TreatAttribution.MonsterRestraint" For="@(() => _pageModel.TreatAttribution.MonsterRestraint)" Label="首领克制" Variant="Variant.Outlined"/>
+                                    </MudItem>
+                                    <MudItem xs="4" sm="4">
+                                        <MudTextField ShrinkLabel @bind-Value="_pageModel.TreatAttribution.Hit" For="@(() => _pageModel.TreatAttribution.Hit)" Label="命中" Variant="Variant.Outlined"/>
+                                    </MudItem>
+                                    <MudItem xs="4" sm="4">
+                                        <MudTextField ShrinkLabel @bind-Value="_pageModel.TreatAttribution.Hit" For="@(() => _pageModel.TreatAttribution.Hit)" Label="忽视元素抗" Variant="Variant.Outlined"/>
+                                    </MudItem>
+                                    <MudItem xs="4" sm="4">
+                                        <MudTextField ShrinkLabel @bind-Value="_pageModel.TreatAttribution.MonsterRestraint" For="@(() => _pageModel.TreatAttribution.MonsterRestraint)" Label="流派克制" Variant="Variant.Outlined"/>
+                                    </MudItem>
+                                </MudGrid>
+                            </MudTabPanel>
+                        </MudTabs>
+                    </MudItem>
+                    <MudItem xs="12" Class="d-flex align-center justify-center">
+                        <MudStack Row="true" Spacing="4">
+                            <MudButton Variant="Variant.Filled" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Submit">计算</MudButton>
+                            <MudButton Variant="Variant.Filled" Color="Color.Default" Class="d-flex" ButtonType="ButtonType.Button" OnClick="ShowTips">帮助说明</MudButton>
+                        </MudStack>
+                    </MudItem>
+                </MudGrid>
+            </EditForm>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private readonly DialogParameters<TipsDialog> _tipsDialogParameters = new();
+    private readonly DialogOptions _tipsDialogOptions = new();
+    readonly SyTreatPageModel _pageModel = new();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        InitParameters();
+        LocalStorage.SetItemAsString(ConstText.LastVisitName, "syTreat");
+    }
+
+    private void Calculate()
+    {
+        switch (_pageModel.ActiveIndex)
+        {
+            case 0:
+
+                break;
+            case 1:
+
+                break;
+            case 2:
+
+                break;
+        }
+    }
+
+    private void AdditionalCalculate()
+    {
+        
+    }
+
+    private void InitParameters()
+    {
+        TipsDictionary.TryGetValue("syTreat", out string? tips);
+        _tipsDialogParameters.Add(nameof(TipsDialog.ContentText), new MarkupString(tips));
+        _tipsDialogOptions.CloseButton = true;
+    }
+
+    private Task WarningTips()
+    {
+        Snackbar.Add(ConstText.WarningText, Severity.Warning);
+
+        return Task.CompletedTask;
+    }
+
+    private void ShowTips()
+    {
+        Dialog.Show<TipsDialog>("帮助说明", _tipsDialogParameters, _tipsDialogOptions);
+    }
+
+}
