@@ -9,7 +9,7 @@ public class SyTreatPageModel
     public TreatInfo BaseTreatInfo { get; set; } = new TreatInfo()
     {
         Attack = 8000,
-        CalculateTreatNum = 6290,
+        TreatIntensity = 6290,
         CriticalHits = 1500,
         ZtCriticalHitsRate = 3,
         CriticalDamageRate = 160
@@ -19,14 +19,16 @@ public class SyTreatPageModel
     public TreatInfo DifferenceTreatInfo { get; set; } = new TreatInfo()
     {
         Attack = 8000,
-        CalculateTreatNum = 6290,
+        TreatIntensity = 6290,
         CriticalHits = 1500,
         ZtCriticalHitsRate = 3,
         CriticalDamageRate = 160
     };
 
     public TreatAttribution TreatAttribution { get; set; } = new();
-    
+
+    #region 变化计算面板
+
     /// <summary>
     /// 新增攻击
     /// </summary>
@@ -41,19 +43,51 @@ public class SyTreatPageModel
     /// 新增会心
     /// </summary>
     public int CriticalHits { get; set; }
-    
+
     /// <summary>
-    /// 会伤百分比
+    /// 新增会伤百分比
     /// </summary>
     public double CriticalDamageRate { get; set; }
-    
+
     /// <summary>
-    /// 会心率
+    /// 新增会心率
     /// </summary>
     public double CriticalHitsRate { get; set; }
-    
+
+    /// <summary>
+    /// 新增后面板计算会心率
+    /// </summary>
+    public double CalculateCriticalHitsRate { get; set; }
+
+    /// <summary>
+    /// 新增后面板治疗量
+    /// </summary>
+    public double CalculateTreatNum { get; set; }
+
+    #endregion
+
     /// <summary>
     /// 当前TabIndex，用于控制计算行为
     /// </summary>
     public int ActiveIndex { get; set; }
+
+    /// <summary>
+    /// 是否为比较计算，以控制渲染的元素
+    /// </summary>
+    public bool ConvertMode { get; set; }
+
+    /// <summary>
+    /// 治疗量增值
+    /// </summary>
+    public double TreatGrowthNum { get; set; }
+
+    /// <summary>
+    /// 治疗量增值百分比
+    /// </summary>
+    public double TreatGrowthPercent { get; set; }
+
+    /// <summary>
+    /// 转换疗强
+    /// </summary>
+    public double ConvertTreatNum { get; set; }
 }

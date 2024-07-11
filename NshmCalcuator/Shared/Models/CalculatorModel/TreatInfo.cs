@@ -43,6 +43,11 @@ public class TreatInfo
 
     #endregion
 
+    /// <summary>
+    /// 会心率增量
+    /// </summary>
+    public double ExtraCriticalHitsRate { get; set; }
+
     #region 计算结果区域
 
     /// <summary>

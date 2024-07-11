@@ -11,7 +11,7 @@ public static class TreatUtility
     public static void Calculate(TreatInfo info)
     {
         info.CalculateCriticalHitsRate = (info.CriticalHits * 103.136842105263 + 2362.61052631569) / (info.CriticalHits + 3248.73684210527) / 100 +
-                                         info.ZtCriticalHitsRate * 0.01;
+                                         info.ZtCriticalHitsRate * 0.01 + info.ExtraCriticalHitsRate;
         info.CalculateTreatNum = (info.Attack * 0.6 + info.TreatIntensity + 1333) * 1.106 *
                                  (1 + (info.CriticalDamageRate * 0.01 - 1) / 2 * info.CalculateCriticalHitsRate);
     }
@@ -41,8 +41,8 @@ public static class TreatUtility
     public static double TransformCalculate(TreatAttribution attribution)
     {
         return attribution.Attack * 0.6 + attribution.Strength * 4.65 * 0.6 + attribution.HalfAttackSum * 0.5 * 0.6 +
-               attribution.BreakDefense / 350 * 100 + attribution.ElementAttack / 150 * 100 + attribution.MonsterRestraint / 272 * 100 +
-               attribution.Hit / 112 * 100 +
-               attribution.IgnoreElementDefense / 114.7 * 100 + attribution.ProfessionRestraint / 320 * 100;
+               attribution.BreakDefense * 1.0 / 350 * 100 + attribution.ElementAttack * 1.0 / 150 * 100 + attribution.MonsterRestraint * 1.0 / 272 * 100 +
+               attribution.Hit * 1.0 / 112 * 100 +
+               attribution.IgnoreElementDefense / 114.7 * 100 + attribution.ProfessionRestraint * 1.0 / 320 * 100;
     }
 }
