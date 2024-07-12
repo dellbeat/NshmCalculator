@@ -9,6 +9,9 @@
     <MudItem xs="12">
         <MudSwitch T="bool" @bind-Value="@_autoRedirect" CheckedChanged="@OnCheckChanged" Color="MudBlazor.Color.Info" UnCheckedColor="MudBlazor.Color.Dark" Label="访问首页时跳转到最近一次访问的计算器" />
     </MudItem>
+    <MudItem xs="12">
+        <MudAlert Severity="Severity.Info">仅通过点击/输入链接跳转至首页时有效，在页面内部切换到首页不受该开关影响</MudAlert>
+    </MudItem>
 </MudGrid>
 
 @code {
