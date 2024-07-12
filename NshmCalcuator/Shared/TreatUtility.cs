@@ -8,7 +8,7 @@ public static class TreatUtility
     /// 计算治疗量
     /// </summary>
     /// <param name="info">治疗面板信息</param>
-    public static void Calculate(TreatInfo info)
+    private static void Calculate(TreatInfo info)
     {
         info.CalculateCriticalHitsRate = (info.CriticalHits * 103.136842105263 + 2362.61052631569) / (info.CriticalHits + 3248.73684210527) / 100 +
                                          info.ZtCriticalHitsRate * 0.01 + info.ExtraCriticalHitsRate;

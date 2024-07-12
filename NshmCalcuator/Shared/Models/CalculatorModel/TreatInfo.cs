@@ -9,35 +9,35 @@ public class TreatInfo
     /// <summary>
     /// 面板攻击
     /// </summary>
-    [Required]
+    [Required(ErrorMessage = "请输入整数")]
     [Range(0, 100000, ErrorMessage = "请保证面板攻击在0-100000范围内")]
     public int Attack { get; set; }
     
     /// <summary>
     /// 基础治疗强度
     /// </summary>
-    [Required]
+    [Required(ErrorMessage = "请输入整数")]
     [Range(0, 100000, ErrorMessage = "请保证治疗强度在0-100000范围内")]
     public int TreatIntensity { get; set; }
     
     /// <summary>
     /// 基础会心
     /// </summary>
-    [Required]
+    [Required(ErrorMessage = "请输入整数")]
     [Range(0, 100000, ErrorMessage = "请保证会心在0-100000范围内")]
     public int CriticalHits { get; set; }
     
     /// <summary>
     /// 周天会心率（注意为百分比，需要做处理）
     /// </summary>
-    [Required]
+    [Required(ErrorMessage = "请直接输入数字，无需百分号")]
     [Range(0, 5, ErrorMessage = "请保证周天会心百分比在0.0-5.0范围内")]
     public double ZtCriticalHitsRate { get; set; }
-    
+
     /// <summary>
     /// 会伤率
     /// </summary>
-    [Required]
+    [Required(ErrorMessage = "请直接输入数字，无需百分号")]
     [Range(0, 1000, ErrorMessage = "请保证会伤率在0.0-1000.0范围内")]
     public double CriticalDamageRate { get; set; }
 
