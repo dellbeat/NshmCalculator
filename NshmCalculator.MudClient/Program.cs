@@ -18,6 +18,7 @@ var client = new HttpClient
 {
     BaseAddress = new Uri(builder.HostEnvironment.BaseAddress),
 };
+client.DefaultRequestHeaders.Add("Clear-Site-Data", "cache");
 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
 {
     NoCache = true

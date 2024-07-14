@@ -31,3 +31,5 @@ bld/
 [Ll]og/
 [Ll]ogs/
 .idea
+/NshmCalculator.sln.DotSettings.user
+/NshmCalculator.MudClient/NshmCalculator.MudClient.csproj.user
