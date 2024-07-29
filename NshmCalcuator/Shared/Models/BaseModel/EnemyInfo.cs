@@ -48,8 +48,37 @@ public class EnemyInfo
     [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
     public int AirShield { get; set; }
 
+    #region 系数
+
     /// <summary>
-    /// 满命中
+    /// 满命中所需系数，1.3之后每个木桩该系数都会有变化
     /// </summary>
-    public int FullHit => Block + 133;//133为方程 1.419*X/(3640+X)=0.05的向上取整值
+    public int FullHitCoe { get; set; } = 6045;
+
+    /// <summary>
+    /// 会心率所需系数1
+    /// </summary>
+    public int CriticalHitLeftCoe { get; set; } = 1275;
+
+    /// <summary>
+    /// 会心率所需系数2
+    /// </summary>
+    public int CriticalHitRightCoe { get; set; } = 1540;
+
+    /// <summary>
+    /// 计算元素抗性减免所需系数
+    /// </summary>
+    public int AntiElementCoe { get; set; } = 2266;
+
+    /// <summary>
+    /// 计算防御减免所需系数
+    /// </summary>
+    public int DefenseCoe { get; set; } = 10743;//目前元素抗性/防御减免系数不确定怎么去调整，先预埋
+
+    #endregion
+
+    /// <summary>
+    /// 理论满命中，与实际测试会有微小差距
+    /// </summary>
+    public int FullHit => (int)Math.Ceiling((46 * Block + FullHitCoe) * 1.0 / 46);//133为方程 1.419*X/(3640+X)=0.05的向上取整值
 }

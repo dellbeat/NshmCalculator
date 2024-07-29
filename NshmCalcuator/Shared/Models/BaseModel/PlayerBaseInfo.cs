@@ -69,6 +69,13 @@ namespace NshmCalculator.Shared.Models.BaseModel
         [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
         public int BaseBreakAirShield { get; set; }
 
+        /// <summary>
+        /// 玩家基础忽视元素抗
+        /// </summary>
+        [Required]
+        [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
+        public int BaseIgnoreAntiElement { get; set; }
+
         #endregion
 
         /// <summary>

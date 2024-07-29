@@ -13,13 +13,6 @@ public class AttributeCalculateInfo : PlayerBaseInfo
     [Required]
     [Range(0, 100, ErrorMessage = "请保证克制百分比在0.0-100.0范围内")]
     public double BaseRestrainedRate { get; set; }
-    
-    /// <summary>
-    /// 基础破盾值
-    /// </summary>
-    [Required]
-    [Range(0, 10000, ErrorMessage = "请输入0至100000内的整数")]
-    public int BaseBreakAirShield { get; set; }
 
     #endregion
 
@@ -88,7 +81,14 @@ public class AttributeCalculateInfo : PlayerBaseInfo
     [Required]
     [Range(0, 10000, ErrorMessage = "请输入0至100000内的整数")]
     public int IncreaseBreakAirShield { get; set; }
-    
+
+    /// <summary>
+    /// 新增忽视元素抗
+    /// </summary>
+    [Required]
+    [Range(0, 100000, ErrorMessage = "请输入0至100000内的整数")]
+    public int IncreaseIgnoreAntiElement { get; set; }
+
     #endregion
 
     #region 计算结果

@@ -148,6 +148,35 @@ public static class CalculatorUtility
         return baseDamage;
     }
 
+    /// <summary>
+    /// 获取无首领加成的伤害（2.1后适用）
+    /// </summary>
+    /// <param name="attack">玩家攻击</param>
+    /// <param name="restraintNum">玩家克制数值</param>
+    /// <param name="elementAttack">玩家元素攻击</param>
+    /// <param name="breakDefense">玩家破防值</param>
+    /// <param name="rate1">系数1</param>
+    /// <param name="rate2">系数2</param>
+    /// <param name="breakAirShield"></param>
+    /// <param name="ignoreAntiElement"></param>
+    /// <param name="enemyInfo"></param>
+    /// <returns></returns>
+    public static double CalculateBaseDamage(int attack, int restraintNum, int elementAttack, int breakDefense,
+        double rate1, double rate2, int breakAirShield, int ignoreAntiElement, EnemyInfo enemyInfo)
+    {
+        double remainAirShield = CalculateRemainAirShield(breakAirShield, enemyInfo.AirShield);
+        double resistanceRemission = (enemyInfo.AntiElementAttack - ignoreAntiElement) * 1.0 / (enemyInfo.AntiElementAttack - ignoreAntiElement + enemyInfo.AntiElementCoe); //敌方元素抗性减免
+        int remainDefense = Math.Max(enemyInfo.Defense - breakDefense, 0);
+
+        double defenseRemission = remainDefense * 1.0 / (remainDefense + enemyInfo.DefenseCoe); //防御减免
+
+        double baseDamage =
+            ((rate1 + rate2 * (attack - remainAirShield + restraintNum - enemyInfo.AntiRestraint)) *
+                (1 - defenseRemission) + rate2 * elementAttack * (1 - resistanceRemission)); //无首领克制加成的伤害
+
+        return baseDamage;
+    }
+
     /// <summary>获取未会心伤害</summary>
     /// <param name="baseDamage">无首领克制的伤害</param>
     /// <param name="restrainedRate">首领克制百分比</param>
@@ -189,6 +218,31 @@ public static class CalculatorUtility
         return criticalDamage;
     }
 
+    /// <summary>
+    /// 1.3版本后通用的会心伤害计算方法
+    /// </summary>
+    /// <param name="nonCriticalDamage">未会心伤害</param>
+    /// <param name="hitNum">命中</param>
+    /// <param name="criticalSubRate">会心伤害百分比-100%</param>
+    /// <param name="criticalHit">会心</param>
+    /// <param name="extraCriticalRate">内功提供的额外会心率</param>
+    /// <param name="enemy">敌方信息</param>
+    /// <param name="calCriticalRate">计算的会心率结果</param>
+    /// <returns></returns>
+    public static double CalculateCriticalDamage(double nonCriticalDamage, int hitNum, double criticalSubRate,
+        int criticalHit, double extraCriticalRate, EnemyInfo enemy, out double calCriticalRate)
+    {
+        double hitRateOfPlayer = CalculateHitRate(hitNum, enemy.Block, enemy.FullHitCoe); //玩家对敌方命中率
+        int remainCritical = (criticalHit - enemy.AntiCriticalHits); //剩余会心
+        double criticalRate =
+            (115 * remainCritical - enemy.CriticalHitLeftCoe) * 1.0 / (remainCritical + enemy.CriticalHitRightCoe) / 100 + extraCriticalRate; //会心率
+        calCriticalRate = criticalRate;//是否会超过1
+        double criticalDamage = nonCriticalDamage * hitRateOfPlayer * (1 + criticalSubRate * criticalRate) +
+                                0.5 * nonCriticalDamage * (1 - hitRateOfPlayer); //会心伤害【未计算技能倍数】
+
+        return criticalDamage;
+    }
+
     #region 特定数值计算方法
 
     /// <summary>
@@ -213,6 +267,19 @@ public static class CalculatorUtility
         }
 
         return fixMode ? Math.Min(1, rate) : rate;
+    }
+
+    /// <summary>
+    /// 1.3版本后通用的命中率计算方法
+    /// </summary>
+    /// <param name="hit">玩家命中</param>
+    /// <param name="block">怪物格挡</param>
+    /// <param name="hitCoe">命中公式系数</param>
+    /// <returns></returns>
+    public static double CalculateHitRate(double hit, int block, int hitCoe)
+    {
+        double rate = (95 + 141.9 * (hit - block) * 1.0 / (hit - block + hitCoe)) / 100;
+        return Math.Min(1, rate);
     }
 
     /// <summary>
