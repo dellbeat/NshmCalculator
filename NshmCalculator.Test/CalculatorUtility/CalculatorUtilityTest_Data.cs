@@ -54,8 +54,7 @@ public partial class CalculatorUtilityTest
                     CriticalDamageFunValue = 2268.6
                 },
                 PageEnemyInfo = new EnemyInfo
-                    { Block = 590, Defense = 1600, AntiElementAttack = 0, AntiCriticalHits = 200, AirShield = 206 },
-                DamageInfoHistory = []
+                    { Block = 590, Defense = 1600, AntiElementAttack = 0, AntiCriticalHits = 200, AirShield = 206 }
             };
             yield return new AttributePageModel
             {
@@ -74,8 +73,7 @@ public partial class CalculatorUtilityTest
                     CriticalDamageFunValue = 2268.6
                 },
                 PageEnemyInfo = new EnemyInfo
-                    { Block = 590, Defense = 1600, AntiElementAttack = 0, AntiCriticalHits = 200 },
-                DamageInfoHistory = []
+                    { Block = 590, Defense = 1600, AntiElementAttack = 0, AntiCriticalHits = 200 }
             };
             yield return new AttributePageModel
             {
@@ -96,8 +94,7 @@ public partial class CalculatorUtilityTest
                 PageEnemyInfo = new EnemyInfo
                 {
                     Block = 550, Defense = 1400, AntiElementAttack = 100, AntiCriticalHits = 175, AntiRestraint = 500
-                },
-                DamageInfoHistory = []
+                }
             };
 
             yield return new AttributePageModel
@@ -119,8 +116,7 @@ public partial class CalculatorUtilityTest
                 PageEnemyInfo = new EnemyInfo
                 {
                     Block = 610, Defense = 1700, AntiElementAttack = 200, AntiCriticalHits = 225, AntiRestraint = 600
-                },
-                DamageInfoHistory = []
+                }
             };
             yield return new AttributePageModel
             {
@@ -141,8 +137,7 @@ public partial class CalculatorUtilityTest
                 PageEnemyInfo = new EnemyInfo
                 {
                     Block = 580, Defense = 1500, AntiElementAttack = 150, AntiCriticalHits = 225, AntiRestraint = 700
-                },
-                DamageInfoHistory = []
+                }
             };
             yield return new AttributePageModel //命中超满命中、破防超满防御的情况
             {
@@ -163,8 +158,7 @@ public partial class CalculatorUtilityTest
                 PageEnemyInfo = new EnemyInfo
                 {
                     Block = 580, Defense = 1500, AntiElementAttack = 150, AntiCriticalHits = 225, AntiRestraint = 700
-                },
-                DamageInfoHistory = []
+                }
             };
             yield return new AttributePageModel
             {
@@ -187,8 +181,7 @@ public partial class CalculatorUtilityTest
                 {
                     Block = 580, Defense = 1500, AntiElementAttack = 150, AntiCriticalHits = 225, AntiRestraint = 700,
                     AirShield = 300
-                },
-                DamageInfoHistory = []
+                }
             };
         }
     }

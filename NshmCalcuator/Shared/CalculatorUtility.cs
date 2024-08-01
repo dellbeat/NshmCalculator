@@ -174,7 +174,7 @@ public static class CalculatorUtility
             ((rate1 + rate2 * (attack - remainAirShield + restraintNum - enemyInfo.AntiRestraint)) *
                 (1 - defenseRemission) + rate2 * elementAttack * (1 - resistanceRemission)); //无首领克制加成的伤害
 
-        return baseDamage;
+        return Math.Max(baseDamage, 0);
     }
 
     /// <summary>获取未会心伤害</summary>
@@ -233,10 +233,10 @@ public static class CalculatorUtility
         int criticalHit, double extraCriticalRate, EnemyInfo enemy, out double calCriticalRate)
     {
         double hitRateOfPlayer = CalculateHitRate(hitNum, enemy.Block, enemy.FullHitCoe); //玩家对敌方命中率
-        int remainCritical = criticalHit - enemy.AntiCriticalHits; //剩余会心 
+        int remainCritical = Math.Max(criticalHit - enemy.AntiCriticalHits, 0); //剩余会心 
         double criticalRate =
             (115 * remainCritical - enemy.CriticalHitLeftCoe) * 1.0 / (remainCritical + enemy.CriticalHitRightCoe) / 100 + extraCriticalRate; //会心率
-        calCriticalRate = criticalRate;//是否会超过1
+        calCriticalRate = Math.Max(criticalRate, 0);//是否会超过1
         double criticalDamage = nonCriticalDamage * hitRateOfPlayer * (1 + criticalSubRate * criticalRate) +
                                 0.5 * nonCriticalDamage * (1 - hitRateOfPlayer); //会心伤害【未计算技能倍数】
 
@@ -297,7 +297,7 @@ public static class CalculatorUtility
     /// <returns></returns>
     public static double CalculateHitRate(double hit, int block, int hitCoe)
     {
-        double rate = (95 + 141.9 * (hit - block) * 1.0 / (hit - block + hitCoe)) / 100;
+        double rate = (95 + 143 * (hit - block) * 1.0 / (hit - block + hitCoe)) / 100;
         return Math.Min(1, rate);
     }
 

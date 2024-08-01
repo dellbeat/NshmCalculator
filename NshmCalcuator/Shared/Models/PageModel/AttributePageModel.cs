@@ -9,32 +9,24 @@ public class AttributePageModel
     [ValidateComplexType]
     public AttributeCalculateInfo PageCalculateInfo { get; set; } = new()
     {
-        BaseAttack = 2500,
-        BaseRestraint = 1000,
-        BaseElementAttack = 1000,
-        BaseBreakDefense = 1000,
-        BaseHit = 500,
-        BaseCriticalHits = 888,
-        BaseCriticalRate = 188,
+        BaseAttack = 10000,
+        BaseRestraint = 11000,
+        BaseElementAttack = 2500,
+        BaseBreakDefense = 5000,
+        BaseHit = 2700,
+        BaseCriticalHits = 4200,
+        BaseCriticalRate = 165,
+        BaseRestrainedRate = 42,
+        BaseBreakAirShield = 800,
+        BaseIgnoreAntiElement = 1300,
+        BaseZtCriticalHitsRate = 5
     };
 
     [ValidateComplexType]
-    public EnemyInfo PageEnemyInfo { get; set; } = new()
-    {
-        Block = 630,
-        Defense = 1680,
-        AntiElementAttack = 60
-    };
-
-    public List<AttributeCalculateInfo> DamageInfoHistory = new();
+    public EnemyInfo PageEnemyInfo { get; set; }
 
     /// <summary>
-    /// 1.3命中
+    /// 最近一次使用的首领名称
     /// </summary>
-    public bool Version13Mode { get; set; } = false;
-
-    /// <summary>
-    /// 气盾模式（实验）
-    /// </summary>
-    public bool ExperimentMode { get; set; } = false;
+    public string LastEnemy { get; set; }
 }

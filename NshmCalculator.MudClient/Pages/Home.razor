@@ -53,7 +53,20 @@
                                     <MudText Typo="Typo.h6" Align="MudBlazor.Align.Start">@updateLog.DateTime</MudText>
                                     @foreach (var log in updateLog?.Log)
                                     {
-                                        <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">@log</MudText>
+                                        if (log.Contains("\r\n"))
+                                        {
+                                            var array = log.Replace("\r\n", "\t").Split('\t');
+                                            <MudElement>
+                                                @foreach (var line in array)
+                                                {
+                                                    <p style="margin-bottom: 0px;">@line</p>
+                                                }
+                                            </MudElement>
+                                        }
+                                        else
+                                        {
+                                            <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">@log</MudText>
+                                        }
                                     }
                                 </MudStack>
                             </MudItem>
@@ -169,6 +182,11 @@
             <MudStack AlignItems="AlignItems.Start" Class="ml-4 mr-4">
                 <MudText Typo="Typo.h5" Align="MudBlazor.Align.Start">
                     内容来源及鸣谢
+                </MudText>
+                <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">
+                    B站<b>@@清纯男大阿娟</b>：
+                    <MudLink Href="https://space.bilibili.com/11869478" Underline="Underline.Always">清纯男大阿娟的个人空间</MudLink>
+                    （2.1首领数据参考）
                 </MudText>
                 <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">
                     小红书<b>@@师尹</b>：

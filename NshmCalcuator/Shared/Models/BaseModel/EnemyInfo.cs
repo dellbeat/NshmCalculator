@@ -5,7 +5,7 @@ namespace NshmCalculator.Shared.Models.BaseModel;
 /// <summary>
 /// 敌方基础数值
 /// </summary>
-public class EnemyInfo
+public class EnemyInfo : ICloneable
 {
     /// <summary>
     /// 敌方防御
@@ -81,4 +81,9 @@ public class EnemyInfo
     /// 理论满命中，与实际测试会有微小差距
     /// </summary>
     public int FullHit => (int)Math.Ceiling(5 * FullHitCoe * 1.0 / 138 + Block);//133为方程 1.419*X/(3640+X)=0.05的向上取整值
+
+    public object Clone()
+    {
+        return MemberwiseClone();
+    }
 }

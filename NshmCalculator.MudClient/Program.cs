@@ -8,6 +8,7 @@ using NshmCalculator.Shared.Models;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using NshmCalculator.MudClient;
+using NshmCalculator.Shared.Models.BaseModel;
 using NshmCalculator.Shared.Models.CalculatorModel.KI;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -43,6 +44,8 @@ builder.Services.AddBlazoredLocalStorage();
 UpdateLog[] updateLogs = new UpdateLog[] { };
 Dictionary<string, string> tipsDictionary = new Dictionary<string, string>();
 List<BaseAttributeImprove> attributeImproves = new List<BaseAttributeImprove>();
+Dictionary<string, EnemyInfo> enemyDictionary = new Dictionary<string, EnemyInfo>();
+
 
 var newJson = await client.GetStringAsync(ConstText.UpdateLogPath);//需要处理缓存未更新的情况
 if (!string.IsNullOrEmpty(newJson))
@@ -74,9 +77,22 @@ if (!string.IsNullOrEmpty(improveJson))
     }
 }
 
+var enemyJson = await client.GetStringAsync(ConstText.EnemyPath);
+if (!string.IsNullOrEmpty(enemyJson))
+{
+    var dic = JsonSerializer.Deserialize<Dictionary<string, EnemyInfo>>(enemyJson);
+    if (dic != null)
+    {
+        enemyDictionary = dic;
+    }
+}
+
 builder.Services.AddSingleton(updateLogs);
 builder.Services.AddSingleton(tipsDictionary);
 builder.Services.AddSingleton(attributeImproves);
+builder.Services.AddSingleton(enemyDictionary);
+/*后面如果动态配置项多了考虑直接做一个大类*/
+
 
 #endregion
 
