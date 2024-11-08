@@ -165,10 +165,13 @@ public static class CalculatorUtility
         double rate1, double rate2, int breakAirShield, int ignoreAntiElement, EnemyInfo enemyInfo)
     {
         double remainAirShield = CalculateRemainAirShield(breakAirShield, enemyInfo.AirShield);
-        double resistanceRemission = Math.Max((enemyInfo.AntiElementAttack - ignoreAntiElement) * 1.0 / (enemyInfo.AntiElementAttack - ignoreAntiElement + enemyInfo.AntiElementCoe), 0); //敌方元素抗性减免
+        double resistanceRemission =
+            Math.Max(
+                (enemyInfo.AntiElementAttack - ignoreAntiElement) * 1.0 /
+                (enemyInfo.AntiElementAttack - ignoreAntiElement + enemyInfo.AntiElementCoe), 0); //敌方元素抗性减免
         int remainDefense = Math.Max(enemyInfo.Defense - breakDefense, 0);
 
-        double defenseRemission = remainDefense * 1.0 / (remainDefense + enemyInfo.DefenseCoe); //防御减免
+        double defenseRemission = remainDefense * 1.0 / (remainDefense + enemyInfo.DefenseCoe) + enemyInfo.DefenseCoe; //防御减免
 
         double baseDamage =
             ((rate1 + rate2 * (attack - remainAirShield + restraintNum - enemyInfo.AntiRestraint)) *
@@ -236,7 +239,7 @@ public static class CalculatorUtility
         int remainCritical = Math.Max(criticalHit - enemy.AntiCriticalHits, 0); //剩余会心 
         double criticalRate =
             (115 * remainCritical - enemy.CriticalHitLeftCoe) * 1.0 / (remainCritical + enemy.CriticalHitRightCoe) / 100 + extraCriticalRate; //会心率
-        calCriticalRate = Math.Max(criticalRate, 0);//是否会超过1
+        calCriticalRate = Math.Max(criticalRate, 0); //是否会超过1
         double criticalDamage = nonCriticalDamage * hitRateOfPlayer * (1 + criticalSubRate * criticalRate) +
                                 0.5 * nonCriticalDamage * (1 - hitRateOfPlayer); //会心伤害【未计算技能倍数】
 
@@ -254,12 +257,18 @@ public static class CalculatorUtility
     /// <param name="extraCriticalRate">内功提供的额外会心率</param>
     /// <param name="enemy">敌方信息</param>
     /// <returns></returns>
-    public static double CalculateCriticalDamageWithNonHit(double nonCriticalDamage, double criticalHit, double subCriticalDamageRate, double oldCriticalHit, double extraCriticalRate, EnemyInfo enemy)
+    public static double CalculateCriticalDamageWithNonHit(double nonCriticalDamage, double criticalHit, double subCriticalDamageRate,
+        double oldCriticalHit, double extraCriticalRate, EnemyInfo enemy)
     {
-        double oldCriticalHitRate = (115 * (oldCriticalHit - enemy.AntiCriticalHits) - enemy.CriticalHitLeftCoe) * 1.0 / ((oldCriticalHit - enemy.AntiCriticalHits) + enemy.CriticalHitRightCoe) / 100 + extraCriticalRate * 1.0 / 100; //旧会心率
-        double newCriticalHitRate = (115 * (criticalHit - enemy.AntiCriticalHits) - enemy.CriticalHitLeftCoe) * 1.0 / ((criticalHit - enemy.AntiCriticalHits) + enemy.CriticalHitRightCoe) / 100 + extraCriticalRate * 1.0 / 100; //旧会心率
+        double oldCriticalHitRate =
+            (115 * (oldCriticalHit - enemy.AntiCriticalHits) - enemy.CriticalHitLeftCoe) * 1.0 /
+            ((oldCriticalHit - enemy.AntiCriticalHits) + enemy.CriticalHitRightCoe) / 100 + extraCriticalRate * 1.0 / 100; //旧会心率
+        double newCriticalHitRate =
+            (115 * (criticalHit - enemy.AntiCriticalHits) - enemy.CriticalHitLeftCoe) * 1.0 /
+            ((criticalHit - enemy.AntiCriticalHits) + enemy.CriticalHitRightCoe) / 100 + extraCriticalRate * 1.0 / 100; //旧会心率
 
-        return nonCriticalDamage * newCriticalHitRate * (1 + subCriticalDamageRate * oldCriticalHitRate) + 0.5 * nonCriticalDamage * (1 - newCriticalHitRate);
+        return nonCriticalDamage * newCriticalHitRate * (1 + subCriticalDamageRate * oldCriticalHitRate) +
+               0.5 * nonCriticalDamage * (1 - newCriticalHitRate);
     }
 
     #region 特定数值计算方法

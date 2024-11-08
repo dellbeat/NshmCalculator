@@ -12,7 +12,7 @@ public static class ConstText
 
     public const string SelectionExceptionText = "<ul><li>首领数据加载有误，请刷新后再试</li><li>如有必要可与作者联系</li></ul>";
 
-    public const string FooterText = "Version:1.2.0 | Powered by .NET 8.0";
+    public const string FooterText = "Version:1.2.1 | Powered by .NET 8.0";
 
     public const string LastVisitName = "lastVisit";//最近一次访问的计算器路由
 

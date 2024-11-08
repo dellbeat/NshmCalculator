@@ -74,6 +74,11 @@ public class EnemyInfo : ICloneable
     /// 计算防御减免所需系数
     /// </summary>
     public int DefenseCoe { get; set; } = 10743;//目前元素抗性/防御减免系数不确定怎么去调整，先预埋
+    
+    /// <summary>
+    /// 防御穿透率限制系数
+    /// </summary>
+    public double DefenseLimitRate { get; set; }
 
     #endregion
 

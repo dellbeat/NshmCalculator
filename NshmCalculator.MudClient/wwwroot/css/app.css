@@ -106,6 +106,33 @@ a, .btn-link {
     inset: calc(20vh + 9.5rem) 0 auto 0.2rem;
 }
 
+.refresh-button {
+    margin-left: 5px;
+    margin-right: 5px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #1a73e8, #004ba0);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.refresh-button:hover {
+    background: linear-gradient(135deg, #155ab7, #003580);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.refresh-button:active {
+    background: linear-gradient(135deg, #104494, #002060);
+    transform: translateY(0);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 code {
     color: #c02d76;
 }
