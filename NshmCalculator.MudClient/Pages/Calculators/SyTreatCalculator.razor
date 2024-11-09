@@ -3,6 +3,7 @@
 @using NshmCalculator.MudClient.Components
 @using NshmCalculator.MudClient.Utilities
 @using NshmCalculator.Shared
+@using NshmCalculator.Shared.Models.BaseModel
 @using NshmCalculator.Shared.Models.CalculatorModel
 @using NshmCalculator.Shared.Models.PageModel
 @using Color = MudBlazor.Color
@@ -10,6 +11,7 @@
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
 @inject Dictionary<string, string> TipsDictionary
+@inject SyTreatConfig[] SyTreatConfigArray
 <PageTitle>素问治疗计算器</PageTitle>
 
 <MudGrid>
@@ -19,7 +21,7 @@
                 <MudText Typo="Typo.h4">素问治疗计算器</MudText>
                 <MudText Typo="Typo.h6" Align="MudBlazor.Align.Center">
                     <MudChip Icon="@Icons.Material.Filled.Person" Color="MudBlazor.Color.Tertiary">小红书/抖音:师尹</MudChip>
-                    <MudChip Color="Color.Info">源文件版本:2.1.2</MudChip>
+                    <MudChip Color="Color.Info">源文件版本:@_currentConfig.Version</MudChip>
                 </MudText>
             </MudStack>
         </MudPaper>
@@ -173,6 +175,7 @@
     private readonly DialogParameters<TipsDialog> _tipsDialogParameters = new();
     private readonly DialogOptions _tipsDialogOptions = new();
     private SyTreatPageModel _treatPageModel = new();
+    private SyTreatConfig _currentConfig;
     readonly TreatInfo _additionalInfo = new TreatInfo();
 
     protected override void OnInitialized()
@@ -220,7 +223,7 @@
         _additionalInfo.ZtCriticalHitsRate = _treatPageModel.BaseTreatInfo.ZtCriticalHitsRate;
         _additionalInfo.ExtraCriticalHitsRate =  _treatPageModel.CriticalHitsRate / 100;
 
-        (_treatPageModel.TreatGrowthNum, _treatPageModel.TreatGrowthPercent) = TreatUtility.Compare(_treatPageModel.BaseTreatInfo, _additionalInfo);
+        (_treatPageModel.TreatGrowthNum, _treatPageModel.TreatGrowthPercent) = TreatUtility.Compare(_treatPageModel.BaseTreatInfo, _additionalInfo, _currentConfig);
         _treatPageModel.CalculateCriticalHitsRate = _additionalInfo.CalculateCriticalHitsRate;
         _treatPageModel.CalculateTreatNum = _additionalInfo.CalculateTreatNum;
         _treatPageModel.ConvertMode = false;
@@ -230,7 +233,7 @@
 
     private void CompareCalculate()
     {
-        (_treatPageModel.TreatGrowthNum, _treatPageModel.TreatGrowthPercent) = TreatUtility.Compare(_treatPageModel.BaseTreatInfo, _treatPageModel.DifferenceTreatInfo);
+        (_treatPageModel.TreatGrowthNum, _treatPageModel.TreatGrowthPercent) = TreatUtility.Compare(_treatPageModel.BaseTreatInfo, _treatPageModel.DifferenceTreatInfo,_currentConfig);
 
         _treatPageModel.ConvertMode = false;
 
@@ -249,8 +252,14 @@
     private void InitParameters()
     {
         TipsDictionary.TryGetValue("syTreat", out string? tips);
+        _currentConfig = SyTreatConfigArray.Length > 0 ? SyTreatConfigArray[0] : new SyTreatConfig() { Version = "0.0" };
         _tipsDialogParameters.Add(nameof(TipsDialog.ContentText), new MarkupString(tips));
         _tipsDialogOptions.CloseButton = true;
+
+        if (_currentConfig.Version == "0.0")
+        {
+            Snackbar.Add("获取计算器配置时出现异常，请检查网络后", Severity.Warning);
+        }
     }
 
     private Task WarningTips()

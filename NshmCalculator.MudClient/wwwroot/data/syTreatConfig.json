@@ -1,0 +1,18 @@
+﻿[
+  {
+    "Version": "2.2.1.2",
+    "CriticalHitsMult": 1083.0221,
+    "CriticalHitsAddition1": 2412479.6965,
+    "CriticalHitsAddition2": 159736.4926,
+    "TreatIntensityAddition": 2583,
+    "HandleTreatAttribution": false
+  },
+  {
+    "Version": "2.1.2",
+    "CriticalHitsMult": 103.136842105263,
+    "CriticalHitsAddition1": 2362.61052631569,
+    "CriticalHitsAddition2": 3248.73684210527,
+    "TreatIntensityAddition": 1333,
+    "HandleTreatAttribution": true
+  }
+]

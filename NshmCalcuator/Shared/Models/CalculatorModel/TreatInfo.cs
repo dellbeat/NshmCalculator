@@ -44,7 +44,7 @@ public class TreatInfo
     #endregion
 
     /// <summary>
-    /// 会心率增量
+    /// 会心率增量（不在页面上展示，不用考虑百分比格式）
     /// </summary>
     public double ExtraCriticalHitsRate { get; set; }
 

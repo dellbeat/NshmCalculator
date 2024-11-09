@@ -21,4 +21,8 @@
       <ProjectReference Include="..\NshmCalcuator\Shared\NshmCalcuator.Shared.csproj" />
     </ItemGroup>
 
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+      <Exec Command="xcopy &quot;$(SolutionDir)NshmCalculator.MudClient\wwwroot\data\&quot; &quot;$(ProjectDir)$(OutDir)data\&quot; /Y" />
+    </Target>
+
 </Project>

@@ -45,10 +45,11 @@ UpdateLog[] updateLogs = new UpdateLog[] { };
 Dictionary<string, string> tipsDictionary = new Dictionary<string, string>();
 List<BaseAttributeImprove> attributeImproves = new List<BaseAttributeImprove>();
 Dictionary<string, EnemyInfo> enemyDictionary = new Dictionary<string, EnemyInfo>();
+SyTreatConfig[] syTreatConfigs = new SyTreatConfig[] { };
 
 long timeTicks = DateTime.Now.Ticks;
 
-var newJson = await client.GetStringAsync(ConstText.UpdateLogPath+$"?t={timeTicks}");//需要处理缓存未更新的情况
+var newJson = await client.GetStringAsync(ConstText.UpdateLogPath + $"?t={timeTicks}"); //需要处理缓存未更新的情况
 if (!string.IsNullOrEmpty(newJson))
 {
     var logs = JsonSerializer.Deserialize<UpdateLog[]>(newJson);
@@ -58,7 +59,7 @@ if (!string.IsNullOrEmpty(newJson))
     }
 }
 
-var tipsJson = await client.GetStringAsync(ConstText.TipsJsonPath+$"?t={timeTicks}");
+var tipsJson = await client.GetStringAsync(ConstText.TipsJsonPath + $"?t={timeTicks}");
 if (!string.IsNullOrEmpty(tipsJson))
 {
     var dic = JsonSerializer.Deserialize<Dictionary<string, string>>(tipsJson);
@@ -68,7 +69,7 @@ if (!string.IsNullOrEmpty(tipsJson))
     }
 }
 
-var improveJson = await client.GetStringAsync(ConstText.ImprovePath+$"?t={timeTicks}");
+var improveJson = await client.GetStringAsync(ConstText.ImprovePath + $"?t={timeTicks}");
 if (!string.IsNullOrEmpty(improveJson))
 {
     var scores = JsonSerializer.Deserialize<List<BaseAttributeImprove>>(improveJson);
@@ -78,7 +79,7 @@ if (!string.IsNullOrEmpty(improveJson))
     }
 }
 
-var enemyJson = await client.GetStringAsync(ConstText.EnemyPath+$"?t={timeTicks}");
+var enemyJson = await client.GetStringAsync(ConstText.EnemyPath + $"?t={timeTicks}");
 if (!string.IsNullOrEmpty(enemyJson))
 {
     var dic = JsonSerializer.Deserialize<Dictionary<string, EnemyInfo>>(enemyJson);
@@ -88,12 +89,23 @@ if (!string.IsNullOrEmpty(enemyJson))
     }
 }
 
+var syTreatConfigJson = await client.GetStringAsync(ConstText.SyTreatPath + $"?t={timeTicks}");
+if (!string.IsNullOrEmpty(syTreatConfigJson))
+{
+    var dic = JsonSerializer.Deserialize<SyTreatConfig[]>(syTreatConfigJson);
+    if (dic != null)
+    {
+        syTreatConfigs = dic;
+    }
+}
+
+
 builder.Services.AddSingleton(updateLogs);
 builder.Services.AddSingleton(tipsDictionary);
 builder.Services.AddSingleton(attributeImproves);
 builder.Services.AddSingleton(enemyDictionary);
+builder.Services.AddSingleton(syTreatConfigs);
 /*后面如果动态配置项多了考虑直接做一个大类*/
-
 
 #endregion
 

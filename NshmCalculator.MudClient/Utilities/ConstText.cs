@@ -25,4 +25,6 @@ public static class ConstText
     public const string ImprovePath = "../data/improveScore.json";
 
     public const string EnemyPath = "../data/enemyData.json";//首领数据
+    
+    public const string SyTreatPath = "../data/syTreatConfig.json";//首领数据
 }
