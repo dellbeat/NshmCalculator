@@ -12,7 +12,8 @@ public partial class TreatUtilityTest
     public void TreatChangeTest(string version, TreatInfo baseInfo, TreatInfo newInfo, (double, double) expectedValue)
     {
         string jsonText = File.ReadAllText(JsonFilePath);
-        SyTreatConfig[] configArray = JsonConvert.DeserializeObject<SyTreatConfig[]>(jsonText);
+        var gameConfig = JsonConvert.DeserializeObject<GameData>(jsonText);
+        SyTreatConfig[] configArray = gameConfig.SyTreatConfig;
 
         if (configArray == null || configArray.Length == 0)
         {

@@ -43,11 +43,15 @@ builder.Services.AddBlazoredLocalStorage();
 
 UpdateLog[] updateLogs = new UpdateLog[] { };
 Dictionary<string, string> tipsDictionary = new Dictionary<string, string>();
-List<BaseAttributeImprove> attributeImproves = new List<BaseAttributeImprove>();
-Dictionary<string, EnemyInfo> enemyDictionary = new Dictionary<string, EnemyInfo>();
-SyTreatConfig[] syTreatConfigs = new SyTreatConfig[] { };
+GameData gameData = new GameData();
 
 long timeTicks = DateTime.Now.Ticks;
+
+var gameConfigJson = await client.GetStringAsync(ConstText.GameConfigPath + $"?t={timeTicks}");
+if (!string.IsNullOrEmpty(gameConfigJson))
+{
+    gameData = JsonSerializer.Deserialize<GameData>(gameConfigJson);
+}
 
 var newJson = await client.GetStringAsync(ConstText.UpdateLogPath + $"?t={timeTicks}"); //需要处理缓存未更新的情况
 if (!string.IsNullOrEmpty(newJson))
@@ -69,42 +73,10 @@ if (!string.IsNullOrEmpty(tipsJson))
     }
 }
 
-var improveJson = await client.GetStringAsync(ConstText.ImprovePath + $"?t={timeTicks}");
-if (!string.IsNullOrEmpty(improveJson))
-{
-    var scores = JsonSerializer.Deserialize<List<BaseAttributeImprove>>(improveJson);
-    if (scores != null)
-    {
-        attributeImproves.AddRange(scores);
-    }
-}
-
-var enemyJson = await client.GetStringAsync(ConstText.EnemyPath + $"?t={timeTicks}");
-if (!string.IsNullOrEmpty(enemyJson))
-{
-    var dic = JsonSerializer.Deserialize<Dictionary<string, EnemyInfo>>(enemyJson);
-    if (dic != null)
-    {
-        enemyDictionary = dic;
-    }
-}
-
-var syTreatConfigJson = await client.GetStringAsync(ConstText.SyTreatPath + $"?t={timeTicks}");
-if (!string.IsNullOrEmpty(syTreatConfigJson))
-{
-    var dic = JsonSerializer.Deserialize<SyTreatConfig[]>(syTreatConfigJson);
-    if (dic != null)
-    {
-        syTreatConfigs = dic;
-    }
-}
-
 
 builder.Services.AddSingleton(updateLogs);
 builder.Services.AddSingleton(tipsDictionary);
-builder.Services.AddSingleton(attributeImproves);
-builder.Services.AddSingleton(enemyDictionary);
-builder.Services.AddSingleton(syTreatConfigs);
+builder.Services.AddSingleton(gameData);
 /*后面如果动态配置项多了考虑直接做一个大类*/
 
 #endregion

@@ -11,7 +11,7 @@
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
 @inject Dictionary<string, string> TipsDictionary
-@inject SyTreatConfig[] SyTreatConfigArray
+@inject GameData GameConfig
 <PageTitle>素问治疗计算器</PageTitle>
 
 <MudGrid>
@@ -252,13 +252,13 @@
     private void InitParameters()
     {
         TipsDictionary.TryGetValue("syTreat", out string? tips);
-        _currentConfig = SyTreatConfigArray.Length > 0 ? SyTreatConfigArray[0] : new SyTreatConfig() { Version = "0.0" };
+        _currentConfig = GameConfig.SyTreatConfig.Length > 0 ? GameConfig.SyTreatConfig[0] : new SyTreatConfig() { Version = "0.0" };
         _tipsDialogParameters.Add(nameof(TipsDialog.ContentText), new MarkupString(tips));
         _tipsDialogOptions.CloseButton = true;
 
         if (_currentConfig.Version == "0.0")
         {
-            Snackbar.Add("获取计算器配置时出现异常，请检查网络后", Severity.Warning);
+            Snackbar.Add("获取计算器配置时出现异常，请检查网络", Severity.Warning);
         }
     }
 

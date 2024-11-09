@@ -15,7 +15,7 @@
 @inject IDialogService Dialog
 @* ReSharper disable once CollectionNeverUpdated.Local *@
 @inject Dictionary<string, string> TipsDictionary
-@inject List<BaseAttributeImprove> ImproveList
+@inject GameData GameConfig
 
 <PageTitle>逆水寒手游内功收益计算器</PageTitle>
 <MudGrid>
@@ -164,7 +164,7 @@
                 <MudItem xs="12">
                     <MudExpansionPanels MultiExpansion="true" Class="ma-4">
                         <MudExpansionPanel Text="最大基础词条加成参考（计算后显示）">
-                            <MudTable T="BaseAttributeImprove" Items="@ImproveList" Bordered="true" Dense="true" Hover="true" Striped="true">
+                            <MudTable T="BaseAttributeImprove" Items="@GameConfig.ImproveScore" Bordered="true" Dense="true" Hover="true" Striped="true">
                                 <HeaderContent>
                                     <MudTh>词条</MudTh>
                                     <MudTh>最大值</MudTh>
@@ -253,7 +253,7 @@
         _kiDialogParameter.Add(x => x.OnHandle, EventCallback.Factory.Create<KIInfo>(this, HandleKI));
         _tipsDialogOptions.CloseButton = true;
         _baseAtrributeKi = new();
-        foreach (var baseAttributeImprove in ImproveList)
+        foreach (var baseAttributeImprove in GameConfig.ImproveScore)
         {
             var ki = new KIInfo(baseAttributeImprove);
             if (ki.Name == baseAttributeImprove.Name)
@@ -303,7 +303,7 @@
 
             foreach (var kiInfo in _baseAtrributeKi)
             {
-                if (ImproveList.FirstOrDefault(s => s.Name == kiInfo.Name) is { } improve)
+                if (GameConfig.ImproveScore.FirstOrDefault(s => s.Name == kiInfo.Name) is { } improve)
                 {
                     improve.AttackScore = kiInfo.AttackScore;
                     improve.ImprovePercent = kiInfo.DamageIncreasePercent;

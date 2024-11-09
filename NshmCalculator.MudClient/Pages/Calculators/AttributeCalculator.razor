@@ -15,7 +15,7 @@
 @inject IDialogService Dialog
 @* ReSharper disable once CollectionNeverUpdated.Local *@
 @inject Dictionary<string, string> TipsDictionary
-@inject Dictionary<string,EnemyInfo> EnemyDictionary
+@inject GameData GameConfig
 
 
 <PageTitle>逆水寒手游属性收益计算器</PageTitle>
@@ -266,13 +266,13 @@
             tips = "暂无内容";
         }
 
-        _optionArray = EnemyDictionary.Keys.ToArray();
+        _optionArray = GameConfig.EnemyData.Keys.ToArray();
         if (string.IsNullOrEmpty(_attributePageModel.LastEnemy))
         {
             _attributePageModel.LastEnemy = _optionArray.First();
         }
 
-        if (EnemyDictionary.TryGetValue(_attributePageModel.LastEnemy, out var enemy))
+        if ( GameConfig.EnemyData.TryGetValue(_attributePageModel.LastEnemy, out var enemy))
         {
             _attributePageModel.PageEnemyInfo = (EnemyInfo)enemy.Clone();
         }
@@ -462,7 +462,7 @@
 
     private void OnSelectionChanged(string value)
     {
-        if (!EnemyDictionary.TryGetValue(_attributePageModel.LastEnemy, out var enemy))
+        if (! GameConfig.EnemyData.TryGetValue(_attributePageModel.LastEnemy, out var enemy))
         {
             _attributePageModel.LastEnemy = _optionArray.Length == 0 ? "" : _optionArray.First();
             Snackbar.Add(ConstText.SelectionExceptionText, Severity.Warning);

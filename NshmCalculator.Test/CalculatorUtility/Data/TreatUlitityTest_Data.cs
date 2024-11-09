@@ -4,7 +4,7 @@ namespace NshmCalculator.Test.CalculatorUtility;
 
 public partial class TreatUtilityTest
 {
-    private const string JsonFilePath = "data/syTreatConfig.json";
+    private const string JsonFilePath = "data/gameData.json";
     private const double DoublePrecision = 1e-6;
 
     private static IEnumerable<object> TreatTestData
