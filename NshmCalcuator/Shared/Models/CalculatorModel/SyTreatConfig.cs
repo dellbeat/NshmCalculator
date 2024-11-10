@@ -1,4 +1,4 @@
-﻿namespace NshmCalculator.Shared.Models.BaseModel;
+﻿namespace NshmCalculator.Shared.Models.CalculatorModel;
 
 /// <summary>
 /// 师尹的素问治疗计算器页面的数据配置
@@ -10,7 +10,7 @@ public class SyTreatConfig
     /// </summary>
     public string Version { get; set; }
 
-    #region 系数
+    #region 治疗量计算系数
     
     //乘数：与其他数乘/除；增数，与其他数加/减
     
@@ -35,9 +35,29 @@ public class SyTreatConfig
     public double TreatIntensityAddition { get; set; }
 
     #endregion
+
+    /// <summary>
+    /// 转换疗强参数列表
+    /// </summary>
+    public FieldInfo[] TransTreatFields { get; set; } = null;
+
+    /// <summary>
+    /// 属性词条数值参数列表
+    /// </summary>
+    public FieldInfo[] ScoreFields { get; set; } = null;
+
+    /// <summary>
+    /// 属性词条分类排序
+    /// </summary>
+    public string[] ScoreFieldsGroupArray { get; set; } = null;
     
     /// <summary>
-    /// 是否读取/保存转换疗强实体，作为兼容性选项，后续不再处理
+    /// 灵韵分映射
+    /// </summary>
+    public Dictionary<string,string> SpecialScoreDictionary { get; set; } = null;
+    
+    /// <summary>
+    /// 是否读取/保存转换疗强实体，作为待定兼容性选项，后续不再处理
     /// </summary>
     public bool HandleTreatAttribution { get; set; }
 }

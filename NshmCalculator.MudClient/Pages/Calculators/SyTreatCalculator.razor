@@ -1,4 +1,5 @@
 ﻿@page "/syTreat"
+@using System.Linq.Expressions
 @using Blazored.LocalStorage
 @using NshmCalculator.MudClient.Components
 @using NshmCalculator.MudClient.Utilities
@@ -109,35 +110,62 @@
                             </MudTabPanel>
                             <MudTabPanel Text="转换疗强计算">
                                 <MudGrid>
-                                    <MudItem xs="4">
-                                        <MudTextField ShrinkLabel @bind-Value="_treatPageModel.TreatAttribution.Attack" For="@(() => _treatPageModel.TreatAttribution.Attack)" Label="攻击" Variant="Variant.Outlined" />
-                                    </MudItem>
-                                    <MudItem xs="4">
-                                        <MudTextField ShrinkLabel @bind-Value="_treatPageModel.TreatAttribution.Strength" For="@(() => _treatPageModel.TreatAttribution.Strength)" Label="气海" Variant="Variant.Outlined" />
-                                    </MudItem>
-                                    <MudItem xs="4">
-                                        <MudTextField ShrinkLabel @bind-Value="_treatPageModel.TreatAttribution.HalfAttackSum" For="@(() => _treatPageModel.TreatAttribution.HalfAttackSum)" Label="大小攻" Variant="Variant.Outlined" />
-                                    </MudItem>
-                                    <MudItem xs="4">
-                                        <MudTextField ShrinkLabel @bind-Value="_treatPageModel.TreatAttribution.BreakDefense" For="@(() => _treatPageModel.TreatAttribution.BreakDefense)" Label="破防" Variant="Variant.Outlined" />
-                                    </MudItem>
-                                    <MudItem xs="4">
-                                        <MudTextField ShrinkLabel @bind-Value="_treatPageModel.TreatAttribution.ElementAttack" For="@(() => _treatPageModel.TreatAttribution.ElementAttack)" Label="元素攻击" Variant="Variant.Outlined" />
-                                    </MudItem>
-                                    <MudItem xs="4">
-                                        <MudTextField ShrinkLabel @bind-Value="_treatPageModel.TreatAttribution.MonsterRestraint" For="@(() => _treatPageModel.TreatAttribution.MonsterRestraint)" Label="首领克制" Variant="Variant.Outlined" />
-                                    </MudItem>
-                                    <MudItem xs="4">
-                                        <MudTextField ShrinkLabel @bind-Value="_treatPageModel.TreatAttribution.Hit" For="@(() => _treatPageModel.TreatAttribution.Hit)" Label="命中" Variant="Variant.Outlined" />
-                                    </MudItem>
-                                    <MudItem xs="4">
-                                        <MudTextField ShrinkLabel @bind-Value="_treatPageModel.TreatAttribution.Hit" For="@(() => _treatPageModel.TreatAttribution.Hit)" Label="忽视元素抗" Variant="Variant.Outlined" />
-                                    </MudItem>
-                                    <MudItem xs="4">
-                                        <MudTextField ShrinkLabel @bind-Value="_treatPageModel.TreatAttribution.MonsterRestraint" For="@(() => _treatPageModel.TreatAttribution.MonsterRestraint)" Label="流派克制" Variant="Variant.Outlined" />
-                                    </MudItem>
+                                    @if (_currentConfig.TransTreatFields?.Length > 0)
+                                    {
+                                        foreach (var treatField in _currentConfig.TransTreatFields)
+                                        {
+                                            <MudItem xs="4">
+                                                <MudTextField ShrinkLabel @bind-Value="@treatField.Value" For="@(() => @treatField.Value)" Label="@treatField.Name" Variant="Variant.Outlined" />
+                                            </MudItem>
+                                        }
+                                    }
                                     <MudItem xs="12">
                                         <MudAlert Severity="Severity.Info">转换疗强计算结果与基础面板无关</MudAlert>
+                                    </MudItem>
+                                </MudGrid>
+                            </MudTabPanel>
+                            <MudTabPanel Text="pvp词条收益">
+                                <MudGrid>
+                                    <MudItem xs="12">
+                                        <MudAlert Severity="Severity.Info">“气血”不计算在内功主词条中“气血上限”的值；格挡类词条需面板格挡在3000以上才填。</MudAlert>
+                                    </MudItem>
+                                    <MudItem xs="12">
+                                        <MudExpansionPanels MultiExpansion="true">
+                                            @if (_currentConfig.ScoreFields?.Length > 0)
+                                            {
+                                                var result = _currentConfig.ScoreFields.GroupBy(s => s.BelongGroup);
+                                                foreach (IGrouping<string,FieldInfo> fieldResults in result)
+                                                {
+                                                    <MudExpansionPanel Text=@fieldResults.Key>
+                                                        <MudGrid>
+                                                            @foreach (var fieldResult in fieldResults)
+                                                            {
+                                                                <MudItem xs="6" sm="4">
+                                                                    <MudTextField ShrinkLabel @bind-Value="@fieldResult.Value" For="@(() => fieldResult.Value)" Label="@fieldResult.Name" Adornment="@(fieldResult.PercentMode?Adornment.End:Adornment.None)" AdornmentText="%" AdornmentColor="Color.Dark" Variant="Variant.Outlined"/>
+                                                                </MudItem>
+                                                            }
+                                                        </MudGrid>
+                                                    </MudExpansionPanel>
+                                                }
+                                            }
+                                        </MudExpansionPanels>
+                                    </MudItem>
+                                    <MudItem xs="6">
+                                        <MudSelect Label="灵韵内功" Variant="Variant.Outlined" @bind-Value="_treatPageModel.SelectedKey" ToStringFunc="@convertFunc">
+                                            @if (_currentConfig.SpecialScoreDictionary?.Count > 0)
+                                            {
+                                                foreach (var keyValuePair in _currentConfig.SpecialScoreDictionary)
+                                                {
+                                                    <MudSelectItem Value="@keyValuePair">@keyValuePair.Key</MudSelectItem>
+                                                }
+                                            }
+                                        </MudSelect>
+
+                                    </MudItem>
+                                    <MudItem xs="6" Class="d-flex align-center justify-center">
+                                        <MudStack Row="true" Spacing="4">
+                                            <MudChip Color="Color.Info">灵韵分（不记总评分）：@_treatPageModel.SelectedKey.Value</MudChip>
+                                        </MudStack>
                                     </MudItem>
                                 </MudGrid>
                             </MudTabPanel>
@@ -147,7 +175,7 @@
                         <MudStack Row="true" Spacing="4">
                             @if (_treatPageModel.ConvertMode)
                             {
-                                <MudChip Color="Color.Success">转换疗强：@_treatPageModel.ConvertTreatNum.ToString("F2")</MudChip>
+                                <MudChip Color="Color.Success">@(_treatPageModel.ActiveIndex==2?"转换疗强":"总评分")：@(_treatPageModel.ActiveIndex==2?_treatPageModel.ConvertTreatNum.ToString("F2"):_treatPageModel.Score.ToString("F3"))</MudChip>
                             }
                             else
                             {
@@ -176,7 +204,9 @@
     private readonly DialogOptions _tipsDialogOptions = new();
     private SyTreatPageModel _treatPageModel = new();
     private SyTreatConfig _currentConfig;
-    readonly TreatInfo _additionalInfo = new TreatInfo();
+    readonly TreatInfo _additionalInfo = new();
+    private KeyValuePair<string,string> _selectedKey { get; set; }
+    private Func<KeyValuePair<string, string>, string> convertFunc = ci => ci.Key;
 
     protected override void OnInitialized()
     {
@@ -189,6 +219,34 @@
     private void GetInfo()
     {
         _treatPageModel = LocalStorage.GetItem<SyTreatPageModel>(nameof(_treatPageModel)) ?? new();
+        _treatPageModel.TransTreatFields = _currentConfig.TransTreatFields;
+        _treatPageModel.ScoreFields = _currentConfig.ScoreFields;
+        if (_treatPageModel.TransTreatDictionary != null)//恢复保存的数值
+        {
+            foreach ((string? key, int value) in _treatPageModel.TransTreatDictionary)
+            {
+                if (_treatPageModel.TransTreatFields.FirstOrDefault(s => s.Name == key) is FieldInfo info)
+                {
+                    info.Value = value;
+                }
+            }
+        }
+
+        if (_treatPageModel.ScoreFieldsDictionary != null)
+        {
+            foreach ((string? key, int value) in _treatPageModel.ScoreFieldsDictionary)
+            {
+                if (_treatPageModel.ScoreFields.FirstOrDefault(s => s.Name == key) is FieldInfo info)
+                {
+                    info.Value = value;
+                }
+            }
+        }
+
+        if (string.IsNullOrEmpty(_treatPageModel.SelectedKey.Key) || !_currentConfig.SpecialScoreDictionary.ContainsKey(_treatPageModel.SelectedKey.Key))
+        {
+            _treatPageModel.SelectedKey = _currentConfig.SpecialScoreDictionary.First();
+        }
     }
 
     private void SaveInfo()
@@ -208,6 +266,9 @@
                 break;
             case 2:
                 ConvertTreatNumCalculate();
+                break;
+            case 3:
+                ScoreCalculate();
                 break;
         }
 
@@ -242,9 +303,22 @@
 
     private void ConvertTreatNumCalculate()
     {
-        _treatPageModel.ConvertTreatNum = TreatUtility.TransformCalculate(_treatPageModel.TreatAttribution);
+        _treatPageModel.ConvertTreatNum = TreatUtility.FieldCalculate(_treatPageModel.TransTreatFields);
 
         _treatPageModel.ConvertMode = true;
+
+        _treatPageModel.TransTreatDictionary = _treatPageModel.TransTreatFields.ToDictionary(s => s.Name, s => s.Value);
+
+        Snackbar.Add(ConstText.SuccessText, Severity.Success);
+    }
+    
+    private void ScoreCalculate()
+    {
+        _treatPageModel.Score = TreatUtility.FieldCalculate(_treatPageModel.ScoreFields);
+
+        _treatPageModel.ConvertMode = true;
+
+        _treatPageModel.ScoreFieldsDictionary = _treatPageModel.ScoreFields.ToDictionary(s => s.Name, s => s.Value);
 
         Snackbar.Add(ConstText.SuccessText, Severity.Success);
     }

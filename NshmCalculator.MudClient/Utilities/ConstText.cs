@@ -12,7 +12,7 @@ public static class ConstText
 
     public const string SelectionExceptionText = "<ul><li>首领数据加载有误，请刷新后再试</li><li>如有必要可与作者联系</li></ul>";
 
-    public const string FooterText = "Version:1.2.1 | Powered by .NET 8.0";
+    public const string FooterText = "Version:1.3.0 | Powered by .NET 8.0";
 
     public const string LastVisitName = "lastVisit";//最近一次访问的计算器路由
 
@@ -21,12 +21,6 @@ public static class ConstText
     public const string UpdateLogPath = "../data/updatelog.json";//更新日志相对路径
 
     public const string TipsJsonPath = "../data/tipsContent.json";//帮助内容相对路径
-
-    public const string ImprovePath = "../data/improveScore.json";
-
-    public const string EnemyPath = "../data/enemyData.json";//首领数据
-    
-    public const string SyTreatPath = "../data/syTreatConfig.json";//首领数据
     
     public const string GameConfigPath = "../data/gameData.json";//游戏数据配置
 }

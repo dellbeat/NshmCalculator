@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using NshmCalculator.Shared.Models.CalculatorModel;
 using NshmCalculator.Shared.Models.CalculatorModel.KI;
 
 namespace NshmCalculator.Shared.Models.BaseModel;

@@ -27,6 +27,26 @@ public class SyTreatPageModel
 
     public TreatAttribution TreatAttribution { get; set; } = new();
 
+    /// <summary>
+    /// 转换治疗计算界面配置,仅在读取时进行赋值
+    /// </summary>
+    public FieldInfo[] TransTreatFields { get; set; }
+    
+    /// <summary>
+    /// 转换治疗计算数值键值对，在计算时保存，在读取时恢复
+    /// </summary>
+    public Dictionary<string,int> TransTreatDictionary { get; set; } 
+    
+    /// <summary>
+    /// PVP评分计算界面配置,仅在读取时进行赋值
+    /// </summary>
+    public FieldInfo[] ScoreFields { get; set; }
+    
+    /// <summary>
+    /// PVP评分计算数值键值对，在计算时保存，在读取时恢复
+    /// </summary>
+    public Dictionary<string,int> ScoreFieldsDictionary { get; set; } 
+    
     #region 变化计算面板
 
     /// <summary>
@@ -65,6 +85,11 @@ public class SyTreatPageModel
     public double CalculateTreatNum { get; set; }
 
     #endregion
+    
+    /// <summary>
+    /// 选择的灵韵分键值对
+    /// </summary>
+    public KeyValuePair<string,string> SelectedKey { get; set; }
 
     /// <summary>
     /// 当前TabIndex，用于控制计算行为
@@ -90,4 +115,6 @@ public class SyTreatPageModel
     /// 转换疗强
     /// </summary>
     public double ConvertTreatNum { get; set; }
+    
+    public double Score { get; set; }
 }

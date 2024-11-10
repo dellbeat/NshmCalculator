@@ -11,7 +11,8 @@ public static class TreatUtility
     /// <param name="info">治疗面板信息</param>
     private static void Calculate(TreatInfo info, SyTreatConfig config = null)
     {
-        info.CalculateCriticalHitsRate = (info.CriticalHits * config.CriticalHitsMult + config.CriticalHitsAddition1) / (info.CriticalHits + config.CriticalHitsAddition2) / 100 +
+        info.CalculateCriticalHitsRate = (info.CriticalHits * config.CriticalHitsMult + config.CriticalHitsAddition1) /
+                                         (info.CriticalHits + config.CriticalHitsAddition2) / 100 +
                                          info.ZtCriticalHitsRate * 0.01 + info.ExtraCriticalHitsRate; //除了100之外全变了
         info.CalculateTreatNum = (info.Attack * 0.6 + info.TreatIntensity + config.TreatIntensityAddition) * 1.106 *
                                  (1 + (info.CriticalDamageRate * 0.01 - 1) / 2 * info.CalculateCriticalHitsRate); //1333系数变化
@@ -35,16 +36,18 @@ public static class TreatUtility
     }
 
     /// <summary>
-    /// 转换治疗计算
+    /// 动态属性配置通用方法
     /// </summary>
-    /// <param name="attribution">属性词条数值信息</param>
+    /// <param name="fields">属性信息</param>
     /// <returns></returns>
-    public static double TransformCalculate(TreatAttribution attribution)
+    public static double FieldCalculate(FieldInfo[] fields)
     {
-        return attribution.Attack * 0.6 + attribution.Strength * 4.65 * 0.6 + attribution.HalfAttackSum * 0.5 * 0.6 +
-               attribution.BreakDefense * 1.0 / 350 * 100 + attribution.ElementAttack * 1.0 / 150 * 100 +
-               attribution.MonsterRestraint * 1.0 / 272 * 100 +
-               attribution.Hit * 1.0 / 112 * 100 +
-               attribution.IgnoreElementDefense / 114.7 * 100 + attribution.ProfessionRestraint * 1.0 / 320 * 100;
+        double result = 0;
+        foreach (var fieldInfo in fields)
+        {
+            result += fieldInfo.Value * (fieldInfo.PercentMode ? 0.01 : 1) * fieldInfo.MultiCoe / fieldInfo.ExceptCoe;
+        }
+
+        return result;
     }
 }
