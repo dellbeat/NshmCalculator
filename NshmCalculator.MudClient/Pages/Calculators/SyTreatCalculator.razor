@@ -218,7 +218,16 @@
 
     private void GetInfo()
     {
-        _treatPageModel = LocalStorage.GetItem<SyTreatPageModel>(nameof(_treatPageModel)) ?? new();
+        try
+        {
+            _treatPageModel = LocalStorage.GetItem<SyTreatPageModel>(nameof(_treatPageModel)) ?? new();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("素问治疗计算器异常:" + e);
+            _treatPageModel = new SyTreatPageModel();
+        }
+        
         _treatPageModel.TransTreatFields = _currentConfig.TransTreatFields;
         _treatPageModel.ScoreFields = _currentConfig.ScoreFields;
         if (_treatPageModel.TransTreatDictionary != null)//恢复保存的数值

@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using NshmCalculator.Shared.Models.CalculatorModel;
 
 namespace NshmCalculator.Shared.Models.PageModel;
 
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public class SyTreatPageModel
 {
     [ValidateComplexType]

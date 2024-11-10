@@ -255,7 +255,16 @@
 
     private void GetInfo()
     {
-        _attributePageModel = LocalStorage.GetItem<AttributePageModel>(nameof(_attributePageModel)) ?? new();
+        try
+        {
+            _attributePageModel = LocalStorage.GetItem<AttributePageModel>(nameof(_attributePageModel)) ?? new();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("属性收益计算器出现异常:" + e);
+            Console.WriteLine(LocalStorage.GetItemAsString(nameof(_attributePageModel)));
+            _attributePageModel = new AttributePageModel();
+        }
     }
 
     private void InitParameters()
