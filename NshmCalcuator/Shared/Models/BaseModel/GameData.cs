@@ -1,5 +1,5 @@
 ﻿using System.Text.Json.Serialization;
-using NshmCalculator.Shared.Models.CalculatorModel;
+using NshmCalculator.Shared.Models.CalculatorModel.CalculatorConfig;
 using NshmCalculator.Shared.Models.CalculatorModel.KI;
 
 namespace NshmCalculator.Shared.Models.BaseModel;
@@ -26,7 +26,12 @@ public class GameData
     /// </summary>
     [JsonInclude]
     public SyTreatConfig[] SyTreatConfig { get; set; }
-
+    
+    /// <summary>
+    /// 夜银身份收益计算器界面配置
+    /// </summary>
+    public OccupationConfig OccupationConfig { get; set; }
+    
     public GameData()
     {
         EnemyData = new Dictionary<string, EnemyInfo>();

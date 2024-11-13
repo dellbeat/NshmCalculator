@@ -1,4 +1,4 @@
-﻿namespace NshmCalculator.Shared.Models.CalculatorModel;
+﻿namespace NshmCalculator.Shared.Models.CalculatorModel.CalculatorConfig;
 
 /// <summary>
 /// 师尹的素问治疗计算器页面的数据配置

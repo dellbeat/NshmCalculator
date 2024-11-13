@@ -1,0 +1,152 @@
+﻿@page "/sf"
+@using Blazored.LocalStorage
+@using NshmCalculator.MudClient.Components
+@using NshmCalculator.MudClient.Utilities
+@using NshmCalculator.Shared
+@using NshmCalculator.Shared.Models.BaseModel
+@using NshmCalculator.Shared.Models.CalculatorModel
+@using NshmCalculator.Shared.Models.CalculatorModel.CalculatorConfig
+@using NshmCalculator.Shared.Models.PageModel
+@using Align = MudBlazor.Align
+@using Color = MudBlazor.Color
+@inject ISyncLocalStorageService LocalStorage
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+@inject Dictionary<string, string> TipsDictionary
+@inject GameData GameConfig
+
+<PageTitle>逆水寒手游身份收益计算器</PageTitle>
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudPaper Class="d-flex align-center justify-center py-8">
+            <MudStack AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.h4">身份收益计算器</MudText>
+                <MudText Typo="Typo.h6" Align="Align.Center">
+                    <MudChip Icon="@Icons.Material.Filled.Person" Color="Color.Tertiary">B站@逆水寒-夜银</MudChip>
+                    <MudChip Color="Color.Info">源文件版本:@_currentConfig.Version</MudChip>
+                </MudText>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+    
+    <MudItem xs="12">
+        <MudPaper Class="pa-4 mt-4">
+            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
+                @if (_occupationPageModel.GoodsArray?.Length > 0)
+                {
+                var groupedGoods = _occupationPageModel.GoodsArray.GroupBy(s => s.BelongGroup);
+                foreach (var group in groupedGoods)
+                {
+                <MudTabPanel Text="@group.Key">
+                    <MudGrid>
+                        @foreach (var item in group)
+                        {
+                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
+                            <MudTextField ShrinkLabel @bind-Value="@item.Price" For="@(() => item.Price)" Label="@item.Name" Variant="Variant.Outlined"/>
+                        </MudItem>
+                        }
+                    </MudGrid>
+                </MudTabPanel>
+                }
+                }
+            </MudTabs>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="12" Class="d-flex align-center justify-center">
+        <MudStack Row="true" Spacing="4">
+            <MudButton Variant="Variant.Filled" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Submit">计算</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Default" Class="d-flex" ButtonType="ButtonType.Button" OnClick="OnCalculate">帮助说明</MudButton>
+        </MudStack>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private readonly DialogParameters<TipsDialog> _tipsDialogParameters = new();
+    private readonly DialogOptions _tipsDialogOptions = new();
+
+    private OccupationConfig _currentConfig;
+    private OccupationGoods[] GoodsArray;
+    private OccupationFormulas[] FormulasArray;
+    private bool firstLoad = true;
+    private OccupationPageModel _occupationPageModel;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        InitParameters();
+    }
+
+    private void InitParameters()
+    {
+        _currentConfig = GameConfig.OccupationConfig;
+        if (_currentConfig == null)
+        {
+            Snackbar.Add(ConstText.ConfigNotFoundText, Severity.Error);
+            return;
+        }
+
+        try
+        {
+            _occupationPageModel = LocalStorage.GetItem<OccupationPageModel>(nameof(_occupationPageModel)) ?? new();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("身份收益计算器缓存加载异常" + e);
+            _occupationPageModel = new OccupationPageModel();
+        }
+        
+        if (_occupationPageModel.CurrentInternalVersion < _currentConfig.InternalVersion)
+        {
+            var oldGoodsPriceDic = _occupationPageModel.GoodsArray?.ToDictionary(s => s.Code, s => s.Price);
+            _occupationPageModel.GoodsArray = _currentConfig.OccupationGoodsArray;
+            foreach (var goods in _occupationPageModel.GoodsArray)
+            {
+                if (oldGoodsPriceDic.TryGetValue(goods.Code, out int value))
+                {
+                    goods.Price = value;
+                }
+            }
+
+            var oldOccDic = _occupationPageModel.FormulasArray.Where(s => s.Favorite).ToDictionary(s => s.ID, s => s.Favorite);
+            _occupationPageModel.FormulasArray = _currentConfig.OccupationFormulaArray;
+            foreach (var occ in _occupationPageModel.FormulasArray)
+            {
+                occ.Value = 0;
+                if (oldOccDic.ContainsKey(occ.ID))
+                {
+                    occ.Favorite = true;
+                }
+            }
+
+            if (_occupationPageModel.CurrentInternalVersion != -99999)
+            {
+                Snackbar.Add("<ul><li>商品/公式数据已更新</li><li>已成功继承商品价格和收藏状态</li></ul>", Severity.Success);
+            }
+            _occupationPageModel.CurrentInternalVersion = _currentConfig.InternalVersion;
+            SaveInfo();
+        }
+    }
+
+    private void OnCalculate()
+    {
+        var dic = _occupationPageModel.GoodsArray.ToDictionary(s => s.Code, s => s.Price);
+        OccupationUtility.CalculateResults(_occupationPageModel.FormulasArray, dic);
+        Snackbar.Add(ConstText.SuccessText, Severity.Success);
+    }
+
+    private void SaveInfo()
+    {
+        LocalStorage.SetItem(nameof(_occupationPageModel), _occupationPageModel);
+    }
+    
+    //TODO:完善界面对数据有效性的验证
+
+    private Task WarningTips()
+    {
+        Snackbar.Add(ConstText.WarningText, Severity.Warning);
+
+        return Task.CompletedTask;
+    }
+}

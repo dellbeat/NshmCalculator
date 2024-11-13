@@ -1,5 +1,6 @@
 ﻿using NshmCalculator.Shared.Models.BaseModel;
 using NshmCalculator.Shared.Models.CalculatorModel;
+using NshmCalculator.Shared.Models.CalculatorModel.CalculatorConfig;
 
 namespace NshmCalculator.Shared;
 

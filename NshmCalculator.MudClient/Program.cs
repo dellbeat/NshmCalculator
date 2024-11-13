@@ -9,7 +9,6 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using NshmCalculator.MudClient;
 using NshmCalculator.Shared.Models.BaseModel;
-using NshmCalculator.Shared.Models.CalculatorModel.KI;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
