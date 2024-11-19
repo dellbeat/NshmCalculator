@@ -231,7 +231,7 @@
         
         _treatPageModel.TransTreatFields = _currentConfig.TransTreatFields;
         _treatPageModel.ScoreFields = _currentConfig.ScoreFields;
-        if (_treatPageModel.TransTreatDictionary != null)//恢复保存的数值
+        if (_treatPageModel.TransTreatDictionary is { Count: > 0 }) //恢复保存的数值
         {
             foreach ((string? key, int value) in _treatPageModel.TransTreatDictionary)
             {
@@ -242,7 +242,7 @@
             }
         }
 
-        if (_treatPageModel.ScoreFieldsDictionary != null)
+        if (_treatPageModel.ScoreFieldsDictionary is { Count: > 0 })
         {
             foreach ((string? key, int value) in _treatPageModel.ScoreFieldsDictionary)
             {

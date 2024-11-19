@@ -37,7 +37,7 @@ public class SyTreatPageModel
     /// <summary>
     /// 转换治疗计算数值键值对，在计算时保存，在读取时恢复
     /// </summary>
-    public Dictionary<string,int> TransTreatDictionary { get; set; } 
+    public Dictionary<string,int> TransTreatDictionary { get; set; } = new();
     
     /// <summary>
     /// PVP评分计算界面配置,仅在读取时进行赋值
@@ -47,7 +47,7 @@ public class SyTreatPageModel
     /// <summary>
     /// PVP评分计算数值键值对，在计算时保存，在读取时恢复
     /// </summary>
-    public Dictionary<string,int> ScoreFieldsDictionary { get; set; } 
+    public Dictionary<string,int> ScoreFieldsDictionary { get; set; } = new();
     
     #region 变化计算面板
 
@@ -87,11 +87,11 @@ public class SyTreatPageModel
     public double CalculateTreatNum { get; set; }
 
     #endregion
-    
+
     /// <summary>
     /// 选择的灵韵分键值对
     /// </summary>
-    public KeyValuePair<string,string> SelectedKey { get; set; }
+    public KeyValuePair<string, string> SelectedKey { get; set; } = new();
 
     /// <summary>
     /// 当前TabIndex，用于控制计算行为

@@ -1,4 +1,5 @@
-﻿using NshmCalculator.Shared.Models.CalculatorModel;
+﻿using System.ComponentModel.DataAnnotations;
+using NshmCalculator.Shared.Models.CalculatorModel;
 
 namespace NshmCalculator.Shared.Models.PageModel;
 
@@ -7,6 +8,7 @@ public class OccupationPageModel
     /// <summary>
     /// 界面上存储的商品数据及价格配置
     /// </summary>
+    [ValidateComplexType]
     public OccupationGoods[] GoodsArray { get; set; } = [];
     
     /// <summary>

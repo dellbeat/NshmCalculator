@@ -1,4 +1,5 @@
 ﻿@page "/sf"
+@using System.Collections.ObjectModel
 @using Blazored.LocalStorage
 @using NshmCalculator.MudClient.Components
 @using NshmCalculator.MudClient.Utilities
@@ -29,35 +30,115 @@
             </MudStack>
         </MudPaper>
     </MudItem>
-    
+
     <MudItem xs="12">
         <MudPaper Class="pa-4 mt-4">
-            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
-                @if (_occupationPageModel.GoodsArray?.Length > 0)
-                {
-                var groupedGoods = _occupationPageModel.GoodsArray.GroupBy(s => s.BelongGroup);
-                foreach (var group in groupedGoods)
-                {
-                <MudTabPanel Text="@group.Key">
-                    <MudGrid>
-                        @foreach (var item in group)
+            <EditForm Model="_occupationPageModel.GoodsArray" OnInvalidSubmit="WarningTips">
+                <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
+                    @if (_occupationPageModel.GoodsArray?.Length > 0)
+                    {
+                        var groupedGoods = _occupationPageModel.GoodsArray.GroupBy(s => s.BelongGroup);
+                        foreach (var group in groupedGoods)
                         {
-                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                            <MudTextField ShrinkLabel @bind-Value="@item.Price" For="@(() => item.Price)" Label="@item.Name" Variant="Variant.Outlined"/>
-                        </MudItem>
+                            <MudTabPanel Text="@group.Key">
+                                <MudGrid>
+                                    @foreach (var item in group)
+                                    {
+                                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
+                                            <MudTextField ShrinkLabel @bind-Value="@item.Price" For="@(() => item.Price)" Label="@item.Name"
+                                                          Variant="Variant.Outlined"/>
+                                        </MudItem>
+                                    }
+                                </MudGrid>
+                            </MudTabPanel>
                         }
-                    </MudGrid>
+                    }
+                </MudTabs>
+            </EditForm>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="12">
+        <MudPaper Class="pa-4 mt-4">
+            <MudTabs Elevation="2" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
+                <MudTabPanel Text="身份收益列表">
+                    <MudTable FixedHeader="true" Items="@_occupationPageModel.FormulasArray" Breakpoint="Breakpoint.None" Striped="true" Dense="true">
+                        <HeaderContent>
+                            <MudTh>商品</MudTh>
+                            <MudTh>
+                                <MudTableSortLabel SortBy="new Func<OccupationFormulas, object>(x => x.Value)">
+                                    10活力收益
+                                </MudTableSortLabel>
+                            </MudTh>
+                            <MudTh>收藏</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="商品">@context.GoodsName</MudTd>
+                            <MudTd DataLabel="10活力收益">@context.Value.ToString("F2")</MudTd>
+                            <MudTd DataLabel="收藏">
+                                @if (context.Favorite)
+                                {
+                                    <MudIconButton OnClick="() => OnClickFavorite(context)" Icon="@Icons.Material.Filled.Favorite"
+                                                   Color="@Color.Info"/>
+                                }
+                                else
+                                {
+                                    <MudIconButton OnClick="() => OnClickFavorite(context)" Icon="@Icons.Material.Filled.FavoriteBorder"
+                                                   Color="@Color.Info"/>
+                                }
+                            </MudTd>
+                        </RowTemplate>
+                        <PagerContent>
+                            <MudTablePager PageSizeOptions="new[] { 10 }"
+                                           HideRowsPerPage="true"/>
+                        </PagerContent>
+                    </MudTable>
                 </MudTabPanel>
-                }
-                }
+                <MudTabPanel Text="收藏夹">
+                    <MudPaper Style="max-height:800px;overflow-y:auto;overflow-x: hidden">
+                        <MudGrid>
+                            @foreach (var favoriteItem in FavoriteFormulas)
+                            {
+                                <MudItem xs="12" sm="6" md="4" lg="3" xl="3">
+                                    <MudCard>
+                                        <MudCardHeader>
+                                            <CardHeaderContent>
+                                                <MudText Typo="Typo.h6">@favoriteItem.GoodsName</MudText>
+                                            </CardHeaderContent>
+                                            <CardHeaderActions>
+                                                <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Info"
+                                                               OnClick="() => OnClickFavorite(favoriteItem,true)"/>
+                                            </CardHeaderActions>
+                                        </MudCardHeader>
+                                        <MudCardContent>
+                                            <MudStack Row="true">
+                                                <MudChip T="string" Color="Color.Info">收益</MudChip>
+                                                <MudText Typo="Typo.body2" Class="mt-3">@favoriteItem.Value.ToString("F2")</MudText>
+                                            </MudStack>
+                                            <MudStack Row="true">
+                                                <MudChip T="string" Color="Color.Info">备注</MudChip>
+                                                <MudText Typo="Typo.body2" Class="mt-3">
+                                                    @(string.IsNullOrEmpty(favoriteItem.Remark) ? "无" : favoriteItem.Remark)
+                                                </MudText>
+                                            </MudStack>
+                                        </MudCardContent>
+                                    </MudCard>
+                                </MudItem>
+                            }
+                        </MudGrid>
+                    </MudPaper>
+
+                </MudTabPanel>
             </MudTabs>
         </MudPaper>
     </MudItem>
 
     <MudItem xs="12" Class="d-flex align-center justify-center">
         <MudStack Row="true" Spacing="4">
-            <MudButton Variant="Variant.Filled" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Submit">计算</MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Default" Class="d-flex" ButtonType="ButtonType.Button" OnClick="OnCalculate">帮助说明</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Button" OnClick="OnCalculate">计算
+            </MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Default" Class="d-flex" ButtonType="ButtonType.Button" OnClick="ShowTips">帮助说明
+            </MudButton>
         </MudStack>
     </MudItem>
 </MudGrid>
@@ -66,11 +147,13 @@
     private readonly DialogParameters<TipsDialog> _tipsDialogParameters = new();
     private readonly DialogOptions _tipsDialogOptions = new();
 
+
     private OccupationConfig _currentConfig;
     private OccupationGoods[] GoodsArray;
     private OccupationFormulas[] FormulasArray;
     private bool firstLoad = true;
     private OccupationPageModel _occupationPageModel;
+    private ObservableCollection<OccupationFormulas> FavoriteFormulas { get; set; }
 
     protected override void OnInitialized()
     {
@@ -78,9 +161,41 @@
         InitParameters();
     }
 
+    private async Task OnClickFavorite(OccupationFormulas formulas, bool needTips = false)
+    {
+        if (needTips)
+        {
+            bool? result = await Dialog.ShowMessageBox(
+                "操作确认",
+                $"是否取消{formulas.GoodsName}的收藏？",
+                yesText: "是", cancelText: "再想想");
+            if (result != true)
+            {
+                return;
+            }
+        }
+
+        formulas.Favorite = !formulas.Favorite;
+        if (formulas.Favorite)
+        {
+            FavoriteFormulas.Add(formulas);
+        }
+        else
+        {
+            FavoriteFormulas.Remove(formulas);
+        }
+
+        SaveInfo();
+        Snackbar.Add($"已{(formulas.Favorite ? "添加" : "取消")}收藏:{formulas.GoodsName}", Severity.Success);
+    }
+
     private void InitParameters()
     {
+        TipsDictionary.TryGetValue("sf", out string? tips);
+        _tipsDialogParameters.Add(nameof(TipsDialog.ContentText), new MarkupString(tips));
+        _tipsDialogOptions.CloseButton = true;
         _currentConfig = GameConfig.OccupationConfig;
+        FavoriteFormulas = new ObservableCollection<OccupationFormulas>();
         if (_currentConfig == null)
         {
             Snackbar.Add(ConstText.ConfigNotFoundText, Severity.Error);
@@ -96,7 +211,7 @@
             Console.WriteLine("身份收益计算器缓存加载异常" + e);
             _occupationPageModel = new OccupationPageModel();
         }
-        
+
         if (_occupationPageModel.CurrentInternalVersion < _currentConfig.InternalVersion)
         {
             var oldGoodsPriceDic = _occupationPageModel.GoodsArray?.ToDictionary(s => s.Code, s => s.Price);
@@ -124,24 +239,49 @@
             {
                 Snackbar.Add("<ul><li>商品/公式数据已更新</li><li>已成功继承商品价格和收藏状态</li></ul>", Severity.Success);
             }
+
             _occupationPageModel.CurrentInternalVersion = _currentConfig.InternalVersion;
             SaveInfo();
+        }
+
+        foreach (var item in _occupationPageModel.FormulasArray.Where(s => s.Favorite))
+        {
+            FavoriteFormulas.Add(item);
         }
     }
 
     private void OnCalculate()
     {
+        if (_occupationPageModel.GoodsArray.Any(s => s.Price < 1))
+        {
+            Snackbar.Add("<ul><li>有商品价格不在1~100000的范围内</li><li>请检查定价后再试</li></ul>", Severity.Warning);
+            return;
+        }
+
         var dic = _occupationPageModel.GoodsArray.ToDictionary(s => s.Code, s => s.Price);
-        OccupationUtility.CalculateResults(_occupationPageModel.FormulasArray, dic);
+        var results = OccupationUtility.CalculateResults(_occupationPageModel.FormulasArray, dic);
+        for (var i = 0; i < results.Length; i++)
+        {
+            if (results[i].HasValue)
+            {
+                _occupationPageModel.FormulasArray[i].Value = results[i].Value;
+            }
+        }
+
         Snackbar.Add(ConstText.SuccessText, Severity.Success);
+
+        SaveInfo();
     }
 
     private void SaveInfo()
     {
         LocalStorage.SetItem(nameof(_occupationPageModel), _occupationPageModel);
     }
-    
-    //TODO:完善界面对数据有效性的验证
+
+    private void ShowTips()
+    {
+        Dialog.Show<TipsDialog>("帮助说明", _tipsDialogParameters, _tipsDialogOptions);
+    }
 
     private Task WarningTips()
     {
@@ -149,4 +289,5 @@
 
         return Task.CompletedTask;
     }
+
 }
