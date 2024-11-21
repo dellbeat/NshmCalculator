@@ -37,4 +37,9 @@ public class FieldInfo
     /// </summary>
     [JsonIgnore]
     public int Value { get; set; }
+    
+    /// <summary>
+    /// 属性数值在EXCEL上对应的地址，仅供自动处理使用
+    /// </summary>
+    public string CellAddress { get; set; }
 }

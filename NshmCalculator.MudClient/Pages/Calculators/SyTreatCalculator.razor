@@ -152,7 +152,7 @@
                                         </MudExpansionPanels>
                                     </MudItem>
                                     <MudItem xs="6">
-                                        <MudSelect Label="灵韵内功" Variant="Variant.Outlined" @bind-Value="_treatPageModel.SelectedKey" ToStringFunc="@convertFunc">
+                                        <MudSelect Label="灵韵内功" Variant="Variant.Outlined" @bind-Value="_selectedKey" ToStringFunc="@convertFunc">
                                             @if (_currentConfig.SpecialScoreDictionary?.Count > 0)
                                             {
                                                 foreach (var keyValuePair in _currentConfig.SpecialScoreDictionary)
@@ -165,7 +165,7 @@
                                     </MudItem>
                                     <MudItem xs="6" Class="d-flex align-center justify-center">
                                         <MudStack Row="true" Spacing="4">
-                                            <MudChip Color="Color.Info">灵韵分（不记总评分）：@_treatPageModel.SelectedKey.Value</MudChip>
+                                            <MudChip Color="Color.Info">灵韵分（不记总评分）：@_selectedKey.Value</MudChip>
                                         </MudStack>
                                     </MudItem>
                                 </MudGrid>
@@ -253,9 +253,13 @@
             }
         }
 
-        if (string.IsNullOrEmpty(_treatPageModel.SelectedKey.Key) || !_currentConfig.SpecialScoreDictionary.ContainsKey(_treatPageModel.SelectedKey.Key))
+        if (string.IsNullOrEmpty(_treatPageModel.SelectedKey) || !_currentConfig.SpecialScoreDictionary.ContainsKey(_treatPageModel.SelectedKey))
         {
-            _treatPageModel.SelectedKey = _currentConfig.SpecialScoreDictionary.First();
+            _selectedKey = _currentConfig.SpecialScoreDictionary.First();
+        }
+        else
+        {
+            _selectedKey = _currentConfig.SpecialScoreDictionary.First(s => s.Key == _treatPageModel.SelectedKey);
         }
     }
 
@@ -325,6 +329,7 @@
     private void ScoreCalculate()
     {
         _treatPageModel.Score = TreatUtility.FieldCalculate(_treatPageModel.ScoreFields);
+        _treatPageModel.SelectedKey = _selectedKey.Key;
 
         _treatPageModel.ConvertMode = true;
 

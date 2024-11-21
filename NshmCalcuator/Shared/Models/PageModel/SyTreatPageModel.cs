@@ -91,7 +91,7 @@ public class SyTreatPageModel
     /// <summary>
     /// 选择的灵韵分键值对
     /// </summary>
-    public KeyValuePair<string, string> SelectedKey { get; set; } = new();
+    public string SelectedKey { get; set; } 
 
     /// <summary>
     /// 当前TabIndex，用于控制计算行为
