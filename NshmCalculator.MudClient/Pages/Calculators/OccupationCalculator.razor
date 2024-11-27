@@ -224,15 +224,23 @@
                 }
             }
 
-            var oldOccDic = _occupationPageModel.FormulasArray.Where(s => s.Favorite).ToDictionary(s => s.ID, s => s.Favorite);
-            _occupationPageModel.FormulasArray = _currentConfig.OccupationFormulaArray;
-            foreach (var occ in _occupationPageModel.FormulasArray)
+            try
             {
-                occ.Value = 0;
-                if (oldOccDic.ContainsKey(occ.ID))
+                var oldOccDic = _occupationPageModel.FormulasArray.Where(s => s.Favorite)?.ToDictionary(s => s.ID, s => s.Favorite);
+                _occupationPageModel.FormulasArray = _currentConfig.OccupationFormulaArray;
+                foreach (var occ in _occupationPageModel.FormulasArray)
                 {
-                    occ.Favorite = true;
+                    occ.Value = 0;
+                    if (oldOccDic.ContainsKey(occ.ID))
+                    {
+                        occ.Favorite = true;
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Snackbar.Add("<ul><li>由于数据结构升级</li><li>原版本的商品价格和收藏状态无法继承，非常抱歉</li></ul>", Severity.Warning);
             }
 
             if (_occupationPageModel.CurrentInternalVersion != -99999)

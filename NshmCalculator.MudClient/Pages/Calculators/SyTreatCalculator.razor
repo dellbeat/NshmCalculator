@@ -58,7 +58,7 @@
                         </MudStack>
                     </MudItem>
                     <MudItem xs="12">
-                        <MudTabs @bind-ActivePanelIndex="_treatPageModel.ActiveIndex" Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" ActivePanelIndexChanged="ActivePanelIndexChanged">
                             <MudTabPanel Text="属性变化计算">
                                 <MudGrid>
                                     <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
@@ -381,6 +381,12 @@
         {
             _treatPageModel.SpecialScoreText = _selectedKey.Value;
         }
+    }
+
+    private void ActivePanelIndexChanged(int activeIndex)
+    {
+        _treatPageModel.ConvertMode = activeIndex >= 2;
+        _treatPageModel.ActiveIndex = activeIndex;
     }
 
 }
