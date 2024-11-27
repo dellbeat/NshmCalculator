@@ -58,7 +58,7 @@
                         </MudStack>
                     </MudItem>
                     <MudItem xs="12">
-                        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" ActivePanelIndexChanged="ActivePanelIndexChanged">
+                        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6"  @bind-ActivePanelIndex="_treatPageModel.ActiveIndex">
                             <MudTabPanel Text="属性变化计算">
                                 <MudGrid>
                                     <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
@@ -176,19 +176,23 @@
                     </MudItem>
                     <MudItem xs="12" Class="d-flex align-center justify-center">
                         <MudStack Row="true" Spacing="4">
-                            @if (_treatPageModel.ConvertMode)
+                            @switch (_treatPageModel.ActiveIndex)
                             {
-                                if (_treatPageModel.ActiveIndex == 3)
-                                {
+                                case 0:
+                                case 1:
+                                    <MudChip Color="Color.Info">治疗量增值：@_treatPageModel.TreatGrowthNum.ToString("F3")</MudChip>
+                                    <MudChip Color="Color.Info">收益百分比：@_treatPageModel.TreatGrowthPercent.ToString("P2")</MudChip>
+                                    break;
+                                case 2:
+                                    <MudChip
+                                        Color="Color.Success">转换疗强：@_treatPageModel.ConvertTreatNum.ToString("F2")</MudChip>
+                                    break;
+                                case 3:
                                     <MudChip Color="Color.Info">灵韵分（不记总评分）：@_treatPageModel.SpecialScoreText</MudChip>
-                                }
-                                <MudChip
-                                    Color="Color.Success">@(_treatPageModel.ActiveIndex == 2 ? "转换疗强" : "总评分")：@(_treatPageModel.ActiveIndex == 2 ? _treatPageModel.ConvertTreatNum.ToString("F2") : _treatPageModel.Score.ToString("F3"))</MudChip>
-                            }
-                            else
-                            {
-                                <MudChip Color="Color.Info">治疗量增值：@_treatPageModel.TreatGrowthNum.ToString("F3")</MudChip>
-                                <MudChip Color="Color.Info">收益百分比：@_treatPageModel.TreatGrowthPercent.ToString("P2")</MudChip>
+                                    <MudChip
+                                        Color="Color.Success">总评分：@_treatPageModel.Score.ToString("F3")</MudChip>
+                                    break;
+                                    
                             }
                         </MudStack>
                     </MudItem>
@@ -381,12 +385,6 @@
         {
             _treatPageModel.SpecialScoreText = _selectedKey.Value;
         }
-    }
-
-    private void ActivePanelIndexChanged(int activeIndex)
-    {
-        _treatPageModel.ConvertMode = activeIndex >= 2;
-        _treatPageModel.ActiveIndex = activeIndex;
     }
 
 }
