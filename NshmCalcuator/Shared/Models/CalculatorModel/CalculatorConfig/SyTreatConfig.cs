@@ -57,7 +57,7 @@ public class SyTreatConfig
     public Dictionary<string,string> SpecialScoreDictionary { get; set; } = null;
     
     /// <summary>
-    /// 是否读取/保存转换疗强实体，作为待定兼容性选项，后续不再处理
+    /// 需要除以疗承比的列表
     /// </summary>
-    public bool HandleTreatAttribution { get; set; }
+    public string[] ExceptSpecialScoreArray { get; set; } = null;
 }
