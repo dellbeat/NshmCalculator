@@ -48,6 +48,16 @@ public class SyTreatPageModel
     /// PVP评分计算数值键值对，在计算时保存，在读取时恢复
     /// </summary>
     public Dictionary<string,int> ScoreFieldsDictionary { get; set; } = new();
+
+    /// <summary>
+    /// 疗承比
+    /// </summary>
+    public double TreatDefenseRatio { get; set; } = 1.5;
+    
+    /// <summary>
+    /// 显示在界面上的特殊分数
+    /// </summary>
+    public string SpecialScoreText { get; set; }
     
     #region 变化计算面板
 

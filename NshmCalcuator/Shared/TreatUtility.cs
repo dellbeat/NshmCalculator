@@ -41,12 +41,16 @@ public static class TreatUtility
     /// </summary>
     /// <param name="fields">属性信息</param>
     /// <returns></returns>
-    public static double FieldCalculate(FieldInfo[] fields)
+    public static double FieldCalculate(FieldInfo[] fields, double transDefenseRate)
     {
         double result = 0;
         foreach (var fieldInfo in fields)
         {
-            result += fieldInfo.Value * (fieldInfo.PercentMode ? 0.01 : 1) * fieldInfo.MultiCoe / fieldInfo.ExceptCoe;
+            for (int i = 0; i < fieldInfo.ExceptRatioList.Count; i++)
+            {
+                result += fieldInfo.Value * (fieldInfo.PercentMode ? 0.01 : 1) * fieldInfo.MultiCoeList[i] / fieldInfo.ExceptCoeList[i] /
+                          (fieldInfo.ExceptRatioList[i] ? transDefenseRate : 1);
+            }
         }
 
         return result;

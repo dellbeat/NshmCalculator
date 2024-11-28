@@ -11,16 +11,21 @@ public class FieldInfo
     /// 展示在界面上的名称
     /// </summary>
     public string Name { get; set; }
-
+    
     /// <summary>
-    /// 乘数系数
+    /// 乘数系数列表
     /// </summary>
-    public double MultiCoe { get; set; } = 1;
-
+    public List<double> MultiCoeList { get; set; }
+    
     /// <summary>
-    /// 除数系数
+    /// 除数系数列表
     /// </summary>
-    public double ExceptCoe { get; set; } = 1;
+    public List<double> ExceptCoeList { get; set; }
+    
+    /// <summary>
+    /// 除以疗坦率列表
+    /// </summary>
+    public List<bool> ExceptRatioList { get; set; }
     
     /// <summary>
     /// 所属组别，在需要分组时设置
