@@ -34,4 +34,9 @@ public class FrontParamInfo
 	/// 分组名，如为NULL则不作分组处理
 	/// </summary>
 	public string? GroupName { get; set; }
+    
+    /// <summary>
+    /// 补充说明
+    /// </summary>
+    public string? Remark { get; set; }
 }

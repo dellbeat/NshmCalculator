@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+
 // ReSharper disable ClassNeverInstantiated.Global
 
 namespace NshmCalculator.Shared.Models.CalculatorModel;
