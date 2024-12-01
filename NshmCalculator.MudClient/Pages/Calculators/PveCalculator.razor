@@ -1,0 +1,26 @@
+﻿@page "/pve"
+@using Blazored.LocalStorage
+@using NshmCalculator.MudClient.Components
+@using Align = MudBlazor.Align
+@using Color = MudBlazor.Color
+@inject ISyncLocalStorageService LocalStorage
+<PageTitle>PVE计算器</PageTitle>
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudPaper Class="d-flex align-center justify-center py-8">
+            <MudStack AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.h4">PVE收益计算器</MudText>
+                <MudText Typo="Typo.h6" Align="Align.Center">
+                    <MudChip Icon="@Icons.Material.Filled.Person" Color="Color.Tertiary">B站：-风何往-</MudChip>
+                    <MudChip Color="Color.Info">源文件版本:3.4.1</MudChip>
+                </MudText>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private readonly DialogParameters<TipsDialog> _tipsDialogParameters = new();
+    private readonly DialogOptions _tipsDialogOptions = new();
+}

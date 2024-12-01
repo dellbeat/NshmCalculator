@@ -6,10 +6,15 @@
 public class PveFormula
 {
     /// <summary>
+    /// 唯一标识代码
+    /// </summary>
+    public string Code { get; set; }
+
+    /// <summary>
     /// 名称
     /// </summary>
     public string Name { get; set; }
-    
+
     /// <summary>
     /// 计算公式
     /// </summary>
