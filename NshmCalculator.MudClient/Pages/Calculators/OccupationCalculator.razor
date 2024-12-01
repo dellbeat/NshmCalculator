@@ -15,6 +15,8 @@
 @inject IDialogService Dialog
 @inject Dictionary<string, string> TipsDictionary
 @inject GameData GameConfig
+@inject AppVersionInfo VersionInfo
+@inject HttpClient Client
 
 <PageTitle>逆水寒手游身份收益计算器</PageTitle>
 
@@ -200,8 +202,29 @@
         Snackbar.Add($"已{(formulas.Favorite ? "添加" : "取消")}收藏:{formulas.GoodsName}", Severity.Success);
     }
 
+    private void LoadData()
+    {
+        try
+        {
+            _occupationPageModel = LocalStorage.GetItem<OccupationPageModel>(nameof(_occupationPageModel)) ?? new();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("身份收益计算器缓存加载异常" + e);
+            _occupationPageModel = new OccupationPageModel();
+        }
+
+        if (VersionInfo.CalculatorVersionInfo["sf"] > _occupationPageModel.CurrentInternalVersion)
+        {
+            Snackbar.Add("加载最新数据配置中...",Severity.Info);
+            //TODO:版本信息是否另外写缓存
+            Snackbar.Add("最新数据加载完成",Severity.Success);
+        }
+    }
+    
     private void InitParameters()
     {
+        LoadData();
         TipsDictionary.TryGetValue("sf", out string? tips);
         _tipsDialogParameters.Add(nameof(TipsDialog.ContentText), new MarkupString(tips));
         _tipsDialogOptions.CloseButton = true;
@@ -212,16 +235,6 @@
         {
             Snackbar.Add(ConstText.ConfigNotFoundText, Severity.Error);
             return;
-        }
-
-        try
-        {
-            _occupationPageModel = LocalStorage.GetItem<OccupationPageModel>(nameof(_occupationPageModel)) ?? new();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine("身份收益计算器缓存加载异常" + e);
-            _occupationPageModel = new OccupationPageModel();
         }
 
         if (_occupationPageModel.CurrentInternalVersion < _currentConfig.InternalVersion)

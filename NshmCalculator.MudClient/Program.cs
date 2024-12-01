@@ -23,7 +23,8 @@ client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
 {
     NoCache = true
 };
-builder.Services.AddScoped(sp => client);
+// builder.Services.AddScoped(sp => client);
+builder.Services.AddSingleton(client);
 builder.Services.AddMudServices(config =>
 {
     config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopCenter;
@@ -43,8 +44,15 @@ builder.Services.AddBlazoredLocalStorage();
 UpdateLog[] updateLogs = new UpdateLog[] { };
 Dictionary<string, string> tipsDictionary = new Dictionary<string, string>();
 GameData gameData = new GameData();
+AppVersionInfo versionInfo = new AppVersionInfo();
 
 long timeTicks = DateTime.Now.Ticks;
+
+var versionJson = await client.GetStringAsync(ConstText.VersionPath + $"?t={timeTicks}");
+if (!string.IsNullOrEmpty(versionJson))
+{
+    versionInfo = JsonSerializer.Deserialize<AppVersionInfo>(versionJson);
+}
 
 var gameConfigJson = await client.GetStringAsync(ConstText.GameConfigPath + $"?t={timeTicks}");
 if (!string.IsNullOrEmpty(gameConfigJson))
@@ -76,6 +84,7 @@ if (!string.IsNullOrEmpty(tipsJson))
 builder.Services.AddSingleton(updateLogs);
 builder.Services.AddSingleton(tipsDictionary);
 builder.Services.AddSingleton(gameData);
+builder.Services.AddSingleton(versionInfo);
 /*后面如果动态配置项多了考虑直接做一个大类*/
 
 #endregion

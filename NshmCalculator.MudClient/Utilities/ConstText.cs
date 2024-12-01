@@ -25,4 +25,6 @@ public static class ConstText
     public const string TipsJsonPath = "../data/tipsContent.json";//帮助内容相对路径
     
     public const string GameConfigPath = "../data/gameData.json";//游戏数据配置
+    
+    public const string VersionPath = "../data/version.json";
 }
