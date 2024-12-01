@@ -62,7 +62,10 @@
         <MudPaper Class="pa-4 mt-4">
             <MudTabs KeepPanelsAlive="true" Elevation="2" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
                 <MudTabPanel Text="身份收益列表">
-                    <MudTable FixedHeader="true" Items="@_occupationPageModel.FormulasArray" Breakpoint="Breakpoint.None" Striped="true" Dense="true">
+                    <MudTable FixedHeader="true" T="OccupationFormulas" Items="@_observableFormulas" Breakpoint="Breakpoint.None" Striped="true" Dense="true" OnRowClick="OnRowClick">
+                        <ToolBarContent>
+                            <MudTextField  @bind-Value="Keyword" Label="关键词" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Info"  Margin="Margin.Dense" OnAdornmentClick="OnSearch" />
+                        </ToolBarContent>
                         <HeaderContent>
                             <MudTh>商品</MudTh>
                             <MudTh>
@@ -106,8 +109,12 @@
                                                 <MudText Typo="Typo.h6">@favoriteItem.GoodsName</MudText>
                                             </CardHeaderContent>
                                             <CardHeaderActions>
-                                                <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Info"
-                                                               OnClick="() => OnClickFavorite(favoriteItem,true)"/>
+                                                <MudStack Row="true">
+                                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info"
+                                                                   OnClick="() => ShowFormula(favoriteItem)"/>
+                                                    <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Info"
+                                                                   OnClick="() => OnClickFavorite(favoriteItem, true)"/>
+                                                </MudStack>
                                             </CardHeaderActions>
                                         </MudCardHeader>
                                         <MudCardContent>
@@ -146,14 +153,18 @@
 @code {
     private readonly DialogParameters<TipsDialog> _tipsDialogParameters = new();
     private readonly DialogOptions _tipsDialogOptions = new();
-
+    private readonly DialogParameters<OccupationFormulaDialog> _sfDialogParameter = new();
+    private readonly DialogOptions _sfDialogOptions = new();
 
     private OccupationConfig _currentConfig;
     private OccupationGoods[] GoodsArray;
     private OccupationFormulas[] FormulasArray;
+    private ObservableCollection<OccupationFormulas> _observableFormulas { get; set; }
     private bool firstLoad = true;
     private OccupationPageModel _occupationPageModel;
     private ObservableCollection<OccupationFormulas> FavoriteFormulas { get; set; }
+    private Dictionary<string,OccupationGoods> GoodDic { get; set; }
+    private string Keyword { get; set; }
 
     protected override void OnInitialized()
     {
@@ -194,6 +205,7 @@
         TipsDictionary.TryGetValue("sf", out string? tips);
         _tipsDialogParameters.Add(nameof(TipsDialog.ContentText), new MarkupString(tips));
         _tipsDialogOptions.CloseButton = true;
+        _sfDialogOptions.MaxWidth = MaxWidth.Medium;
         _currentConfig = GameConfig.OccupationConfig;
         FavoriteFormulas = new ObservableCollection<OccupationFormulas>();
         if (_currentConfig == null)
@@ -252,10 +264,14 @@
             SaveInfo();
         }
 
+        GoodDic = _occupationPageModel.GoodsArray.ToDictionary(s => s.Code, s => s);
+        
         foreach (var item in _occupationPageModel.FormulasArray.Where(s => s.Favorite))
         {
             FavoriteFormulas.Add(item);
         }
+
+        _observableFormulas = new ObservableCollection<OccupationFormulas>(_occupationPageModel.FormulasArray);
     }
 
     private void OnCalculate()
@@ -298,4 +314,48 @@
         return Task.CompletedTask;
     }
 
+    private void OnRowClick(TableRowClickEventArgs<OccupationFormulas> tableRowClickEventArgs)
+    {
+        ShowFormula(tableRowClickEventArgs.Item);
+    }
+
+    private async void ShowFormula(OccupationFormulas formula)
+    {
+        List<OccupationGoods> relatedGoods = new List<OccupationGoods>();
+        foreach (string paraName in formula.FormulaParam)
+        {
+            if (GoodDic.TryGetValue(paraName, out var value))
+            {
+                relatedGoods.Add(value);
+            }
+            else
+            {
+                Console.WriteLine($"身份收益计算器：找不到{paraName}");
+            }
+        }
+
+        _sfDialogParameter["Formulas"] = formula;
+        _sfDialogParameter["GoodsArray"] = relatedGoods.ToArray();
+        var dialog = await Dialog.ShowAsync<OccupationFormulaDialog>("", _sfDialogParameter, _sfDialogOptions);
+        var result = await dialog.Result;
+        StateHasChanged();
+        if (!result.Canceled)
+        {
+            Snackbar.Add("修改已保存，请重新计算获取最新收益", Severity.Success);
+        }
+    }
+
+    private void OnSearch()
+    {
+        if (string.IsNullOrEmpty(Keyword))
+        {
+            _observableFormulas = new ObservableCollection<OccupationFormulas>(_occupationPageModel.FormulasArray);
+        }
+        else
+        {
+            _observableFormulas = new ObservableCollection<OccupationFormulas>(_occupationPageModel.FormulasArray.Where(s => s.GoodsName.Contains(Keyword)));
+        }
+
+        Snackbar.Add("搜索完毕", Severity.Info);
+    }
 }
