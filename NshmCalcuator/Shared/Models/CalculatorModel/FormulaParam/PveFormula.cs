@@ -24,4 +24,14 @@ public class PveFormula
     /// 计算公式参数列表
     /// </summary>
     public string[] FormulaParam { get; set; }
+    
+    /// <summary>
+    /// 标记公式是否完全可用
+    /// </summary>
+    public bool NotComplete { get; set; }
+    
+    /// <summary>
+    /// 标记公式层次，为0系公式不完全可用所致
+    /// </summary>
+    public int Level { get; set; }
 }
