@@ -26,6 +26,16 @@ public class PveFormula
     public string[] FormulaParam { get; set; }
     
     /// <summary>
+    /// 如为传参公式涉及到的参数
+    /// </summary>
+    public string?[] LamParam{get;set;}
+    
+	/// <summary>
+	/// 是否为需要传参的公式
+	/// </summary>
+    public bool LamMode{get;set;}
+    
+    /// <summary>
     /// 标记公式是否完全可用
     /// </summary>
     public bool NotComplete { get; set; }

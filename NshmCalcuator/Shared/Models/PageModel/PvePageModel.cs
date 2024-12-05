@@ -15,11 +15,29 @@ public class PvePageModel
     public FrontParamInfo[] BaseParam { get; set; }
     
     /// <summary>
+    /// 开关设置项
+    /// </summary>
+    public FrontParamInfo[] SwitchParam { get; set; }
+    
+    /// <summary>
+    /// 增益类选项
+    /// </summary>
+    public FrontParamInfo[] BuffParam { get; set; }
+    
+    /// <summary>
     /// 首领数值项
     /// </summary>
     public FrontParamInfo[] BossParam { get; set; }
     
-    //Todo：将开关设置/副本BUFF/伤害占比/覆盖率进行分组
+    /// <summary>
+    /// 伤害占比项
+    /// </summary>
+    public FrontParamInfo[] DamageParam { get; set; }
+    
+    /// <summary>
+    /// 覆盖率
+    /// </summary>
+    public FrontParamInfo[] CoverageParam { get; set; }
     
     /// <summary>
     /// 当前加载的数据版本
