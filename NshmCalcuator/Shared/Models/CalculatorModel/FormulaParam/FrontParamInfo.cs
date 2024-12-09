@@ -1,4 +1,5 @@
-﻿using NshmCalculator.Shared.Models.CalculatorModel.Enums;
+﻿using System.Text.Json.Serialization;
+using NshmCalculator.Shared.Models.CalculatorModel.Enums;
 
 namespace NshmCalculator.Shared.Models.CalculatorModel;
 
@@ -41,4 +42,21 @@ public class FrontParamInfo
     /// 补充说明
     /// </summary>
     public string? Remark { get; set; }
+    
+    /// <summary>
+    /// 特殊参数规则
+    /// </summary>
+    public SpecialParamRule Rule { get; set; }
+    
+    /// <summary>
+    /// 用于绑定下拉列表的属性，无需序列化/反序列化
+    /// </summary>
+    [JsonIgnore]
+    public string StringValue { get; set; }
+    
+    /// <summary>
+    /// 用于绑定数据的属性，无需序列化/反序列化
+    /// </summary>
+    [JsonIgnore]
+    public double NumberValue { get; set; }
 }

@@ -32,6 +32,11 @@ public class GameData
     /// </summary>
     public OccupationConfig OccupationConfig { get; set; }
     
+    /// <summary>
+    /// 风何往PVE计算器选项公式配置
+    /// </summary>
+    public PveConfig PveConfig { get; set; }
+    
     public GameData()
     {
         EnemyData = new Dictionary<string, EnemyInfo>();

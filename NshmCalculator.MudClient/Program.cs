@@ -52,7 +52,7 @@ if (!string.IsNullOrEmpty(gameConfigJson))
     gameData = JsonSerializer.Deserialize<GameData>(gameConfigJson);
 }
 
-var newJson = await client.GetStringAsync(ConstText.UpdateLogPath + $"?t={timeTicks}"); //ĞèÒª´¦Àí»º´æÎ´¸üĞÂµÄÇé¿ö
+var newJson = await client.GetStringAsync(ConstText.UpdateLogPath + $"?t={timeTicks}"); //éœ€è¦å¤„ç†ç¼“å­˜æœªæ›´æ–°çš„æƒ…å†µ
 if (!string.IsNullOrEmpty(newJson))
 {
     var logs = JsonSerializer.Deserialize<UpdateLog[]>(newJson);
@@ -76,7 +76,7 @@ if (!string.IsNullOrEmpty(tipsJson))
 builder.Services.AddSingleton(updateLogs);
 builder.Services.AddSingleton(tipsDictionary);
 builder.Services.AddSingleton(gameData);
-/*ºóÃæÈç¹û¶¯Ì¬ÅäÖÃÏî¶àÁË¿¼ÂÇÖ±½Ó×öÒ»¸ö´óÀà*/
+/*åé¢å¦‚æœåŠ¨æ€é…ç½®é¡¹å¤šäº†è€ƒè™‘ç›´æ¥åšä¸€ä¸ªå¤§ç±»*/
 
 #endregion
 
