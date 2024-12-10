@@ -52,7 +52,7 @@ public class FrontParamInfo
     /// 用于绑定下拉列表的属性，无需序列化/反序列化
     /// </summary>
     [JsonIgnore]
-    public string StringValue { get; set; }
+    public string? StringValue { get; set; }
     
     /// <summary>
     /// 用于绑定数据的属性，无需序列化/反序列化

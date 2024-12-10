@@ -71,7 +71,7 @@
     </MudItem>
 
     <MudItem xs="12">
-        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
+        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true" KeepPanelsAlive="true">
             <MudTabPanel Text="开关设置">
                 @if (_pvePageModel.CurrentConfig.SwitchParam.Length > 0)
                 {
@@ -82,18 +82,42 @@
                             <MudGrid>
                                 @foreach (var frontParamInfo in groupItems)
                                 {
-
                                     @if (frontParamInfo.Mode == ParamMode.Selection)
-                                    {//TODO：调整流派特有技能的加载方式
-                                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                            <MudSelect T="string" Label="@frontParamInfo.Name" bind-Value="@frontParamInfo.StringValue"
-                                                       HelperText="@(string.IsNullOrEmpty(frontParamInfo.Remark) ? string.Empty : frontParamInfo.Remark)" Variant="Variant.Outlined">
-                                                @foreach (string option in frontParamInfo.Options)
-                                                {
-                                                    <MudSelectItem T="string" Value="option">@option</MudSelectItem>
-                                                }
-                                            </MudSelect>
-                                        </MudItem>
+                                    {
+                                        bool readable = frontParamInfo.Rule == null;
+                                        List<string?> renderOptions = frontParamInfo.Options.ToList();
+                                        if (!readable)
+                                        {
+                                            switch (frontParamInfo.Rule.Mode)
+                                            {
+                                                case SpecialRuleMode.CompareOptions:
+                                                    if (_paramDic.TryGetValue(frontParamInfo.Rule.FrontParamCode, out var relateParam))
+                                                    {
+                                                        if (frontParamInfo.Rule.TextDic.TryGetValue(relateParam.StringValue, out string? labelValue))
+                                                        {
+                                                            readable = true;
+                                                            frontParamInfo.Name = labelValue;
+                                                        }
+                                                    }
+                                                    break;
+                                                case SpecialRuleMode.RemoveSameOptions:
+                                                    //Todo:用于删除互斥选项（如本家流派和偷师潜学流派）
+                                                    break;
+                                            }
+                                        }
+
+                                        if (readable)
+                                        {
+                                            <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
+                                                <MudSelect T="string?" Label="@frontParamInfo.Name" @bind-Value="frontParamInfo.StringValue"
+                                                           HelperText="@(string.IsNullOrEmpty(frontParamInfo.Remark) ? string.Empty : frontParamInfo.Remark)" Variant="Variant.Outlined">
+                                                    @foreach (string option in renderOptions)//谨记，需要用@bind-value，不要用错了
+                                                    {
+                                                        <MudSelectItem  T="string?" Value="option">@option</MudSelectItem>
+                                                    }
+                                                </MudSelect>
+                                            </MudItem>
+                                        }
                                     }
                                     else
                                     {
@@ -110,7 +134,33 @@
                     }
                 }
             </MudTabPanel>
+            @* <MudTabPanel Text="副本Buff"> *@
+            @*     @if (_pvePageModel.CurrentConfig.BuffParam.Length > 0) *@
+            @*     { *@
+            @*         var group = _pvePageModel.CurrentConfig.BuffParam.GroupBy(s => s.GroupName); *@
+            @*         foreach (var groupItems in group) *@
+            @*         { *@
+            @*             if (string.IsNullOrEmpty(groupItems.Key)) *@
+            @*             { *@
+            @*                 //TODO：考虑能否找到复用代码的方法，这样复制几分过于雷同的代码太不好维护了 *@
+            @*             } *@
+            @*             else *@
+            @*             { *@
+            @*                 //像之前那个Tab一样渲染 *@
+            @*             } *@
+            @*         } *@
+            @*     } *@
+            @* </MudTabPanel> *@
         </MudTabs>
+    </MudItem>
+
+    <MudItem xs="12" Class="d-flex align-center justify-center">
+        <MudStack Row="true" Spacing="4">
+            <MudButton Variant="Variant.Filled" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Button" OnClick="OnCalculate">计算
+            </MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Default" Class="d-flex" ButtonType="ButtonType.Button">帮助说明
+            </MudButton>
+        </MudStack>
     </MudItem>
 </MudGrid>
 
@@ -132,20 +182,36 @@
         _pvePageModel = LocalStorage.GetItem<PvePageModel>(nameof(_pvePageModel)) ?? new PvePageModel();
         _pvePageModel.CurrentConfig = GameConfig.PveConfig;
         _paramDic = new Dictionary<string, FrontParamInfo>(); //后续考虑优化参数加载策略
-        foreach (var frontParamInfo in GameConfig.PveConfig.BaseParam)
+        foreach (var frontParamInfo in _pvePageModel.CurrentConfig.BaseParam)
         {
             _paramDic.Add(frontParamInfo.Code, frontParamInfo);
+            if (frontParamInfo.Mode == ParamMode.Selection && string.IsNullOrEmpty(frontParamInfo.StringValue))
+            {
+                frontParamInfo.StringValue = frontParamInfo.Options.FirstOrDefault();
+            }
         }
 
-        foreach (var frontParamInfo in GameConfig.PveConfig.SwitchParam)
+        foreach (var frontParamInfo in _pvePageModel.CurrentConfig.SwitchParam)
         {
             _paramDic.Add(frontParamInfo.Code, frontParamInfo);
+            if (frontParamInfo.Mode == ParamMode.Selection && string.IsNullOrEmpty(frontParamInfo.StringValue))
+            {
+                frontParamInfo.StringValue = frontParamInfo.Options.FirstOrDefault();
+            }
         }
 
-        foreach (var frontParamInfo in GameConfig.PveConfig.BuffParam)
+        foreach (var frontParamInfo in _pvePageModel.CurrentConfig.BuffParam)
         {
             _paramDic.Add(frontParamInfo.Code, frontParamInfo);
+            if (frontParamInfo.Mode == ParamMode.Selection && string.IsNullOrEmpty(frontParamInfo.StringValue))
+            {
+                frontParamInfo.StringValue = frontParamInfo.Options.FirstOrDefault();
+            }
         }
-        //TODO:数据初始化时需要给枚举默认值（一般是首选项）
+    }
+
+    private void OnCalculate()
+    {
+        Console.WriteLine(_paramDic.Count);
     }
 }
