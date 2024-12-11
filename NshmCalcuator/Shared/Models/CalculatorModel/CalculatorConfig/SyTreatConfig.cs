@@ -1,9 +1,11 @@
-﻿namespace NshmCalculator.Shared.Models.CalculatorModel.CalculatorConfig;
+﻿using NshmCalculator.Shared.Models.Interface;
+
+namespace NshmCalculator.Shared.Models.CalculatorModel.CalculatorConfig;
 
 /// <summary>
 /// 师尹的素问治疗计算器页面的数据配置
 /// </summary>
-public class SyTreatConfig
+public class SyTreatConfig: IGameConfig
 {
     /// <summary>
     /// 原文件版本，对应界面上的引用
@@ -60,4 +62,8 @@ public class SyTreatConfig
     /// 需要除以疗承比的列表
     /// </summary>
     public string[] ExceptSpecialScoreArray { get; set; } = null;
+    
+    public long InternalVersion { get; set; }
+    
+    public string HelperText { get; set; }
 }

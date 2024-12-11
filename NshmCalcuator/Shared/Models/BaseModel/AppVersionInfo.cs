@@ -8,7 +8,12 @@ public class AppVersionInfo
     /// <summary>
     /// 计算器的内部版本号字典
     /// </summary>
-    public Dictionary<string, long> CalculatorVersionInfo { get; set; }
+    public Dictionary<string, long> ConfigVersionInfo { get; set; }
+    
+    /// <summary>
+    /// 配置所在的路径
+    /// </summary>
+    public Dictionary<string,string> ConfigPathInfo { get; set; }
 
     /// <summary>
     /// 更新时间

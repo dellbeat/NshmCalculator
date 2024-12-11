@@ -1,14 +1,11 @@
+using System.Net.Http.Headers;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor;
 using MudBlazor.Services;
-using NshmCalculator.MudClient.Utilities;
-using NshmCalculator.Shared.Models;
-using System.Net.Http.Headers;
-using System.Text.Json;
 using NshmCalculator.MudClient;
-using NshmCalculator.Shared.Models.BaseModel;
+using NshmCalculator.MudClient.Utilities;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -23,7 +20,6 @@ client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
 {
     NoCache = true
 };
-// builder.Services.AddScoped(sp => client);
 builder.Services.AddSingleton(client);
 builder.Services.AddMudServices(config =>
 {
@@ -41,51 +37,22 @@ builder.Services.AddBlazoredLocalStorage();
 
 #region InitConfig
 
-UpdateLog[] updateLogs = new UpdateLog[] { };
-Dictionary<string, string> tipsDictionary = new Dictionary<string, string>();
-GameData gameData = new GameData();
-AppVersionInfo versionInfo = new AppVersionInfo();
+int errorCount = 0;
 
-long timeTicks = DateTime.Now.Ticks;
-
-var versionJson = await client.GetStringAsync(ConstText.VersionPath + $"?t={timeTicks}");
-if (!string.IsNullOrEmpty(versionJson))
+while (errorCount < 3)
 {
-    versionInfo = JsonSerializer.Deserialize<AppVersionInfo>(versionJson);
-}
-
-var gameConfigJson = await client.GetStringAsync(ConstText.GameConfigPath + $"?t={timeTicks}");
-if (!string.IsNullOrEmpty(gameConfigJson))
-{
-    gameData = JsonSerializer.Deserialize<GameData>(gameConfigJson);
-}
-
-var newJson = await client.GetStringAsync(ConstText.UpdateLogPath + $"?t={timeTicks}"); //需要处理缓存未更新的情况
-if (!string.IsNullOrEmpty(newJson))
-{
-    var logs = JsonSerializer.Deserialize<UpdateLog[]>(newJson);
-    if (logs is { Length: > 0 })
+    if (await ConfigHelper.InitAppVersion(client))
     {
-        updateLogs = logs;
+        break;
     }
+    errorCount++;
 }
 
-var tipsJson = await client.GetStringAsync(ConstText.TipsJsonPath + $"?t={timeTicks}");
-if (!string.IsNullOrEmpty(tipsJson))
+if (errorCount == 3)
 {
-    var dic = JsonSerializer.Deserialize<Dictionary<string, string>>(tipsJson);
-    if (dic != null)
-    {
-        tipsDictionary = dic;
-    }
+    Console.WriteLine("获取基础配置失败，请检查网络");
+    throw new Exception("获取基础配置失败，请检查网络");
 }
-
-
-builder.Services.AddSingleton(updateLogs);
-builder.Services.AddSingleton(tipsDictionary);
-builder.Services.AddSingleton(gameData);
-builder.Services.AddSingleton(versionInfo);
-/*后面如果动态配置项多了考虑直接做一个大类*/
 
 #endregion
 
