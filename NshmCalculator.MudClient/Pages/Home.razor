@@ -1,9 +1,14 @@
 ﻿@page "/"
+@using System.Text.Json
+@using Blazored.LocalStorage
+@using NshmCalculator.MudClient.Utilities
 @using NshmCalculator.Shared.Models
-@inject UpdateLog[] UpdateLogs
+@inject HttpClient _client
+@inject ISyncLocalStorageService LocalStorage
+@inject ISnackbar Snackbar
 
 <PageTitle>首页</PageTitle>
-<MudPaper Class="d-flex align-start justify-start py-8">   
+<MudPaper Class="d-flex align-start justify-start py-8">
     <MudGrid>
         <MudItem xs="12">
             <MudText Typo="Typo.h4" Align="MudBlazor.Align.Center">逆水寒手游计算器</MudText>
@@ -11,70 +16,82 @@
         <MudItem xs="12">
             <MudDivider DividerType="DividerType.FullWidth"></MudDivider>
         </MudItem>
-        <MudItem xs="12">
-            <MudText Typo="Typo.h5" Align="MudBlazor.Align.Start" Class="ml-4 mr-4">更新日志</MudText>
-        </MudItem>
-        @foreach (var updateLog in _newLogs)
+        @if (!renderComplete)
         {
-            <MudItem xs="12">
-                <MudStack AlignItems="AlignItems.Start" Class="ml-4 mr-4 mb-4">
-                    <MudText Typo="Typo.h6" Align="MudBlazor.Align.Start">@updateLog.DateTime</MudText>
-                    @foreach (var log in updateLog?.Log)
-                    {
-                        if (log.Contains("\r\n"))
-                        {
-                            var array = log.Replace("\r\n", "\t").Split('\t');
-                            <MudElement>
-                                @foreach (var line in array)
-                                {
-                                    <p style="margin-bottom: 0px;">@line</p>
-                                }
-                            </MudElement>
-                        }
-                        else
-                        {
-                            <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">@log</MudText>
-                        }
-                    }
-                </MudStack>
+            <MudItem xs="12" Class="align-self-center">
+                <MudSkeleton/>
+                <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Rectangle" Height="300px"/>
+                <MudSkeleton/>
             </MudItem>
         }
-        <MudItem xs="12">
-            <MudExpansionPanels Elevation="1" Class="ml-4 mr-4">
-                <MudExpansionPanel>
-                    <TitleContent>
-                        <MudText Typo="Typo.h5" Align="MudBlazor.Align.Start">历史更新</MudText>
-                    </TitleContent>
-                    <ChildContent>
-                        @foreach (var updateLog in _oldLogs)
+        else
+        {
+            <MudItem xs="12">
+                <MudText Typo="Typo.h5" Align="MudBlazor.Align.Start" Class="ml-4 mr-4">更新日志</MudText>
+            </MudItem>
+            foreach (var updateLog in _newLogs)
+            {
+                <MudItem xs="12">
+                    <MudStack AlignItems="AlignItems.Start" Class="ml-4 mr-4 mb-4">
+                        <MudText Typo="Typo.h6" Align="MudBlazor.Align.Start">@updateLog.DateTime</MudText>
+                        @foreach (var log in updateLog?.Log)
                         {
-                            <MudItem xs="12">
-                                <MudStack AlignItems="AlignItems.Start" Class="mb-4">
-                                    <MudText Typo="Typo.h6" Align="MudBlazor.Align.Start">@updateLog.DateTime</MudText>
-                                    @foreach (var log in updateLog?.Log)
+                            if (log.Contains("\r\n"))
+                            {
+                                var array = log.Replace("\r\n", "\t").Split('\t');
+                                <MudElement>
+                                    @foreach (var line in array)
                                     {
-                                        if (log.Contains("\r\n"))
-                                        {
-                                            var array = log.Replace("\r\n", "\t").Split('\t');
-                                            <MudElement>
-                                                @foreach (var line in array)
-                                                {
-                                                    <p style="margin-bottom: 0px;">@line</p>
-                                                }
-                                            </MudElement>
-                                        }
-                                        else
-                                        {
-                                            <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">@log</MudText>
-                                        }
+                                        <p style="margin-bottom: 0px;">@line</p>
                                     }
-                                </MudStack>
-                            </MudItem>
+                                </MudElement>
+                            }
+                            else
+                            {
+                                <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">@log</MudText>
+                            }
                         }
-                    </ChildContent>
-                </MudExpansionPanel>
-            </MudExpansionPanels>
-        </MudItem>
+                    </MudStack>
+                </MudItem>
+            }
+
+            <MudItem xs="12">
+                <MudExpansionPanels Elevation="1" Class="ml-4 mr-4">
+                    <MudExpansionPanel>
+                        <TitleContent>
+                            <MudText Typo="Typo.h5" Align="MudBlazor.Align.Start">历史更新</MudText>
+                        </TitleContent>
+                        <ChildContent>
+                            @foreach (var updateLog in _oldLogs)
+                            {
+                                <MudItem xs="12">
+                                    <MudStack AlignItems="AlignItems.Start" Class="mb-4">
+                                        <MudText Typo="Typo.h6" Align="MudBlazor.Align.Start">@updateLog.DateTime</MudText>
+                                        @foreach (var log in updateLog?.Log)
+                                        {
+                                            if (log.Contains("\r\n"))
+                                            {
+                                                var array = log.Replace("\r\n", "\t").Split('\t');
+                                                <MudElement>
+                                                    @foreach (var line in array)
+                                                    {
+                                                        <p style="margin-bottom: 0px;">@line</p>
+                                                    }
+                                                </MudElement>
+                                            }
+                                            else
+                                            {
+                                                <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">@log</MudText>
+                                            }
+                                        }
+                                    </MudStack>
+                                </MudItem>
+                            }
+                        </ChildContent>
+                    </MudExpansionPanel>
+                </MudExpansionPanels>
+            </MudItem>
+        }
     </MudGrid>
 </MudPaper>
 
@@ -87,7 +104,8 @@
                 </MudText>
                 <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">
                     B站<b>@@逆水寒-夜银</b>：
-                    <MudLink Href="https://www.bilibili.com/video/BV1HS411w7MJ" Underline="Underline.Always">对逆水寒手游新赛年赚铜思路的分享</MudLink>
+                    <MudLink Href="https://www.bilibili.com/video/BV1HS411w7MJ" Underline="Underline.Always">对逆水寒手游新赛年赚铜思路的分享
+                    </MudLink>
                     （身份收益计算器）
                 </MudText>
                 <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">
@@ -97,7 +115,9 @@
                 </MudText>
                 <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">
                     小红书<b>@@师尹</b>：
-                    <MudLink Href="https://www.xiaohongshu.com/explore/6685277b0000000003024ba6" Underline="Underline.Always">素问疗强转换机制+最新版素问计算器</MudLink>
+                    <MudLink Href="https://www.xiaohongshu.com/explore/6685277b0000000003024ba6" Underline="Underline.Always">
+                        素问疗强转换机制+最新版素问计算器
+                    </MudLink>
                     （素问治疗计算器）
                 </MudText>
                 <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">
@@ -106,7 +126,9 @@
                 </MudText>
                 <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">
                     B站<b>@@白宝正不正</b>：
-                    <MudLink Href="https://www.bilibili.com/video/BV1G94y1x7sW" Underline="Underline.Always">属性计算器不再纠结词条特技装备收益与选择</MudLink>
+                    <MudLink Href="https://www.bilibili.com/video/BV1G94y1x7sW" Underline="Underline.Always">
+                        属性计算器不再纠结词条特技装备收益与选择
+                    </MudLink>
                     （增伤百分比计算器）
                 </MudText>
                 <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">
@@ -121,12 +143,15 @@
                 </MudText>
                 <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">
                     NGA<b>@@UID:42330896</b>：
-                    <MudLink Href="https://g.nga.cn/read.php?tid=38987417&rand=308" Underline="Underline.Always">[攻略]内功计算器1.2.2南问雪版</MudLink>
+                    <MudLink Href="https://g.nga.cn/read.php?tid=38987417&rand=308" Underline="Underline.Always">[攻略]内功计算器1.2.2南问雪版
+                    </MudLink>
                     （内功收益计算器）
                 </MudText>
                 <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">
                     B站<b>@@乾珏Zzz</b>：
-                    <MudLink Href="https://www.bilibili.com/video/BV1f6421G7Vm/" Underline="Underline.Always">不用在辛苦找人调号啦！PVE属性收益计算器，解决你装备内功选择困难症</MudLink>
+                    <MudLink Href="https://www.bilibili.com/video/BV1f6421G7Vm/" Underline="Underline.Always">
+                        不用在辛苦找人调号啦！PVE属性收益计算器，解决你装备内功选择困难症
+                    </MudLink>
                     （计算公式参考）
                 </MudText>
             </MudStack>
@@ -153,7 +178,8 @@
                 </MudText>
                 <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">
                     B站专栏反馈：
-                    <MudLink Href="https://www.bilibili.com/read/cv33407748" Underline="Underline.Always">逆水寒手游在线计算器首篇动向集合（24.03.26）</MudLink>
+                    <MudLink Href="https://www.bilibili.com/read/cv33407748" Underline="Underline.Always">逆水寒手游在线计算器首篇动向集合（24.03.26）
+                    </MudLink>
                 </MudText>
             </MudStack>
         </MudItem>
@@ -184,7 +210,8 @@
                             <MudElement Class="ms-1"
                                         Style="color:Black;font-weight:bold;">
                                 可正常使用
-                            </MudElement>，目前不会关站，至少会到明年的六月底，后续会根据网站统计系统的数据决定是否再继续开站。
+                            </MudElement>
+                            ，目前不会关站，至少会到明年的六月底，后续会根据网站统计系统的数据决定是否再继续开站。
                         </MudText>
                         <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">
                             最后很感谢大家从三月底以来的支持，刚去看了一眼到现在浏览量超过了1W+，算是个里程碑了。
@@ -234,21 +261,35 @@
 
 
 @code
+
 {
     private readonly List<UpdateLog> _newLogs = [];
     private readonly List<UpdateLog> _oldLogs = [];
     private const int NewLogCount = 2;
+    private bool renderComplete = false;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized();
-        if (UpdateLogs.Length > 0)
+        var result = await ConfigHelper.GetConfigJson(_client, "update", LocalStorage);
+        if (result.Item1 == ConstText.NotExistText)
         {
-            _newLogs.AddRange(UpdateLogs.Take(UpdateLogs.Length > NewLogCount ? NewLogCount : UpdateLogs.Length));
-            if (UpdateLogs.Length > NewLogCount)
-            {
-                _oldLogs.AddRange(UpdateLogs.Skip(NewLogCount).Take(UpdateLogs.Length - NewLogCount));
-            }
+            Snackbar.Add(result.Item1, Severity.Error);
         }
+        else
+        {
+            var updateLogs = JsonSerializer.Deserialize<UpdateLog[]>(result.Item1);
+            if (updateLogs.Length > 0)
+            {
+                _newLogs.AddRange(updateLogs.Take(updateLogs.Length > NewLogCount ? NewLogCount : updateLogs.Length));
+                if (updateLogs.Length > NewLogCount)
+                {
+                    _oldLogs.AddRange(updateLogs.Skip(NewLogCount).Take(updateLogs.Length - NewLogCount));
+                }
+            }
+
+            renderComplete = true;
+        }
+        
+        await base.OnInitializedAsync();
     }
 }
