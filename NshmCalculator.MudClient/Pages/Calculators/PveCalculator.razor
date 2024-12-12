@@ -1,164 +1,187 @@
 ﻿@page "/pve"
+@using System.Text.Json
 @using Blazored.LocalStorage
 @using NshmCalculator.MudClient.Components
+@using NshmCalculator.MudClient.Utilities
 @using NshmCalculator.Shared.Models.BaseModel
 @using NshmCalculator.Shared.Models.CalculatorModel
+@using NshmCalculator.Shared.Models.CalculatorModel.CalculatorConfig
 @using NshmCalculator.Shared.Models.CalculatorModel.Enums
 @using NshmCalculator.Shared.Models.PageModel
 @using Align = MudBlazor.Align
 @using Color = MudBlazor.Color
 @inject ISyncLocalStorageService LocalStorage
-@inject GameData GameConfig
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+@inject HttpClient Client
 <PageTitle>PVE计算器</PageTitle>
 
 <MudGrid>
-    <MudItem xs="12">
-        <MudPaper Class="d-flex align-center justify-center py-8">
-            <MudStack AlignItems="AlignItems.Center">
-                <MudText Typo="Typo.h4">PVE收益计算器</MudText>
-                <MudText Typo="Typo.h6" Align="Align.Center">
-                    <MudChip Icon="@Icons.Material.Filled.Person" Color="Color.Tertiary">B站：-风何往-</MudChip>
-                    <MudChip Color="Color.Info">源文件版本:3.4.1</MudChip>
-                </MudText>
-            </MudStack>
-        </MudPaper>
-    </MudItem>
+    @if (!renderNotComplete)
+    {
+        <MudItem xs="12">
+            <MudPaper Class="d-flex align-center justify-center py-8">
+                <MudStack AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.h4">PVE收益计算器</MudText>
+                    <MudText Typo="Typo.h6" Align="Align.Center">
+                        <MudChip Icon="@Icons.Material.Filled.Person" Color="Color.Tertiary">B站：-风何往-</MudChip>
+                        <MudChip Color="Color.Info">源文件版本:3.4.1</MudChip>
+                    </MudText>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
 
-    <MudItem xs="12">
-        <MudPaper Class="pa-4 mt-4">
-            <MudGrid>
-                <MudItem xs="12">
-                    <MudText Typo="Typo.subtitle2" Align="Align.Center">玩家基础面板</MudText>
-                </MudItem>
-                <MudItem xs="12">
-                    <MudExpansionPanels MultiExpansion="true">
-                        @if (_pvePageModel.CurrentConfig.BaseParam.Length > 0)
-                        {
-                            var group = _pvePageModel.CurrentConfig.BaseParam.GroupBy(s => s.GroupName);
-                            foreach (var groupItems in group)
+        <MudItem xs="12">
+            <MudPaper Class="pa-4 mt-4">
+                <MudGrid>
+                    <MudItem xs="12">
+                        <MudText Typo="Typo.subtitle2" Align="Align.Center">玩家基础面板</MudText>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudExpansionPanels MultiExpansion="true">
+                            @if (_currentConfig.BaseParam.Length > 0)
                             {
-                                <MudExpansionPanel Text=@groupItems.Key>
-                                    <MudGrid>
-                                        @foreach (var frontParamInfo in groupItems)
+                                var group = _currentConfig.BaseParam.GroupBy(s => s.GroupName);
+                                foreach (var groupItems in group)
+                                {
+                                    <MudExpansionPanel Text=@groupItems.Key>
+                                        <MudGrid>
+                                            @foreach (var frontParamInfo in groupItems)
+                                            {
+                                                <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
+                                                    @if (frontParamInfo.Mode == ParamMode.Selection)
+                                                    {
+                                                        <MudSelect T="string" Label="@frontParamInfo.Name" bind-Value="@frontParamInfo.StringValue"
+                                                                   HelperText="@(string.IsNullOrEmpty(frontParamInfo.Remark) ? string.Empty : frontParamInfo.Remark)"
+                                                                   Variant="Variant.Outlined">
+                                                            @foreach (string option in frontParamInfo.Options)
+                                                            {
+                                                                <MudSelectItem T="string" Value="option">@option</MudSelectItem>
+                                                            }
+                                                        </MudSelect>
+                                                    }
+                                                    else
+                                                    {
+                                                        <MudTextField xs="6" sm="4" md="3" lg="2" xl="2" T="double" Label="@frontParamInfo.Name"
+                                                                      bind-Value="@frontParamInfo.NumberValue"
+                                                                      Variant="Variant.Outlined"
+                                                                      Adornment="@(frontParamInfo.Mode == ParamMode.Percent ? Adornment.End : Adornment.None)"
+                                                                      AdornmentText="%"/>
+                                                    }
+                                                </MudItem>
+                                            }
+                                        </MudGrid>
+                                    </MudExpansionPanel>
+                                }
+                            }
+                        </MudExpansionPanels>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12">
+            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true" KeepPanelsAlive="true">
+                <MudTabPanel Text="开关设置">
+                    @if (_currentConfig.SwitchParam.Length > 0)
+                    {
+                        var group = _currentConfig.SwitchParam.GroupBy(s => s.GroupName);
+                        foreach (var groupItems in group)
+                        {
+                            <MudExpansionPanel Text=@groupItems.Key>
+                                <MudGrid>
+                                    @foreach (var frontParamInfo in groupItems)
+                                    {
+                                        @if (frontParamInfo.Mode == ParamMode.Selection)
                                         {
-                                            <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                                @if (frontParamInfo.Mode == ParamMode.Selection)
+                                            bool readable = frontParamInfo.Rule == null;
+                                            List<string?> renderOptions = frontParamInfo.Options.ToList();
+                                            if (!readable)
+                                            {
+                                                switch (frontParamInfo.Rule.Mode)
                                                 {
-                                                    <MudSelect T="string" Label="@frontParamInfo.Name" bind-Value="@frontParamInfo.StringValue"
-                                                               HelperText="@(string.IsNullOrEmpty(frontParamInfo.Remark) ? string.Empty : frontParamInfo.Remark)" Variant="Variant.Outlined">
-                                                        @foreach (string option in frontParamInfo.Options)
+                                                    case SpecialRuleMode.CompareOptions:
+                                                        if (_paramDic.TryGetValue(frontParamInfo.Rule.FrontParamCode, out var relateParam))
                                                         {
-                                                            <MudSelectItem T="string" Value="option">@option</MudSelectItem>
+                                                            if (frontParamInfo.Rule.TextDic.TryGetValue(relateParam.StringValue, out string? labelValue))
+                                                            {
+                                                                readable = true;
+                                                                frontParamInfo.Name = labelValue;
+                                                            }
+                                                        }
+
+                                                        break;
+                                                    case SpecialRuleMode.RemoveSameOptions:
+                                                        //Todo:用于删除互斥选项（如本家流派和偷师潜学流派）
+                                                        break;
+                                                }
+                                            }
+
+                                            if (readable)
+                                            {
+                                                <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
+                                                    <MudSelect T="string?" Label="@frontParamInfo.Name" @bind-Value="frontParamInfo.StringValue"
+                                                               HelperText="@(string.IsNullOrEmpty(frontParamInfo.Remark) ? string.Empty : frontParamInfo.Remark)"
+                                                               Variant="Variant.Outlined">
+                                                        @foreach (string option in renderOptions) //谨记，需要用@bind-value，不要用错了
+                                                        {
+                                                            <MudSelectItem T="string?" Value="option">@option</MudSelectItem>
                                                         }
                                                     </MudSelect>
-                                                }
-                                                else
-                                                {
-                                                    <MudTextField xs="6" sm="4" md="3" lg="2" xl="2" T="double" Label="@frontParamInfo.Name" bind-Value="@frontParamInfo.NumberValue"
-                                                                  Variant="Variant.Outlined" Adornment="@(frontParamInfo.Mode == ParamMode.Percent ? Adornment.End : Adornment.None)"
-                                                                  AdornmentText="%"/>
-                                                }
-                                            </MudItem>
-                                        }
-                                    </MudGrid>
-                                </MudExpansionPanel>
-                            }
-                        }
-                    </MudExpansionPanels>
-                </MudItem>
-            </MudGrid>
-        </MudPaper>
-    </MudItem>
-
-    <MudItem xs="12">
-        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true" KeepPanelsAlive="true">
-            <MudTabPanel Text="开关设置">
-                @if (_pvePageModel.CurrentConfig.SwitchParam.Length > 0)
-                {
-                    var group = _pvePageModel.CurrentConfig.SwitchParam.GroupBy(s => s.GroupName);
-                    foreach (var groupItems in group)
-                    {
-                        <MudExpansionPanel Text=@groupItems.Key>
-                            <MudGrid>
-                                @foreach (var frontParamInfo in groupItems)
-                                {
-                                    @if (frontParamInfo.Mode == ParamMode.Selection)
-                                    {
-                                        bool readable = frontParamInfo.Rule == null;
-                                        List<string?> renderOptions = frontParamInfo.Options.ToList();
-                                        if (!readable)
-                                        {
-                                            switch (frontParamInfo.Rule.Mode)
-                                            {
-                                                case SpecialRuleMode.CompareOptions:
-                                                    if (_paramDic.TryGetValue(frontParamInfo.Rule.FrontParamCode, out var relateParam))
-                                                    {
-                                                        if (frontParamInfo.Rule.TextDic.TryGetValue(relateParam.StringValue, out string? labelValue))
-                                                        {
-                                                            readable = true;
-                                                            frontParamInfo.Name = labelValue;
-                                                        }
-                                                    }
-                                                    break;
-                                                case SpecialRuleMode.RemoveSameOptions:
-                                                    //Todo:用于删除互斥选项（如本家流派和偷师潜学流派）
-                                                    break;
+                                                </MudItem>
                                             }
                                         }
-
-                                        if (readable)
+                                        else
                                         {
                                             <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                                <MudSelect T="string?" Label="@frontParamInfo.Name" @bind-Value="frontParamInfo.StringValue"
-                                                           HelperText="@(string.IsNullOrEmpty(frontParamInfo.Remark) ? string.Empty : frontParamInfo.Remark)" Variant="Variant.Outlined">
-                                                    @foreach (string option in renderOptions)//谨记，需要用@bind-value，不要用错了
-                                                    {
-                                                        <MudSelectItem  T="string?" Value="option">@option</MudSelectItem>
-                                                    }
-                                                </MudSelect>
+                                                <MudTextField xs="6" sm="4" md="3" lg="2" xl="2" T="double" Label="@frontParamInfo.Name"
+                                                              bind-Value="@frontParamInfo.NumberValue"
+                                                              Variant="Variant.Outlined"
+                                                              Adornment="@(frontParamInfo.Mode == ParamMode.Percent ? Adornment.End : Adornment.None)"
+                                                              AdornmentText="%"/>
                                             </MudItem>
                                         }
                                     }
-                                    else
-                                    {
-                                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                            <MudTextField xs="6" sm="4" md="3" lg="2" xl="2" T="double" Label="@frontParamInfo.Name" bind-Value="@frontParamInfo.NumberValue"
-                                                          Variant="Variant.Outlined" Adornment="@(frontParamInfo.Mode == ParamMode.Percent ? Adornment.End : Adornment.None)"
-                                                          AdornmentText="%"/>
-                                        </MudItem>
-                                    }
-
-                                }
-                            </MudGrid>
-                        </MudExpansionPanel>
+                                </MudGrid>
+                            </MudExpansionPanel>
+                        }
                     }
-                }
-            </MudTabPanel>
-            @* <MudTabPanel Text="副本Buff"> *@
-            @*     @if (_pvePageModel.CurrentConfig.BuffParam.Length > 0) *@
-            @*     { *@
-            @*         var group = _pvePageModel.CurrentConfig.BuffParam.GroupBy(s => s.GroupName); *@
-            @*         foreach (var groupItems in group) *@
-            @*         { *@
-            @*             if (string.IsNullOrEmpty(groupItems.Key)) *@
-            @*             { *@
-            @*                 //TODO：考虑能否找到复用代码的方法，这样复制几分过于雷同的代码太不好维护了 *@
-            @*             } *@
-            @*             else *@
-            @*             { *@
-            @*                 //像之前那个Tab一样渲染 *@
-            @*             } *@
-            @*         } *@
-            @*     } *@
-            @* </MudTabPanel> *@
-        </MudTabs>
-    </MudItem>
-
+                </MudTabPanel>
+            </MudTabs>
+        </MudItem>
+    }
+    else
+    {
+        <MudItem xs="12">
+            <MudPaper Class="pa-4 mt-4">
+                <MudSkeleton/>
+                <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Rectangle" Height="100px"/>
+                <MudSkeleton/>
+            </MudPaper>
+        </MudItem>
+        
+        <MudItem xs="12">
+            <MudPaper Class="pa-4 mt-4">
+                <MudSkeleton/>
+                <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Rectangle" Height="300px"/>
+                <MudSkeleton/>
+            </MudPaper>
+        </MudItem>
+        
+        <MudItem xs="12">
+            <MudPaper Class="pa-4 mt-4">
+                <MudSkeleton/>
+                <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Rectangle" Height="300px"/>
+                <MudSkeleton/>
+            </MudPaper>
+        </MudItem>
+    }
     <MudItem xs="12" Class="d-flex align-center justify-center">
         <MudStack Row="true" Spacing="4">
-            <MudButton Variant="Variant.Filled" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Button" OnClick="OnCalculate">计算
+            <MudButton Variant="Variant.Filled" Disabled="@renderNotComplete" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Button"
+                       OnClick="OnCalculate">计算
             </MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Default" Class="d-flex" ButtonType="ButtonType.Button">帮助说明
+            <MudButton Variant="Variant.Filled" Disabled="@renderNotComplete" Color="Color.Default" Class="d-flex" ButtonType="ButtonType.Button">帮助说明
             </MudButton>
         </MudStack>
     </MudItem>
@@ -170,19 +193,60 @@
 
     private PvePageModel _pvePageModel;
     private Dictionary<string, FrontParamInfo> _paramDic; //需要加载所有前端参数备查
+    private PveConfig _currentConfig;
+    private bool renderNotComplete = true;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized();
+        await LoadData();
+        await base.OnInitializedAsync();
         InitParameters();
+    }
+
+    private async Task<bool> LoadData()
+    {
+        try
+        {
+            _pvePageModel = LocalStorage.GetItem<PvePageModel>(nameof(_pvePageModel)) ?? new();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("PVE收益计算器缓存加载异常" + e);
+            _pvePageModel = new PvePageModel();
+        }
+
+        var result = await ConfigHelper.GetConfigJson(Client, "pve", LocalStorage);
+        if (result.Item1 == ConstText.NotExistText)
+        {
+            Snackbar.Add(result.Item1, Severity.Error);
+        }
+        else
+        {
+            try
+            {
+                _currentConfig = JsonSerializer.Deserialize<PveConfig>(result.Item1);
+                if (result.Item2)
+                {
+                    Snackbar.Add("配置数据更新，已加载完成", Severity.Success);
+                }
+
+                renderNotComplete = false;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Snackbar.Add("解析配置时出现异常，请检查网络");
+            }
+        }
+
+        return result.Item2;
     }
 
     private void InitParameters()
     {
-        _pvePageModel = LocalStorage.GetItem<PvePageModel>(nameof(_pvePageModel)) ?? new PvePageModel();
-        _pvePageModel.CurrentConfig = GameConfig.PveConfig;
-        _paramDic = new Dictionary<string, FrontParamInfo>(); //后续考虑优化参数加载策略
-        foreach (var frontParamInfo in _pvePageModel.CurrentConfig.BaseParam)
+        _paramDic = new Dictionary<string, FrontParamInfo>();
+        //Todo:考虑通过PageModel恢复已填写的值
+        foreach (var frontParamInfo in _currentConfig.BaseParam)
         {
             _paramDic.Add(frontParamInfo.Code, frontParamInfo);
             if (frontParamInfo.Mode == ParamMode.Selection && string.IsNullOrEmpty(frontParamInfo.StringValue))
@@ -191,7 +255,7 @@
             }
         }
 
-        foreach (var frontParamInfo in _pvePageModel.CurrentConfig.SwitchParam)
+        foreach (var frontParamInfo in _currentConfig.SwitchParam)
         {
             _paramDic.Add(frontParamInfo.Code, frontParamInfo);
             if (frontParamInfo.Mode == ParamMode.Selection && string.IsNullOrEmpty(frontParamInfo.StringValue))
@@ -200,7 +264,7 @@
             }
         }
 
-        foreach (var frontParamInfo in _pvePageModel.CurrentConfig.BuffParam)
+        foreach (var frontParamInfo in _currentConfig.BuffParam)
         {
             _paramDic.Add(frontParamInfo.Code, frontParamInfo);
             if (frontParamInfo.Mode == ParamMode.Selection && string.IsNullOrEmpty(frontParamInfo.StringValue))
@@ -214,4 +278,5 @@
     {
         Console.WriteLine(_paramDic.Count);
     }
+
 }

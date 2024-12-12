@@ -15,11 +15,6 @@ var client = new HttpClient
 {
     BaseAddress = new Uri(builder.HostEnvironment.BaseAddress),
 };
-client.DefaultRequestHeaders.Add("Clear-Site-Data", "cache");
-client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
-{
-    NoCache = true
-};
 builder.Services.AddSingleton(client);
 builder.Services.AddMudServices(config =>
 {
@@ -50,8 +45,8 @@ while (errorCount < 3)
 
 if (errorCount == 3)
 {
-    Console.WriteLine("»ñÈ¡»ù´¡ÅäÖÃÊ§°Ü£¬Çë¼ì²éÍøÂç");
-    throw new Exception("»ñÈ¡»ù´¡ÅäÖÃÊ§°Ü£¬Çë¼ì²éÍøÂç");
+    Console.WriteLine("èŽ·å–åŸºç¡€é…ç½®å¤±è´¥ï¼Œè¯·æ£€æŸ¥ç½‘ç»œ");
+    throw new Exception("èŽ·å–åŸºç¡€é…ç½®å¤±è´¥ï¼Œè¯·æ£€æŸ¥ç½‘ç»œ");
 }
 
 #endregion
