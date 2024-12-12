@@ -1,14 +1,11 @@
+using System.Net.Http.Headers;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor;
 using MudBlazor.Services;
-using NshmCalculator.MudClient.Utilities;
-using NshmCalculator.Shared.Models;
-using System.Net.Http.Headers;
-using System.Text.Json;
 using NshmCalculator.MudClient;
-using NshmCalculator.Shared.Models.BaseModel;
+using NshmCalculator.MudClient.Utilities;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -23,7 +20,7 @@ client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
 {
     NoCache = true
 };
-builder.Services.AddScoped(sp => client);
+builder.Services.AddSingleton(client);
 builder.Services.AddMudServices(config =>
 {
     config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopCenter;
@@ -40,43 +37,22 @@ builder.Services.AddBlazoredLocalStorage();
 
 #region InitConfig
 
-UpdateLog[] updateLogs = new UpdateLog[] { };
-Dictionary<string, string> tipsDictionary = new Dictionary<string, string>();
-GameData gameData = new GameData();
+int errorCount = 0;
 
-long timeTicks = DateTime.Now.Ticks;
-
-var gameConfigJson = await client.GetStringAsync(ConstText.GameConfigPath + $"?t={timeTicks}");
-if (!string.IsNullOrEmpty(gameConfigJson))
+while (errorCount < 3)
 {
-    gameData = JsonSerializer.Deserialize<GameData>(gameConfigJson);
-}
-
-var newJson = await client.GetStringAsync(ConstText.UpdateLogPath + $"?t={timeTicks}"); //éœ€è¦å¤„ç†ç¼“å­˜æœªæ›´æ–°çš„æƒ…å†µ
-if (!string.IsNullOrEmpty(newJson))
-{
-    var logs = JsonSerializer.Deserialize<UpdateLog[]>(newJson);
-    if (logs is { Length: > 0 })
+    if (await ConfigHelper.InitAppVersion(client))
     {
-        updateLogs = logs;
+        break;
     }
+    errorCount++;
 }
 
-var tipsJson = await client.GetStringAsync(ConstText.TipsJsonPath + $"?t={timeTicks}");
-if (!string.IsNullOrEmpty(tipsJson))
+if (errorCount == 3)
 {
-    var dic = JsonSerializer.Deserialize<Dictionary<string, string>>(tipsJson);
-    if (dic != null)
-    {
-        tipsDictionary = dic;
-    }
+    Console.WriteLine("»ñÈ¡»ù´¡ÅäÖÃÊ§°Ü£¬Çë¼ì²éÍøÂç");
+    throw new Exception("»ñÈ¡»ù´¡ÅäÖÃÊ§°Ü£¬Çë¼ì²éÍøÂç");
 }
-
-
-builder.Services.AddSingleton(updateLogs);
-builder.Services.AddSingleton(tipsDictionary);
-builder.Services.AddSingleton(gameData);
-/*åé¢å¦‚æœåŠ¨æ€é…ç½®é¡¹å¤šäº†è€ƒè™‘ç›´æ¥åšä¸€ä¸ªå¤§ç±»*/
 
 #endregion
 

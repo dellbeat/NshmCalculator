@@ -1,5 +1,6 @@
 ﻿@page "/sf"
 @using System.Collections.ObjectModel
+@using System.Text.Json
 @using Blazored.LocalStorage
 @using NshmCalculator.MudClient.Components
 @using NshmCalculator.MudClient.Utilities
@@ -13,138 +14,169 @@
 @inject ISyncLocalStorageService LocalStorage
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
-@inject Dictionary<string, string> TipsDictionary
-@inject GameData GameConfig
+@inject HttpClient Client
 
 <PageTitle>逆水寒手游身份收益计算器</PageTitle>
 
 <MudGrid>
-    <MudItem xs="12">
-        <MudPaper Class="d-flex align-center justify-center py-8">
-            <MudStack AlignItems="AlignItems.Center">
-                <MudText Typo="Typo.h4">身份收益计算器</MudText>
-                <MudText Typo="Typo.h6" Align="Align.Center">
-                    <MudChip Icon="@Icons.Material.Filled.Person" Color="Color.Tertiary">B站@逆水寒-夜银</MudChip>
-                    <MudChip Color="Color.Info">源文件版本:@_currentConfig.Version</MudChip>
-                </MudText>
-            </MudStack>
-        </MudPaper>
-    </MudItem>
+    @if (!renderNotComplete)
+    {
+        <MudItem xs="12">
+            <MudPaper Class="d-flex align-center justify-center py-8">
+                <MudStack AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.h4">身份收益计算器</MudText>
+                    <MudText Typo="Typo.h6" Align="Align.Center">
+                        <MudChip Icon="@Icons.Material.Filled.Person" Color="Color.Tertiary">B站@逆水寒-夜银</MudChip>
+                        <MudChip Color="Color.Info">源文件版本:@_currentConfig.Version</MudChip>
+                    </MudText>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
 
-    <MudItem xs="12">
-        <MudPaper Class="pa-4 mt-4">
-            <EditForm Model="_occupationPageModel.GoodsArray" OnInvalidSubmit="WarningTips">
-                <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
-                    @if (_occupationPageModel.GoodsArray?.Length > 0)
-                    {
-                        var groupedGoods = _occupationPageModel.GoodsArray.GroupBy(s => s.BelongGroup);
-                        foreach (var group in groupedGoods)
+        <MudItem xs="12">
+            <MudPaper Class="pa-4 mt-4">
+                <EditForm Model="_occupationPageModel.GoodsArray" OnInvalidSubmit="WarningTips">
+                    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
+                        @if (_occupationPageModel.GoodsArray?.Length > 0)
                         {
-                            <MudTabPanel Text="@group.Key">
-                                <MudGrid>
-                                    @foreach (var item in group)
-                                    {
-                                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                            <MudTextField ShrinkLabel @bind-Value="@item.Price" For="@(() => item.Price)" Label="@item.Name"
-                                                          Variant="Variant.Outlined"/>
-                                        </MudItem>
-                                    }
-                                </MudGrid>
-                            </MudTabPanel>
-                        }
-                    }
-                </MudTabs>
-            </EditForm>
-        </MudPaper>
-    </MudItem>
-
-    <MudItem xs="12">
-        <MudPaper Class="pa-4 mt-4">
-            <MudTabs KeepPanelsAlive="true" Elevation="2" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
-                <MudTabPanel Text="身份收益列表">
-                    <MudTable FixedHeader="true" T="OccupationFormulas" Items="@_observableFormulas" Breakpoint="Breakpoint.None" Striped="true" Dense="true" OnRowClick="OnRowClick">
-                        <ToolBarContent>
-                            <MudTextField  @bind-Value="Keyword" Label="关键词" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Info"  Margin="Margin.Dense" OnAdornmentClick="OnSearch" />
-                        </ToolBarContent>
-                        <HeaderContent>
-                            <MudTh>商品</MudTh>
-                            <MudTh>
-                                <MudTableSortLabel SortBy="new Func<OccupationFormulas, object>(x => x.Value)">
-                                    10活力收益
-                                </MudTableSortLabel>
-                            </MudTh>
-                            <MudTh>收藏</MudTh>
-                        </HeaderContent>
-                        <RowTemplate>
-                            <MudTd DataLabel="商品">@context.GoodsName</MudTd>
-                            <MudTd DataLabel="10活力收益">@context.Value.ToString("F2")</MudTd>
-                            <MudTd DataLabel="收藏">
-                                @if (context.Favorite)
-                                {
-                                    <MudIconButton OnClick="() => OnClickFavorite(context)" Icon="@Icons.Material.Filled.Favorite"
-                                                   Color="@Color.Info"/>
-                                }
-                                else
-                                {
-                                    <MudIconButton OnClick="() => OnClickFavorite(context)" Icon="@Icons.Material.Filled.FavoriteBorder"
-                                                   Color="@Color.Info"/>
-                                }
-                            </MudTd>
-                        </RowTemplate>
-                        <PagerContent>
-                            <MudTablePager PageSizeOptions="new[] { 10 }"
-                                           HideRowsPerPage="true"/>
-                        </PagerContent>
-                    </MudTable>
-                </MudTabPanel>
-                <MudTabPanel Text="收藏夹">
-                    <MudPaper Style="max-height:800px;overflow-y:auto;overflow-x: hidden">
-                        <MudGrid>
-                            @foreach (var favoriteItem in FavoriteFormulas)
+                            var groupedGoods = _occupationPageModel.GoodsArray.GroupBy(s => s.BelongGroup);
+                            foreach (var group in groupedGoods)
                             {
-                                <MudItem xs="12" sm="6" md="4" lg="3" xl="3">
-                                    <MudCard>
-                                        <MudCardHeader>
-                                            <CardHeaderContent>
-                                                <MudText Typo="Typo.h6">@favoriteItem.GoodsName</MudText>
-                                            </CardHeaderContent>
-                                            <CardHeaderActions>
-                                                <MudStack Row="true">
-                                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info"
-                                                                   OnClick="() => ShowFormula(favoriteItem)"/>
-                                                    <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Info"
-                                                                   OnClick="() => OnClickFavorite(favoriteItem, true)"/>
-                                                </MudStack>
-                                            </CardHeaderActions>
-                                        </MudCardHeader>
-                                        <MudCardContent>
-                                            <MudStack Row="true">
-                                                <MudChip T="string" Color="Color.Info">收益</MudChip>
-                                                <MudText Typo="Typo.body2" Class="mt-3">@favoriteItem.Value.ToString("F2")</MudText>
-                                            </MudStack>
-                                            <MudStack Row="true">
-                                                <MudChip T="string" Color="Color.Info">备注</MudChip>
-                                                <MudText Typo="Typo.body2" Class="mt-3">
-                                                    @(string.IsNullOrEmpty(favoriteItem.Remark) ? "无" : favoriteItem.Remark)
-                                                </MudText>
-                                            </MudStack>
-                                        </MudCardContent>
-                                    </MudCard>
-                                </MudItem>
+                                <MudTabPanel Text="@group.Key">
+                                    <MudGrid>
+                                        @foreach (var item in group)
+                                        {
+                                            <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
+                                                <MudTextField ShrinkLabel @bind-Value="@item.Price" For="@(() => item.Price)" Label="@item.Name"
+                                                              Variant="Variant.Outlined"/>
+                                            </MudItem>
+                                        }
+                                    </MudGrid>
+                                </MudTabPanel>
                             }
-                        </MudGrid>
-                    </MudPaper>
+                        }
+                    </MudTabs>
+                </EditForm>
+            </MudPaper>
+        </MudItem>
 
-                </MudTabPanel>
-            </MudTabs>
-        </MudPaper>
-    </MudItem>
+        <MudItem xs="12">
+            <MudPaper Class="pa-4 mt-4">
+                <MudTabs KeepPanelsAlive="true" Elevation="2" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
+                    <MudTabPanel Text="身份收益列表">
+                        <MudTable FixedHeader="true" T="OccupationFormulas" Items="@_observableFormulas" Breakpoint="Breakpoint.None" Striped="true"
+                                  Dense="true" OnRowClick="OnRowClick">
+                            <ToolBarContent>
+                                <MudTextField @bind-Value="Keyword" Label="关键词" Variant="Variant.Outlined" Adornment="Adornment.End"
+                                              AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Info" Margin="Margin.Dense"
+                                              OnAdornmentClick="OnSearch"/>
+                            </ToolBarContent>
+                            <HeaderContent>
+                                <MudTh>商品</MudTh>
+                                <MudTh>
+                                    <MudTableSortLabel SortBy="new Func<OccupationFormulas, object>(x => x.Value)">
+                                        10活力收益
+                                    </MudTableSortLabel>
+                                </MudTh>
+                                <MudTh>收藏</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="商品">@context.GoodsName</MudTd>
+                                <MudTd DataLabel="10活力收益">@context.Value.ToString("F2")</MudTd>
+                                <MudTd DataLabel="收藏">
+                                    @if (context.Favorite)
+                                    {
+                                        <MudIconButton OnClick="() => OnClickFavorite(context)" Icon="@Icons.Material.Filled.Favorite"
+                                                       Color="@Color.Info"/>
+                                    }
+                                    else
+                                    {
+                                        <MudIconButton OnClick="() => OnClickFavorite(context)" Icon="@Icons.Material.Filled.FavoriteBorder"
+                                                       Color="@Color.Info"/>
+                                    }
+                                </MudTd>
+                            </RowTemplate>
+                            <PagerContent>
+                                <MudTablePager PageSizeOptions="new[] { 10 }"
+                                               HideRowsPerPage="true"/>
+                            </PagerContent>
+                        </MudTable>
+                    </MudTabPanel>
+                    <MudTabPanel Text="收藏夹">
+                        <MudPaper Style="max-height:800px;overflow-y:auto;overflow-x: hidden">
+                            <MudGrid>
+                                @foreach (var favoriteItem in FavoriteFormulas)
+                                {
+                                    <MudItem xs="12" sm="6" md="4" lg="3" xl="3">
+                                        <MudCard>
+                                            <MudCardHeader>
+                                                <CardHeaderContent>
+                                                    <MudText Typo="Typo.h6">@favoriteItem.GoodsName</MudText>
+                                                </CardHeaderContent>
+                                                <CardHeaderActions>
+                                                    <MudStack Row="true">
+                                                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info"
+                                                                       OnClick="() => ShowFormula(favoriteItem)"/>
+                                                        <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Info"
+                                                                       OnClick="() => OnClickFavorite(favoriteItem, true)"/>
+                                                    </MudStack>
+                                                </CardHeaderActions>
+                                            </MudCardHeader>
+                                            <MudCardContent>
+                                                <MudStack Row="true">
+                                                    <MudChip T="string" Color="Color.Info">收益</MudChip>
+                                                    <MudText Typo="Typo.body2" Class="mt-3">@favoriteItem.Value.ToString("F2")</MudText>
+                                                </MudStack>
+                                                <MudStack Row="true">
+                                                    <MudChip T="string" Color="Color.Info">备注</MudChip>
+                                                    <MudText Typo="Typo.body2" Class="mt-3">
+                                                        @(string.IsNullOrEmpty(favoriteItem.Remark) ? "无" : favoriteItem.Remark)
+                                                    </MudText>
+                                                </MudStack>
+                                            </MudCardContent>
+                                        </MudCard>
+                                    </MudItem>
+                                }
+                            </MudGrid>
+                        </MudPaper>
+
+                    </MudTabPanel>
+                </MudTabs>
+            </MudPaper>
+        </MudItem>
+    }
+    else
+    {
+        <MudItem xs="12">
+            <MudPaper Class="pa-4 mt-4">
+                <MudSkeleton/>
+                <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Rectangle" Height="100px"/>
+                <MudSkeleton/>
+            </MudPaper>
+        </MudItem>
+        
+        <MudItem xs="12">
+            <MudPaper Class="pa-4 mt-4">
+                <MudSkeleton/>
+                <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Rectangle" Height="300px"/>
+                <MudSkeleton/>
+            </MudPaper>
+        </MudItem>
+        
+        <MudItem xs="12">
+            <MudPaper Class="pa-4 mt-4">
+                <MudSkeleton/>
+                <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Rectangle" Height="300px"/>
+                <MudSkeleton/>
+            </MudPaper>
+        </MudItem>
+    }
 
     <MudItem xs="12" Class="d-flex align-center justify-center">
         <MudStack Row="true" Spacing="4">
-            <MudButton Variant="Variant.Filled" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Button" OnClick="OnCalculate">计算
+            <MudButton Variant="Variant.Filled" Disabled="@renderNotComplete" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Button" OnClick="OnCalculate">计算
             </MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Default" Class="d-flex" ButtonType="ButtonType.Button" OnClick="ShowTips">帮助说明
+            <MudButton Variant="Variant.Filled" Disabled="@renderNotComplete" Color="Color.Default" Class="d-flex" ButtonType="ButtonType.Button" OnClick="ShowTips">帮助说明
             </MudButton>
         </MudStack>
     </MudItem>
@@ -163,13 +195,16 @@
     private bool firstLoad = true;
     private OccupationPageModel _occupationPageModel;
     private ObservableCollection<OccupationFormulas> FavoriteFormulas { get; set; }
-    private Dictionary<string,OccupationGoods> GoodDic { get; set; }
+    private Dictionary<string, OccupationGoods> GoodDic { get; set; }
     private string Keyword { get; set; }
+    private bool renderNotComplete { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized();
-        InitParameters();
+        renderNotComplete = true;
+        await InitParameters();
+        await base.OnInitializedAsync();
+        LocalStorage.SetItemAsString(ConstText.LastVisitName, "sf");
     }
 
     private async Task OnClickFavorite(OccupationFormulas formulas, bool needTips = false)
@@ -200,20 +235,8 @@
         Snackbar.Add($"已{(formulas.Favorite ? "添加" : "取消")}收藏:{formulas.GoodsName}", Severity.Success);
     }
 
-    private void InitParameters()
+    private async Task<bool> LoadData()
     {
-        TipsDictionary.TryGetValue("sf", out string? tips);
-        _tipsDialogParameters.Add(nameof(TipsDialog.ContentText), new MarkupString(tips));
-        _tipsDialogOptions.CloseButton = true;
-        _sfDialogOptions.MaxWidth = MaxWidth.Medium;
-        _currentConfig = GameConfig.OccupationConfig;
-        FavoriteFormulas = new ObservableCollection<OccupationFormulas>();
-        if (_currentConfig == null)
-        {
-            Snackbar.Add(ConstText.ConfigNotFoundText, Severity.Error);
-            return;
-        }
-
         try
         {
             _occupationPageModel = LocalStorage.GetItem<OccupationPageModel>(nameof(_occupationPageModel)) ?? new();
@@ -224,7 +247,47 @@
             _occupationPageModel = new OccupationPageModel();
         }
 
-        if (_occupationPageModel.CurrentInternalVersion < _currentConfig.InternalVersion)
+        var result = await ConfigHelper.GetConfigJson(Client, "sf", LocalStorage);
+        if (result.Item1 == ConstText.NotExistText)
+        {
+            Snackbar.Add(result.Item1, Severity.Error);
+        }
+        else
+        {
+            try
+            {
+                _currentConfig = JsonSerializer.Deserialize<OccupationConfig>(result.Item1);
+                if (result.Item2)
+                {
+                    Snackbar.Add("配置数据更新，已加载完成", Severity.Success);
+                }
+
+                renderNotComplete = false;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Snackbar.Add("解析配置时出现异常，请检查网络");
+            }
+        }
+
+        return result.Item2;
+    }
+
+    private async Task InitParameters()
+    {
+        bool haveUpdate = await LoadData();
+        _tipsDialogParameters.Add(nameof(TipsDialog.ContentText), new MarkupString(_currentConfig.HelperText));
+        _tipsDialogOptions.CloseButton = true;
+        _sfDialogOptions.MaxWidth = MaxWidth.Medium;
+        FavoriteFormulas = new ObservableCollection<OccupationFormulas>();
+        if (_currentConfig == null)
+        {
+            Snackbar.Add(ConstText.ConfigNotFoundText, Severity.Error);
+            return;
+        }
+
+        if (haveUpdate)
         {
             var oldGoodsPriceDic = _occupationPageModel.GoodsArray?.ToDictionary(s => s.Code, s => s.Price);
             _occupationPageModel.GoodsArray = _currentConfig.OccupationGoodsArray;
@@ -257,7 +320,7 @@
 
             if (_occupationPageModel.CurrentInternalVersion != -99999)
             {
-                Snackbar.Add("<ul><li>商品/公式数据已更新</li><li>已成功继承商品价格和收藏状态</li></ul>", Severity.Success);
+                Snackbar.Add("<ul><li>已成功继承商品价格和收藏状态</li><li>身份收益需手动计算一次</li></ul>", Severity.Success);
             }
 
             _occupationPageModel.CurrentInternalVersion = _currentConfig.InternalVersion;
@@ -265,7 +328,7 @@
         }
 
         GoodDic = _occupationPageModel.GoodsArray.ToDictionary(s => s.Code, s => s);
-        
+
         foreach (var item in _occupationPageModel.FormulasArray.Where(s => s.Favorite))
         {
             FavoriteFormulas.Add(item);
@@ -276,6 +339,11 @@
 
     private void OnCalculate()
     {
+        if (!renderNotComplete)
+        {
+            
+        }
+        
         if (_occupationPageModel.GoodsArray.Any(s => s.Price < 1))
         {
             Snackbar.Add("<ul><li>有商品价格不在1~100000的范围内</li><li>请检查定价后再试</li></ul>", Severity.Warning);
@@ -358,4 +426,5 @@
 
         Snackbar.Add("搜索完毕", Severity.Info);
     }
+
 }

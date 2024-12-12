@@ -39,10 +39,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Content Update="wwwroot\data\tipsContent.json">
-		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		</Content>
-		<Content Update="wwwroot\data\updatelog.json">
+		<Content Update="wwwroot\data\config_update.json">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</Content>
 		<Content Update="wwwroot\js\decode.min.js">
@@ -53,6 +50,9 @@
 		</Content>
 		<Content Update="wwwroot\service-worker.published.js">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\data\version.json">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
 
