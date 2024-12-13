@@ -6,6 +6,7 @@ using MudBlazor;
 using MudBlazor.Services;
 using NshmCalculator.MudClient;
 using NshmCalculator.MudClient.Utilities;
+using NshmCalculator.MudClient.Utilities.Interface;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -29,6 +30,7 @@ builder.Services.AddMudServices(config =>
     config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
 });
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddSingleton<IStateContainer, StateContainer>();
 
 #region InitConfig
 

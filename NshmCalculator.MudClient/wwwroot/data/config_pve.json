@@ -900,7 +900,12 @@
     "Values": null,
     "GroupName": "大/小特质",
     "Remark": "",
-    "Mode": 2
+    "Mode": 2,
+    "Rule":
+    {
+      "FrontParamCode":"KG_001",
+      "Mode":1
+    }
   }, {
     "Code": "KG_006",
     "Name": "向天歌",

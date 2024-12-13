@@ -1,0 +1,138 @@
+﻿@implements IDisposable
+
+@using NshmCalculator.MudClient.Utilities.Interface
+@using NshmCalculator.Shared.Models.CalculatorModel
+@using NshmCalculator.Shared.Models.CalculatorModel.Enums
+@inject IStateContainer SC
+
+<MudGrid>
+    @foreach (var frontParamInfo in ItemSource)
+    {
+        @if (frontParamInfo.Mode == ParamMode.Selection)
+        {
+            bool readable = frontParamInfo.Rule == null;
+            List<string?> renderOptions = frontParamInfo.Options.ToList();
+            if (!readable)
+            {
+                switch (frontParamInfo.Rule.Mode)
+                {
+                    case SpecialRuleMode.CompareOptions:
+                    {
+                        if (RefDic.TryGetValue(frontParamInfo.Rule.FrontParamCode, out var relateParam))
+                        {
+                            _subscribeDic.TryAdd(relateParam.Code, relateParam);
+                            SetPublisher(relateParam.Code);
+                            if (frontParamInfo.Rule.TextDic.TryGetValue(relateParam.StringValue, out string? labelValue))
+                            {
+                                readable = true;
+                                frontParamInfo.Name = labelValue;
+                            }
+                        }
+                    }
+                        break;
+                    case SpecialRuleMode.RemoveSameOptions:
+                    {
+                        if (RefDic.TryGetValue(frontParamInfo.Rule.FrontParamCode, out var relateParam))
+                        {
+                            _subscribeDic.TryAdd(relateParam.Code, relateParam);
+                            SetPublisher(relateParam.Code);
+                            if (renderOptions.Contains(relateParam.StringValue))
+                            {
+                                renderOptions.Remove(relateParam.StringValue);
+                                readable = true;
+                            }
+                            //Todo:修复无法按预期运行的BUG，且考虑一对多的情况
+                        }
+                    }
+                        break;
+                }
+            }
+
+            if (readable)
+            {
+                <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
+                    <MudSelect T="string?" Label="@frontParamInfo.Name" @bind-Value="frontParamInfo.StringValue"
+                               HelperText="@(string.IsNullOrEmpty(frontParamInfo.Remark) ? string.Empty : frontParamInfo.Remark)"
+                               Variant="Variant.Outlined"
+                               TextChanged="() => { if (_publisherDic.ContainsKey(frontParamInfo.Code)) {SelectValueChanged(frontParamInfo.Code); } }">
+                        @foreach (string option in renderOptions) //谨记，需要用@bind-value，不要用错了
+                        {
+                            <MudSelectItem T="string?" Value="option">@option</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+            }
+        }
+        else
+        {
+            <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
+                <MudTextField xs="6" sm="4" md="3" lg="2" xl="2" T="double" Label="@frontParamInfo.Name"
+                              bind-Value="@frontParamInfo.NumberValue"
+                              Variant="Variant.Outlined"
+                              Adornment="@(frontParamInfo.Mode == ParamMode.Percent ? Adornment.End : Adornment.None)"
+                              AdornmentText="%"/>
+            </MudItem>
+        }
+    }
+</MudGrid>
+
+
+@code {
+    [Parameter] public FrontParamInfo[] ItemSource { get; set; }
+    [Parameter] public Dictionary<string, FrontParamInfo> RefDic { get; set; }
+
+    /// <summary>
+    /// 需要关注更新的外部值，以确定让内部组件重新渲染
+    /// </summary>
+    private Dictionary<string, FrontParamInfo> _subscribeDic { get; set; }
+
+    /// <summary>
+    /// 需要发出更新事件的内部值，以通知其他组件数据更新
+    /// </summary>
+    private Dictionary<string, FrontParamInfo> _publisherDic { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _subscribeDic = new Dictionary<string, FrontParamInfo>();
+        _publisherDic = new Dictionary<string, FrontParamInfo>();
+        SC.NotifyPublisher += FindPublisher;
+        SC.NotifyUpdate += OnUpdate;
+        base.OnInitialized();
+    }
+
+    private void SelectValueChanged(string code)
+    {
+        SC.NotifyValueUpdated(code);
+    }
+
+    private void SetPublisher(string code)
+    {
+        SC.FindPublisher(code);
+    }
+
+    private void OnUpdate(string code)
+    {
+        string targetCode = code == null ? string.Empty : code;
+        Console.WriteLine(ItemSource.FirstOrDefault()?.Name ?? "暂无内容");
+        if (_subscribeDic.ContainsKey(targetCode))
+        {
+            StateHasChanged();
+        }
+    }
+
+    private void FindPublisher(string code)
+    {
+        string targetCode = code == null ? string.Empty : code;
+        if (ItemSource.FirstOrDefault(s => s.Code == targetCode) is FrontParamInfo info)
+        {
+            _publisherDic.TryAdd(info.Code, info);
+        }
+    }
+
+    public void Dispose()
+    {
+        SC.NotifyPublisher -= FindPublisher;
+        SC.NotifyUpdate -= OnUpdate;
+    }
+
+}

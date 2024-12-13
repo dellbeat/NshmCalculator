@@ -1,4 +1,5 @@
 ﻿@page "/pve"
+@using System.Collections.Immutable
 @using System.Text.Json
 @using Blazored.LocalStorage
 @using NshmCalculator.MudClient.Components
@@ -89,60 +90,7 @@
                         foreach (var groupItems in group)
                         {
                             <MudExpansionPanel Text=@groupItems.Key>
-                                <MudGrid>
-                                    @foreach (var frontParamInfo in groupItems)
-                                    {
-                                        @if (frontParamInfo.Mode == ParamMode.Selection)
-                                        {
-                                            bool readable = frontParamInfo.Rule == null;
-                                            List<string?> renderOptions = frontParamInfo.Options.ToList();
-                                            if (!readable)
-                                            {
-                                                switch (frontParamInfo.Rule.Mode)
-                                                {
-                                                    case SpecialRuleMode.CompareOptions:
-                                                        if (_paramDic.TryGetValue(frontParamInfo.Rule.FrontParamCode, out var relateParam))
-                                                        {
-                                                            if (frontParamInfo.Rule.TextDic.TryGetValue(relateParam.StringValue, out string? labelValue))
-                                                            {
-                                                                readable = true;
-                                                                frontParamInfo.Name = labelValue;
-                                                            }
-                                                        }
-
-                                                        break;
-                                                    case SpecialRuleMode.RemoveSameOptions:
-                                                        //Todo:用于删除互斥选项（如本家流派和偷师潜学流派）
-                                                        break;
-                                                }
-                                            }
-
-                                            if (readable)
-                                            {
-                                                <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                                    <MudSelect T="string?" Label="@frontParamInfo.Name" @bind-Value="frontParamInfo.StringValue"
-                                                               HelperText="@(string.IsNullOrEmpty(frontParamInfo.Remark) ? string.Empty : frontParamInfo.Remark)"
-                                                               Variant="Variant.Outlined">
-                                                        @foreach (string option in renderOptions) //谨记，需要用@bind-value，不要用错了
-                                                        {
-                                                            <MudSelectItem T="string?" Value="option">@option</MudSelectItem>
-                                                        }
-                                                    </MudSelect>
-                                                </MudItem>
-                                            }
-                                        }
-                                        else
-                                        {
-                                            <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                                <MudTextField xs="6" sm="4" md="3" lg="2" xl="2" T="double" Label="@frontParamInfo.Name"
-                                                              bind-Value="@frontParamInfo.NumberValue"
-                                                              Variant="Variant.Outlined"
-                                                              Adornment="@(frontParamInfo.Mode == ParamMode.Percent ? Adornment.End : Adornment.None)"
-                                                              AdornmentText="%"/>
-                                            </MudItem>
-                                        }
-                                    }
-                                </MudGrid>
+                                <PveFrontParamItem ItemSource="@groupItems.ToArray()" RefDic="@_paramDic"/>
                             </MudExpansionPanel>
                         }
                     }
