@@ -9,5 +9,13 @@ public enum SpecialRuleMode
     /// <summary>
     /// 删除选项中与特定参数已选内容一致的选项
     /// </summary>
-    RemoveSameOptions
+    RemoveSameOptions,
+    /// <summary>
+    /// 共享选项
+    /// </summary>
+    ShareOptions,
+    /// <summary>
+    /// 选择时自动给关联选项赋值，用于选择BOSS时更新相关数值
+    /// </summary>
+    RelatedData,
 }

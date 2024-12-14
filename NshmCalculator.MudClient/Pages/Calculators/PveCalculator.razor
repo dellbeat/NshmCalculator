@@ -40,7 +40,7 @@
                     </MudItem>
                     <MudItem xs="12">
                         <MudExpansionPanels MultiExpansion="true">
-                            @if (_currentConfig.FrontParamInfoArray.Where(s => s.CategoryName == _currentConfig.CategoryArray.First()).ToArray() is { Length: > 0 } baseArray)
+                            @if (_currentConfig.FrontParamInfoArray.Where(s => s.CategoryName == _currentConfig.CategoryArray.First()).OrderBy(s=>s.Code).ToArray() is { Length: > 0 } baseArray)
                             {
                                 var group = baseArray.GroupBy(s => s.GroupName);
                                 foreach (var groupItems in group)
@@ -61,7 +61,7 @@
                 <MudPaper Class="pa-4 mt-4">
                     @foreach (string category in _currentConfig.CategoryArray.Skip(1))
                     {
-                        var currentParams = _currentConfig.FrontParamInfoArray.Where(s => s.CategoryName == category).ToArray();
+                        var currentParams = _currentConfig.FrontParamInfoArray.Where(s => s.CategoryName == category).OrderBy(s=>s.Code).ToArray();
 
                         <MudTabPanel Text="@category">
                             @if (currentParams.Length > 0)

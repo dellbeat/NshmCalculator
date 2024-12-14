@@ -1,5 +1,6 @@
 ﻿@implements IDisposable
 
+@using System.Text.Json
 @using NshmCalculator.MudClient.Utilities.Interface
 @using NshmCalculator.Shared.Models.CalculatorModel
 @using NshmCalculator.Shared.Models.CalculatorModel.Enums
@@ -10,61 +11,16 @@
     {
         @if (frontParamInfo.Mode == ParamMode.Selection)
         {
-            bool renderable = frontParamInfo.Rule == null;
-            List<string?> renderOptions = frontParamInfo.Options.ToList();
-            if (!renderable)
-            {
-                switch (frontParamInfo.Rule.Mode)
-                {
-                    case SpecialRuleMode.CompareOptions:
-                    {
-                        if (RefDic.TryGetValue(frontParamInfo.Rule.FrontParamCode, out var relateParam))
-                        {
-                            _subscribeDic.TryAdd(relateParam.Code, relateParam);
-                            SetPublisher(relateParam.Code);
-                            if (frontParamInfo.Rule.TextDic.TryGetValue(relateParam.StringValue, out string labelValue))
-                            {
-                                renderable = true;
-                                frontParamInfo.Name = labelValue;
-                            }
-                        }
-                    }
-                        break;
-                    case SpecialRuleMode.RemoveSameOptions:
-                    {
-                        if (RefDic.TryGetValue(frontParamInfo.Rule.FrontParamCode, out var relateParam))
-                        {
-                            _subscribeDic.TryAdd(relateParam.Code, relateParam);
-                            SetPublisher(relateParam.Code);
-                            if (renderOptions.Contains(relateParam.StringValue))
-                            {
-                                renderable = true;
-                                renderOptions.Remove(relateParam.StringValue);
-                            }
-                            else if (frontParamInfo.Rule.TextDic.TryGetValue(relateParam.StringValue, out string deleteValue))
-                            {
-                                renderable = true;
-                                renderOptions.Remove(deleteValue);
-                            }
+            var renderResult = GetRenderOptions(frontParamInfo);
 
-                            if (!renderOptions.Contains(frontParamInfo.StringValue))
-                            {
-                                frontParamInfo.StringValue = renderOptions.First();
-                            }
-                        }
-                    }
-                        break;
-                }
-            }
-
-            if (renderable)
+            if (renderResult.Item1)
             {
                 <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                     <MudSelect T="string?" Label="@frontParamInfo.Name" @bind-Value="frontParamInfo.StringValue"
                                HelperText="@(string.IsNullOrEmpty(frontParamInfo.Remark) ? string.Empty : frontParamInfo.Remark)"
                                Variant="Variant.Outlined"
                                TextChanged="() => { if (_publisherDic.ContainsKey(frontParamInfo.Code)) {SelectValueChanged(frontParamInfo.Code); } }">
-                        @foreach (string option in renderOptions) //谨记，需要用@bind-value，不要用错了
+                        @foreach (string option in renderResult.Item2) //谨记，需要用@bind-value，不要用错了
                         {
                             <MudSelectItem T="string?" Value="option">@option</MudSelectItem>
                         }
@@ -79,7 +35,8 @@
                               bind-Value="@frontParamInfo.NumberValue"
                               Variant="Variant.Outlined"
                               Adornment="@(frontParamInfo.Mode == ParamMode.Percent ? Adornment.End : Adornment.None)"
-                              AdornmentText="%" TextChanged="(text) => { if (double.TryParse(text, out double result)) { frontParamInfo.NumberValue = result; } }"/>
+                              AdornmentText="%"
+                              TextChanged="(text) => { if (double.TryParse(text, out double result)) { frontParamInfo.NumberValue = result; } }"/>
             </MudItem>
         }
     }
@@ -100,12 +57,18 @@
     /// </summary>
     private Dictionary<string, FrontParamInfo> _publisherDic { get; set; }
 
-    private uint _renderCount = 0;
+    /// <summary>
+    /// 针对共享选项规则提供的选中值的存储
+    /// </summary>
+    private Dictionary<string, Dictionary<string, string>> _selectedOptionsDic { get; set; }
+
+    #region 组件生命周期内相关方法
 
     protected override void OnInitialized()
     {
         _subscribeDic = new Dictionary<string, FrontParamInfo>();
         _publisherDic = new Dictionary<string, FrontParamInfo>();
+        _selectedOptionsDic = new Dictionary<string, Dictionary<string, string>>();
         SC.NotifyPublisher += FindPublisher;
         SC.NotifyUpdate += OnUpdate;
         base.OnInitialized();
@@ -126,8 +89,6 @@
         string targetCode = code == null ? string.Empty : code;
         if (_subscribeDic.ContainsKey(targetCode))
         {
-            Console.WriteLine($"命中{ItemSource.FirstOrDefault()?.Name}-{targetCode}");
-            // _renderCount++;
             StateHasChanged();
         }
     }
@@ -145,6 +106,93 @@
     {
         SC.NotifyPublisher -= FindPublisher;
         SC.NotifyUpdate -= OnUpdate;
+    }
+
+    #endregion
+
+    private (bool, List<string?>) GetRenderOptions(FrontParamInfo frontParamInfo)
+    {
+        bool renderAble = frontParamInfo.Rule == null;
+        List<string?> renderOptions = frontParamInfo.Options.ToList();
+        if (!renderAble)
+        {
+            var rule = frontParamInfo.Rule;
+            switch (rule.Mode)
+            {
+                case SpecialRuleMode.CompareOptions:
+                {
+                    if (RefDic.TryGetValue(rule.FrontParamCode, out var relateParam))
+                    {
+                        _subscribeDic.TryAdd(relateParam.Code, relateParam);
+                        SetPublisher(relateParam.Code);
+                        //Todo:做字典非空检查和类型检查
+
+                        FrontParamInfo? changeParam = null;
+                        RefDic.TryGetValue(rule.RelatedParamCode, out changeParam);
+
+                        if (rule.TextDic.TryGetValue(relateParam.StringValue, out object labelValue))
+                        {
+                            renderAble = true;
+                            frontParamInfo.Name = labelValue.ToString();
+                        }
+
+                        if (changeParam != null)
+                        {
+                            changeParam.StringValue = labelValue != null ? labelValue.ToString() : string.Empty;
+                        }
+                    }
+                }
+                    break;
+                case SpecialRuleMode.RemoveSameOptions:
+                {
+                    if (RefDic.TryGetValue(rule.FrontParamCode, out var relateParam))
+                    {
+                        _subscribeDic.TryAdd(relateParam.Code, relateParam);
+                        SetPublisher(relateParam.Code);
+                        if (renderOptions.Contains(relateParam.StringValue))
+                        {
+                            renderAble = true;
+                            renderOptions.Remove(relateParam.StringValue);
+                        }
+                        else if (rule.TextDic.TryGetValue(relateParam.StringValue, out object deleteValue))
+                        {
+                            renderAble = true;
+                            renderOptions.Remove(deleteValue.ToString());
+                        }
+
+                        if (!renderOptions.Contains(frontParamInfo.StringValue))
+                        {
+                            frontParamInfo.StringValue = renderOptions.First();
+                        }
+                    }
+                }
+                    break;
+                case SpecialRuleMode.ShareOptions:
+                {
+                }
+                    break;
+                case SpecialRuleMode.RelatedData:
+                {
+                    if (rule.TextDic.TryGetValue("codes", out object codeArrayJson) && rule.TextDic.TryGetValue(frontParamInfo.StringValue, out object numberArrayJson))
+                    {
+                        string[] codeArray = JsonSerializer.Deserialize<string[]>(codeArrayJson.ToString()); //Todo:考虑在检查类内校验关联的参数是否有效
+                        double[] numberArray = JsonSerializer.Deserialize<double[]>(numberArrayJson.ToString());
+                        for (var i = 0; i < codeArray.Length; i++)
+                        {
+                            if (RefDic.TryGetValue(codeArray[i], out var info))
+                            {
+                                info.NumberValue = numberArray[i];
+                            }
+                        }
+
+                        renderAble = true;
+                    }
+                }
+                    break;
+            }
+        }
+
+        return (renderAble, renderOptions);
     }
 
 }

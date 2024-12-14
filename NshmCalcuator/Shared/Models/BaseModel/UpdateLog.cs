@@ -1,4 +1,4 @@
-﻿namespace NshmCalculator.Shared.Models;
+﻿namespace NshmCalculator.Shared.Models.BaseModel;
 
 public class UpdateLog
 {

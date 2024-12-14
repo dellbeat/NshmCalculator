@@ -16,5 +16,9 @@ public enum ParamMode
     /// <summary>
     /// 下拉菜单
     /// </summary>
-    Selection
+    Selection,
+    /// <summary>
+    /// 动态文本
+    /// </summary>
+    DynamicText
 }
