@@ -10,9 +10,9 @@
     {
         @if (frontParamInfo.Mode == ParamMode.Selection)
         {
-            bool readable = frontParamInfo.Rule == null;
+            bool renderable = frontParamInfo.Rule == null;
             List<string?> renderOptions = frontParamInfo.Options.ToList();
-            if (!readable)
+            if (!renderable)
             {
                 switch (frontParamInfo.Rule.Mode)
                 {
@@ -22,9 +22,9 @@
                         {
                             _subscribeDic.TryAdd(relateParam.Code, relateParam);
                             SetPublisher(relateParam.Code);
-                            if (frontParamInfo.Rule.TextDic.TryGetValue(relateParam.StringValue, out string? labelValue))
+                            if (frontParamInfo.Rule.TextDic.TryGetValue(relateParam.StringValue, out string labelValue))
                             {
-                                readable = true;
+                                renderable = true;
                                 frontParamInfo.Name = labelValue;
                             }
                         }
@@ -38,17 +38,26 @@
                             SetPublisher(relateParam.Code);
                             if (renderOptions.Contains(relateParam.StringValue))
                             {
+                                renderable = true;
                                 renderOptions.Remove(relateParam.StringValue);
-                                readable = true;
                             }
-                            //Todo:修复无法按预期运行的BUG，且考虑一对多的情况
+                            else if (frontParamInfo.Rule.TextDic.TryGetValue(relateParam.StringValue, out string deleteValue))
+                            {
+                                renderable = true;
+                                renderOptions.Remove(deleteValue);
+                            }
+
+                            if (!renderOptions.Contains(frontParamInfo.StringValue))
+                            {
+                                frontParamInfo.StringValue = renderOptions.First();
+                            }
                         }
                     }
                         break;
                 }
             }
 
-            if (readable)
+            if (renderable)
             {
                 <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                     <MudSelect T="string?" Label="@frontParamInfo.Name" @bind-Value="frontParamInfo.StringValue"
@@ -70,7 +79,7 @@
                               bind-Value="@frontParamInfo.NumberValue"
                               Variant="Variant.Outlined"
                               Adornment="@(frontParamInfo.Mode == ParamMode.Percent ? Adornment.End : Adornment.None)"
-                              AdornmentText="%"/>
+                              AdornmentText="%" TextChanged="(text) => { if (double.TryParse(text, out double result)) { frontParamInfo.NumberValue = result; } }"/>
             </MudItem>
         }
     }
@@ -90,6 +99,8 @@
     /// 需要发出更新事件的内部值，以通知其他组件数据更新
     /// </summary>
     private Dictionary<string, FrontParamInfo> _publisherDic { get; set; }
+
+    private uint _renderCount = 0;
 
     protected override void OnInitialized()
     {
@@ -113,9 +124,10 @@
     private void OnUpdate(string code)
     {
         string targetCode = code == null ? string.Empty : code;
-        Console.WriteLine(ItemSource.FirstOrDefault()?.Name ?? "暂无内容");
         if (_subscribeDic.ContainsKey(targetCode))
         {
+            Console.WriteLine($"命中{ItemSource.FirstOrDefault()?.Name}-{targetCode}");
+            // _renderCount++;
             StateHasChanged();
         }
     }

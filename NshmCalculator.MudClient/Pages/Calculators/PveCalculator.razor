@@ -40,38 +40,13 @@
                     </MudItem>
                     <MudItem xs="12">
                         <MudExpansionPanels MultiExpansion="true">
-                            @if (_currentConfig.BaseParam.Length > 0)
+                            @if (_currentConfig.FrontParamInfoArray.Where(s => s.CategoryName == _currentConfig.CategoryArray.First()).ToArray() is { Length: > 0 } baseArray)
                             {
-                                var group = _currentConfig.BaseParam.GroupBy(s => s.GroupName);
+                                var group = baseArray.GroupBy(s => s.GroupName);
                                 foreach (var groupItems in group)
                                 {
                                     <MudExpansionPanel Text=@groupItems.Key>
-                                        <MudGrid>
-                                            @foreach (var frontParamInfo in groupItems)
-                                            {
-                                                <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                                    @if (frontParamInfo.Mode == ParamMode.Selection)
-                                                    {
-                                                        <MudSelect T="string" Label="@frontParamInfo.Name" bind-Value="@frontParamInfo.StringValue"
-                                                                   HelperText="@(string.IsNullOrEmpty(frontParamInfo.Remark) ? string.Empty : frontParamInfo.Remark)"
-                                                                   Variant="Variant.Outlined">
-                                                            @foreach (string option in frontParamInfo.Options)
-                                                            {
-                                                                <MudSelectItem T="string" Value="option">@option</MudSelectItem>
-                                                            }
-                                                        </MudSelect>
-                                                    }
-                                                    else
-                                                    {
-                                                        <MudTextField xs="6" sm="4" md="3" lg="2" xl="2" T="double" Label="@frontParamInfo.Name"
-                                                                      bind-Value="@frontParamInfo.NumberValue"
-                                                                      Variant="Variant.Outlined"
-                                                                      Adornment="@(frontParamInfo.Mode == ParamMode.Percent ? Adornment.End : Adornment.None)"
-                                                                      AdornmentText="%"/>
-                                                    }
-                                                </MudItem>
-                                            }
-                                        </MudGrid>
+                                        <PveFrontParamItem ItemSource="@groupItems.ToArray()" RefDic="@_paramDic"/>
                                     </MudExpansionPanel>
                                 }
                             }
@@ -83,18 +58,32 @@
 
         <MudItem xs="12">
             <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true" KeepPanelsAlive="true">
-                <MudTabPanel Text="开关设置">
-                    @if (_currentConfig.SwitchParam.Length > 0)
+                <MudPaper Class="pa-4 mt-4">
+                    @foreach (string category in _currentConfig.CategoryArray.Skip(1))
                     {
-                        var group = _currentConfig.SwitchParam.GroupBy(s => s.GroupName);
-                        foreach (var groupItems in group)
-                        {
-                            <MudExpansionPanel Text=@groupItems.Key>
-                                <PveFrontParamItem ItemSource="@groupItems.ToArray()" RefDic="@_paramDic"/>
-                            </MudExpansionPanel>
-                        }
+                        var currentParams = _currentConfig.FrontParamInfoArray.Where(s => s.CategoryName == category).ToArray();
+
+                        <MudTabPanel Text="@category">
+                            @if (currentParams.Length > 0)
+                            {
+                                var group = currentParams.GroupBy(s => s.GroupName);
+                                foreach (var groupItems in group)
+                                {
+                                    if (string.IsNullOrEmpty(groupItems.Key))
+                                    {
+                                        <PveFrontParamItem ItemSource="@groupItems.ToArray()" RefDic="@_paramDic"/>
+                                    }
+                                    else
+                                    {
+                                        <MudExpansionPanel Text=@groupItems.Key>
+                                            <PveFrontParamItem ItemSource="@groupItems.ToArray()" RefDic="@_paramDic"/>
+                                        </MudExpansionPanel>
+                                    }
+                                }
+                            }
+                        </MudTabPanel>
                     }
-                </MudTabPanel>
+                </MudPaper>
             </MudTabs>
         </MudItem>
     }
@@ -107,7 +96,7 @@
                 <MudSkeleton/>
             </MudPaper>
         </MudItem>
-        
+
         <MudItem xs="12">
             <MudPaper Class="pa-4 mt-4">
                 <MudSkeleton/>
@@ -115,7 +104,7 @@
                 <MudSkeleton/>
             </MudPaper>
         </MudItem>
-        
+
         <MudItem xs="12">
             <MudPaper Class="pa-4 mt-4">
                 <MudSkeleton/>
@@ -194,25 +183,8 @@
     {
         _paramDic = new Dictionary<string, FrontParamInfo>();
         //Todo:考虑通过PageModel恢复已填写的值
-        foreach (var frontParamInfo in _currentConfig.BaseParam)
-        {
-            _paramDic.Add(frontParamInfo.Code, frontParamInfo);
-            if (frontParamInfo.Mode == ParamMode.Selection && string.IsNullOrEmpty(frontParamInfo.StringValue))
-            {
-                frontParamInfo.StringValue = frontParamInfo.Options.FirstOrDefault();
-            }
-        }
 
-        foreach (var frontParamInfo in _currentConfig.SwitchParam)
-        {
-            _paramDic.Add(frontParamInfo.Code, frontParamInfo);
-            if (frontParamInfo.Mode == ParamMode.Selection && string.IsNullOrEmpty(frontParamInfo.StringValue))
-            {
-                frontParamInfo.StringValue = frontParamInfo.Options.FirstOrDefault();
-            }
-        }
-
-        foreach (var frontParamInfo in _currentConfig.BuffParam)
+        foreach (var frontParamInfo in _currentConfig.FrontParamInfoArray)
         {
             _paramDic.Add(frontParamInfo.Code, frontParamInfo);
             if (frontParamInfo.Mode == ParamMode.Selection && string.IsNullOrEmpty(frontParamInfo.StringValue))
