@@ -1,0 +1,44 @@
+name: Build and Publish Blazor WebAssembly
+
+on:
+  push:
+    branches:
+      - pve_3.4  # 触发工作流的分支，通常是 main 分支
+  pull_request:
+    branches:
+      - pve_3.4
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # 你也可以选择其他操作系统，例如 windows-latest 或 macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up .NET SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0'  # 设置使用的 .NET SDK 版本
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build the project
+      run: dotnet build --configuration Release
+
+    - name: Publish the project
+      run: dotnet publish --configuration Release --output ./publish
+
+    - name: Create Release Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: blazor-webassembly-release
+        path: ./publish  # 发布文件的路径
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./publish/**
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}        
