@@ -40,9 +40,9 @@ jobs:
       run: dotnet test --no-restore --verbosity normal --logger "trx;LogFileName=test-results.trx"
 
     - name: Report
-        - uses: actions/upload-artifact@v4  # upload test results
-        if: success() || failure()        # run this step even if previous step failed
-        with:
+      uses: actions/upload-artifact@v4  # upload test results
+      if: success() || failure()        # run this step even if previous step failed
+      with:
           name: config-results
           reporter: dotnet-trx
           path: test-results.trx
