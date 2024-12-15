@@ -50,7 +50,7 @@ public class PveConfigTest
     {
         Assert.That(_config != null, Is.True, "文件解析失败");
         Assert.Pass(
-            $"PVE配置文件({_config.InternalVersion}),公式{_config.CategoryArray.Length}条,选项{_config.FrontParamInfoArray.Length}个,分类{_config.CategoryArray.Length}个,关联特殊规则选项{_config.FrontParamInfoArray.Count(s => s.Rule != null)}个");
+            $"PVE配置文件({_config.InternalVersion}),公式{_config.PveFormulas.Length}条,选项{_config.FrontParamInfoArray.Length}个,分类{_config.CategoryArray.Length}个,特殊规则选项{_config.FrontParamInfoArray.Count(s => s.Rule != null)}个,特殊规则公式{_config.PveFormulas.Count(s => s.Rule != null)}个");
     }
 
     /// <summary>
@@ -95,17 +95,20 @@ public class PveConfigTest
 
             switch (rule.Mode)
             {
-                case SpecialRuleMode.CompareOptions:
+                case ParamRuleMode.Invalid:
+                    Assert.Fail("不能将模式赋值为非法，请确认是否在Rule中显式赋值为合法值");
+                    break;
+                case ParamRuleMode.CompareOptions:
                     Assert.That(rule.TextDic is { Count: > 0 }, Is.True, "比对选项模式-没有需要对比的内容");
                     Assert.That(rule.TextDic.Values.All(s => ((JsonElement)s).ValueKind == JsonValueKind.String), Is.True, "比对选项模式-检测到对比内容中有非字符串");
                     Assert.That(_config.FrontParamInfoArray.Any(s => s.Code == rule.FrontParamCode) &&
                                 _config.FrontParamInfoArray.Any(s => s.Code == rule.RelatedParamCode), Is.True, "比对选项模式-未指定前置选项代码或需要修改选项的代码");
                     break;
-                case SpecialRuleMode.RemoveSameOptions:
+                case ParamRuleMode.RemoveSameOptions:
                     Assert.That(rule.TextDic is { Count: > 0 }, Is.True, "删除选项模式-没有需要对比的内容");
                     Assert.That(_config.FrontParamInfoArray.Any(s => s.Code == rule.FrontParamCode), Is.True, "删除选项模式-未指定前置选项代码或需要修改选项的代码");
                     break;
-                case SpecialRuleMode.RelatedData:
+                case ParamRuleMode.RelatedData:
                     Assert.That(rule.TextDic, Has.Count.GreaterThanOrEqualTo(param.Options.Length + 1), "关联选项模式-不符合该模式的前置条件");
                     Assert.That(rule.TextDic.FirstOrDefault().Key is "codes", Is.True, "关联选项模式-TextDic首项键值应为codes");
                     Assert.That(rule.TextDic.Values.All(s => ((JsonElement)s).ValueKind == JsonValueKind.String), Is.True,
@@ -117,6 +120,9 @@ public class PveConfigTest
                         param.Options.All(s =>
                             rule.TextDic.ContainsKey(s) && JsonSerializer.Deserialize<double[]>(rule.TextDic[s].ToString()) is double[] valueArray &&
                             valueArray.Length == relateCodeArray.Length), "关联选项模式，有选项无法找到对应的数值数组或数组元素不符合要求");
+                    break;
+                default:
+                    Assert.Fail("不在预期中的枚举值，请确认是否在Rule中显式赋值为合法值");
                     break;
             }
 

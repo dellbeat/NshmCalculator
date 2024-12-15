@@ -26,14 +26,9 @@ public class PveFormula
     public string[] FormulaParam { get; set; }
     
     /// <summary>
-    /// 如为传参公式涉及到的参数
+    /// 公式特殊处理规则
     /// </summary>
-    public string?[] LambdaParam{get;set;}
-    
-	/// <summary>
-	/// 是否为需要传参的公式
-	/// </summary>
-    public bool LambdaMode{get;set;}
+    public SpecialFormulaRule Rule { get; set; }
     
     /// <summary>
     /// 标记公式是否完全可用

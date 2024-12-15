@@ -119,16 +119,14 @@
             var rule = frontParamInfo.Rule;
             switch (rule.Mode)
             {
-                case SpecialRuleMode.CompareOptions:
+                case ParamRuleMode.CompareOptions:
                 {
                     if (RefDic.TryGetValue(rule.FrontParamCode, out var relateParam))
                     {
                         _subscribeDic.TryAdd(relateParam.Code, relateParam);
                         SetPublisher(relateParam.Code);
-                        //Todo:做字典非空检查和类型检查
 
-                        FrontParamInfo? changeParam = null;
-                        RefDic.TryGetValue(rule.RelatedParamCode, out changeParam);
+                        RefDic.TryGetValue(rule.RelatedParamCode, out var changeParam);
 
                         if (rule.TextDic.TryGetValue(relateParam.StringValue, out object labelValue))
                         {
@@ -143,7 +141,7 @@
                     }
                 }
                     break;
-                case SpecialRuleMode.RemoveSameOptions:
+                case ParamRuleMode.RemoveSameOptions:
                 {
                     if (RefDic.TryGetValue(rule.FrontParamCode, out var relateParam))
                     {
@@ -167,15 +165,15 @@
                     }
                 }
                     break;
-                case SpecialRuleMode.ShareOptions:
+                case ParamRuleMode.ShareOptions:
                 {
                 }
                     break;
-                case SpecialRuleMode.RelatedData:
+                case ParamRuleMode.RelatedData:
                 {
                     if (rule.TextDic.TryGetValue("codes", out object codeArrayJson) && rule.TextDic.TryGetValue(frontParamInfo.StringValue, out object numberArrayJson))
                     {
-                        string[] codeArray = JsonSerializer.Deserialize<string[]>(codeArrayJson.ToString()); //Todo:考虑在检查类内校验关联的参数是否有效
+                        string[] codeArray = JsonSerializer.Deserialize<string[]>(codeArrayJson.ToString()); 
                         double[] numberArray = JsonSerializer.Deserialize<double[]>(numberArrayJson.ToString());
                         for (var i = 0; i < codeArray.Length; i++)
                         {
