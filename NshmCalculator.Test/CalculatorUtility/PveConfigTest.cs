@@ -83,7 +83,7 @@ public class PveConfigTest
     }
 
     [Test, TestCaseSource(nameof(_ruleFrontParams))]
-    public void RuleCheckTest(FrontParamInfo param)
+    public void ParamSpecialRuleCheckTest(FrontParamInfo param)
     {
         if (param.Rule == null)
         {
@@ -96,37 +96,46 @@ public class PveConfigTest
             switch (rule.Mode)
             {
                 case ParamRuleMode.Invalid:
-                    Assert.Fail("不能将模式赋值为非法，请确认是否在Rule中显式赋值为合法值");
+                    Assert.Fail($"{param.Code}-不能将模式赋值为非法，请确认是否在Rule中显式赋值为合法值");
                     break;
                 case ParamRuleMode.CompareOptions:
-                    Assert.That(rule.TextDic is { Count: > 0 }, Is.True, "比对选项模式-没有需要对比的内容");
-                    Assert.That(rule.TextDic.Values.All(s => ((JsonElement)s).ValueKind == JsonValueKind.String), Is.True, "比对选项模式-检测到对比内容中有非字符串");
+                    Assert.That(rule.CustomDic is { Count: > 0 }, Is.True, $"{param.Code}-比对选项模式-没有需要对比的内容");
                     Assert.That(_config.FrontParamInfoArray.Any(s => s.Code == rule.FrontParamCode) &&
-                                _config.FrontParamInfoArray.Any(s => s.Code == rule.RelatedParamCode), Is.True, "比对选项模式-未指定前置选项代码或需要修改选项的代码");
+                                _config.FrontParamInfoArray.Any(s => s.Code == rule.RelatedParamCode), Is.True,
+                        $"{param.Code}-比对选项模式-未指定前置选项代码或需要修改选项的代码");
                     break;
                 case ParamRuleMode.RemoveSameOptions:
-                    Assert.That(rule.TextDic is { Count: > 0 }, Is.True, "删除选项模式-没有需要对比的内容");
-                    Assert.That(_config.FrontParamInfoArray.Any(s => s.Code == rule.FrontParamCode), Is.True, "删除选项模式-未指定前置选项代码或需要修改选项的代码");
+                    Assert.That(rule.CustomDic is { Count: > 0 }, Is.True, $"{param.Code}-删除选项模式-没有需要对比的内容");
+                    Assert.That(_config.FrontParamInfoArray.Any(s => s.Code == rule.FrontParamCode), Is.True,
+                        $"{param.Code}-删除选项模式-未指定前置选项代码或需要修改选项的代码");
+                    break;
+                case ParamRuleMode.ShareOptions:
+                    Assert.That(rule.CustomDic.Count is 2 or 4, Is.True, $"{param.Code}-共享选项模式-参数表映射数量不为2/4");
+                    Assert.That(rule.CustomDic.ContainsKey("relateMode") && rule.CustomDic.ContainsKey("groupCode"), Is.True,
+                        $"{param.Code}-共享选项模式-未标识是否为关联/未标记组代号");
+                    Assert.That(!string.IsNullOrEmpty(rule.CustomDic["groupCode"]), Is.True, $"{param.Code}-共享选项模式-组代号不能为空");
+                    Assert.That(
+                        rule.CustomDic.Count == 2 || rule.CustomDic.Count == 4 && rule.CustomDic.TryGetValue("emptyStr", out var emptyStr) &&
+                        emptyStr != null, Is.True, $"{param.Code}-共享选项模式-关联模式下无有效的空白项标识");
                     break;
                 case ParamRuleMode.RelatedData:
-                    Assert.That(rule.TextDic, Has.Count.GreaterThanOrEqualTo(param.Options.Length + 1), "关联选项模式-不符合该模式的前置条件");
-                    Assert.That(rule.TextDic.FirstOrDefault().Key is "codes", Is.True, "关联选项模式-TextDic首项键值应为codes");
-                    Assert.That(rule.TextDic.Values.All(s => ((JsonElement)s).ValueKind == JsonValueKind.String), Is.True,
-                        "关联选项模式-所有值类型均需要为序列化后的字符串");
-                    string[] relateCodeArray = JsonSerializer.Deserialize<string[]>(rule.TextDic.FirstOrDefault().Value.ToString());
+                    Assert.That(rule.CustomDic, Has.Count.GreaterThanOrEqualTo(param.Options.Length + 1), $"{param.Code}-关联选项模式-不符合该模式的前置条件");
+                    Assert.That(rule.CustomDic.FirstOrDefault().Key is "codes", Is.True, $"{param.Code}-关联选项模式-TextDic首项键值应为codes");
+                    string[] relateCodeArray = JsonSerializer.Deserialize<string[]>(rule.CustomDic.FirstOrDefault().Value);
                     Assert.That(relateCodeArray.Length > 0 && relateCodeArray.All(y => _config.FrontParamInfoArray.Any(s => s.Code == y)), Is.True,
-                        "关联选项模式-关联的数值前端选项无内容/存在无效的选项代号");
+                        $"{param.Code}-关联选项模式-关联的数值前端选项无内容/存在无效的选项代号");
                     Assert.That(
                         param.Options.All(s =>
-                            rule.TextDic.ContainsKey(s) && JsonSerializer.Deserialize<double[]>(rule.TextDic[s].ToString()) is double[] valueArray &&
-                            valueArray.Length == relateCodeArray.Length), "关联选项模式，有选项无法找到对应的数值数组或数组元素不符合要求");
+                            rule.CustomDic.ContainsKey(s) &&
+                            JsonSerializer.Deserialize<double[]>(rule.CustomDic[s].ToString()) is double[] valueArray &&
+                            valueArray.Length == relateCodeArray.Length), $"{param.Code}-关联选项模式，有选项无法找到对应的数值数组或数组元素不符合要求");
                     break;
                 default:
                     Assert.Fail("不在预期中的枚举值，请确认是否在Rule中显式赋值为合法值");
                     break;
             }
 
-            Assert.Pass("特殊规则校验成功");
+            Assert.Pass($"{param.Code}-特殊规则校验成功");
         }
     }
 }

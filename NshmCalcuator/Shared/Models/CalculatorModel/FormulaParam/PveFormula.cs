@@ -28,7 +28,7 @@ public class PveFormula
     /// <summary>
     /// 公式特殊处理规则
     /// </summary>
-    public SpecialFormulaRule Rule { get; set; }
+    public List<SpecialFormulaRule> Rule { get; set; }
     
     /// <summary>
     /// 标记公式是否完全可用

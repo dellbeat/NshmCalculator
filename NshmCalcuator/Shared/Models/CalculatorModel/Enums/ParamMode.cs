@@ -6,6 +6,10 @@
 public enum ParamMode
 {
     /// <summary>
+    /// 默认值，在规则检查中视为非法值
+    /// </summary>
+    Invalid,
+    /// <summary>
     /// 普通数字
     /// </summary>
     Number,

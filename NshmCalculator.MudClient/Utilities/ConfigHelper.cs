@@ -61,6 +61,7 @@ public static class ConfigHelper
 
         if (needUpdate)
         {
+            //TODO:需要考虑磁盘缓存问题
             service.SetItem($"config_{code}", _info.ConfigVersionInfo[code]);
         }
 

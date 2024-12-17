@@ -13,7 +13,7 @@ public class SpecialFormulaRule
     public FormulaMode Mode { get; set; }
     
     /// <summary>
-    /// 当为<see cref="FormulaMode.Lambda">需传参公式</see>时包含的参数
+    /// 当为<see cref="FormulaMode.Lambda">需传参公式</see>时包含的参数或为<see cref="FormulaMode.LinkLambda">调用公式</see>时包含的参数
     /// </summary>
     public string[] LambdaParam { get; set; }
 }
