@@ -57,11 +57,10 @@ public static class ConfigHelper
         bool needUpdate = versionNumber < _info.ConfigVersionInfo[code];
 
         long timeTicks = DateTime.Now.Ticks;
-        var configJson = await client.GetStringAsync(_info.ConfigPathInfo[code] + $"{(needUpdate ? $"?t={timeTicks}" : string.Empty)}");
+        var configJson = await client.GetStringAsync(_info.ConfigPathInfo[code] + $"?v={_info.ConfigVersionInfo[code]}");
 
         if (needUpdate)
         {
-            //TODO:需要考虑磁盘缓存问题
             service.SetItem($"config_{code}", _info.ConfigVersionInfo[code]);
         }
 

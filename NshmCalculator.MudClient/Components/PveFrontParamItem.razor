@@ -35,11 +35,10 @@
             {
                 <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                     <MudTextField xs="6" sm="4" md="3" lg="2" xl="2" T="double" Label="@frontParamInfo.Name"
-                                  bind-Value="@frontParamInfo.NumberValue"
+                                  @bind-Value="frontParamInfo.NumberValue"
                                   Variant="Variant.Outlined"
                                   Adornment="@(frontParamInfo.Mode == ParamMode.Percent ? Adornment.End : Adornment.None)"
-                                  AdornmentText="%"
-                                  TextChanged="(text) => { if (double.TryParse(text, out double result)) { frontParamInfo.NumberValue = result; } }"/>
+                                  AdornmentText="%"/>
                 </MudItem>
             }
         }
@@ -124,7 +123,7 @@
     {
         bool renderAble = frontParamInfo.Rule == null;
         List<string?> renderOptions = frontParamInfo.Options.ToList();
-        Console.WriteLine($"传入参数:{frontParamInfo.Name}");
+        // Console.WriteLine($"传入参数:{frontParamInfo.Name}");
         if (!renderAble)
         {
             var rule = frontParamInfo.Rule;
@@ -225,7 +224,6 @@
                                 if (frontParamInfo.StringValue == null || !renderOptions.Contains(frontParamInfo.StringValue))
                                 {
                                     frontParamInfo.StringValue = renderOptions.First();
-                                    Console.WriteLine($"赋值命中:{frontParamInfo.Name}-{frontParamInfo.StringValue}");
                                 }
                             }
                             else
@@ -237,8 +235,6 @@
                                 }
                             }
                         }
-
-                        Console.WriteLine(frontParamInfo.Name + "-" + frontParamInfo.StringValue);
                     }
                 }
                     break;
@@ -288,6 +284,11 @@
         if (_publisherDic.ContainsKey(param.Code))
         {
             SelectValueChanged(param.Code);
+        }
+
+        if (param.Values != null && Array.IndexOf(param.Options, param.StringValue) is int index and > -1)
+        {
+            param.NumberValue = param.Values[index];
         }
     }
 

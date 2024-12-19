@@ -1,6 +1,6 @@
 ﻿using NCalc;
-using NCalc.Handlers;
 using NshmCalculator.Shared.Models.CalculatorModel;
+using NshmCalculator.Shared.Models.CalculatorModel.CalculatorConfig;
 using NshmCalculator.Shared.Models.CalculatorModel.Enums;
 
 namespace NshmCalculator.Shared;
@@ -29,14 +29,28 @@ public class PveUtility
     /// </summary>
     private static readonly Dictionary<string, SpecialParamRule> SpecialParamRuleDic = new();
 
+    // /// <summary>
+    // /// 结果公式与表达式实体的映射
+    // /// </summary>
+    // private static readonly Dictionary<string, Expression> ResultExpressionDic = new();
+
+    public static void InitUtilityFromConfig(PveConfig config)
+    {
+        ParamExpressionDic.Clear();
+        FormulaLevelDic.Clear();
+        FormulaExpressionDic.Clear();
+        InitParamDic(config.FrontParamInfoArray);
+        InitFormulaDic(config.PveFormulas);
+    }
+
     /// <summary>
     /// 将参数初始化为表达式实体
     /// </summary>
     /// <param name="array"></param>
-    public static void InitParamDic(FrontParamInfo[] array)
+    private static void InitParamDic(FrontParamInfo[] array)
     {
         ParamExpressionDic.Clear();
-        
+
         foreach (var paramInfo in array)
         {
             Expression exp = new Expression("[value]");
@@ -47,16 +61,13 @@ public class PveUtility
     /// <summary>
     /// 初始化公式的方法，如再次初始化会清空所有私有变量
     /// </summary>
-    public static void InitFormulaDic(PveFormula[] array)
+    private static void InitFormulaDic(PveFormula[] array)
     {
-        FormulaLevelDic.Clear();
-        FormulaExpressionDic.Clear();
-
         var lambdaFormulas = array.Where(s => s.Rule != null && s.Rule.Any(y => y.Mode == FormulaMode.Lambda)).ToArray();
         foreach (var formula in lambdaFormulas)
         {
-            Expression exp = new Expression(formula.Formula, ExpContext);
-            FormulaExpressionDic.Add(formula.Formula, exp);
+            Expression exp = new Expression(formula.Formula, ExpressionOptions.IgnoreCaseAtBuiltInFunctions);
+            FormulaExpressionDic.Add(formula.Code, exp);
         }
 
         int levelCount = array.Select(s => s.Level).Where(s => s > 0).Distinct().Count();
@@ -69,7 +80,7 @@ public class PveUtility
             {
                 Expression exp = FormulaExpressionDic.TryGetValue(singleFormula.Code, out var relateExp)
                     ? relateExp
-                    : new Expression(singleFormula.Formula, ExpContext);
+                    : new Expression(singleFormula.Formula, ExpressionOptions.IgnoreCaseAtBuiltInFunctions);
                 foreach (string singleParam in singleFormula.FormulaParam)
                 {
                     if (FormulaExpressionDic.TryGetValue(singleParam, out var formulaExp))
@@ -93,32 +104,11 @@ public class PveUtility
                                 exp.Functions[nameof(VLookup).ToLower()] = args => VLookup(args[0].Evaluate().ToString());
                             }
                                 break;
-                            case FormulaMode.LinkLambda:
-                            {
-                                foreach (string code in rule.LambdaParam)
-                                {
-                                    if (FormulaExpressionDic.TryGetValue(code, out var codeExp))
-                                    {
-                                        //根据expression对应的参数个数，按顺序进行赋值即可
-                                        exp.Functions[code] = args =>
-                                        {
-                                            int paramIndex = 0;
-                                            foreach ((string? key, object? _) in codeExp.Parameters)
-                                            {
-                                                codeExp.Parameters[key] = args[paramIndex++];
-                                            }
-
-                                            return codeExp.Evaluate();
-                                        };
-                                    }
-                                }
-                            }
-                                break;
                         }
                     }
                 }
 
-                FormulaExpressionDic.Add(singleFormula.Code, exp);
+                FormulaExpressionDic.TryAdd(singleFormula.Code, exp);
             }
         }
     }
@@ -157,5 +147,68 @@ public class PveUtility
                 exp.Parameters["value"] = value.NumberMode ? value.NumberValue : value.StringValue;
             }
         }
+    }
+
+    /// <summary>
+    /// 针对结果公式调用计算方法（实际最后面是都要调用的）
+    /// </summary>
+    /// <param name="codeList"></param>
+    /// <returns></returns>
+    public static List<double?> Calculate(List<string> codeList)
+    {
+        List<double?> result = new List<double?>();
+        
+        foreach ((string? code, var exp) in ParamExpressionDic)
+        {
+            exp.Evaluate();
+        }
+        
+        foreach ((int level, var list) in FormulaLevelDic)
+        {
+            foreach (string code in list)
+            {
+                try
+                {
+                    if (FormulaExpressionDic.TryGetValue(code, out var codeExp))
+                    {
+                        codeExp.Evaluate();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(code);
+                    throw;
+                }
+            }
+        }
+
+        foreach (string code in codeList)
+        {
+            if (FormulaExpressionDic.TryGetValue(code, out var formulaExp))
+            {
+                foreach ((string? key, object? _) in formulaExp.Parameters)
+                {
+                    if (ParamExpressionDic.TryGetValue(key, out var paramExp))
+                    {
+                        formulaExp.Parameters[key] = paramExp.Evaluate();
+                    }
+                    else if (FormulaExpressionDic.TryGetValue(key, out var subFormulaExp))
+                    {
+                        formulaExp.Parameters[key] = subFormulaExp;
+                    }
+                }
+        
+                if (double.TryParse(formulaExp.Evaluate().ToString(), out double value))
+                {
+                    result.Add(value);
+                }
+                else
+                {
+                    result.Add(null);
+                }
+            }
+        }
+
+        return result;
     }
 }

@@ -13,12 +13,14 @@ public class ParamValue
     /// <summary>
     /// 供Json反序列化使用
     /// </summary>
-    public ParamValue() { }
+    public ParamValue()
+    {
+    }
 
     public ParamValue(FrontParamInfo info)
     {
         NumberValue = info.NumberValue;
         StringValue = info.StringValue;
-        NumberMode = info.Mode is ParamMode.Number or ParamMode.Percent;
+        NumberMode = info.Values != null || info.Mode is ParamMode.Number or ParamMode.Percent;
     }
 }

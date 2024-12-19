@@ -14,6 +14,11 @@ public class PveFormula
     /// 名称
     /// </summary>
     public string Name { get; set; }
+    
+    /// <summary>
+    /// 所属分组代码，供计算结果时分组使用
+    /// </summary>
+    public string? BelongResultCode { get; set; }
 
     /// <summary>
     /// 计算公式

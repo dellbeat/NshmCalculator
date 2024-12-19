@@ -1,10 +1,9 @@
 ﻿@page "/pve"
-@using System.Collections.Immutable
 @using System.Text.Json
 @using Blazored.LocalStorage
 @using NshmCalculator.MudClient.Components
 @using NshmCalculator.MudClient.Utilities
-@using NshmCalculator.Shared.Models.BaseModel
+@using NshmCalculator.Shared
 @using NshmCalculator.Shared.Models.CalculatorModel
 @using NshmCalculator.Shared.Models.CalculatorModel.CalculatorConfig
 @using NshmCalculator.Shared.Models.CalculatorModel.Enums
@@ -136,8 +135,8 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
-        await base.OnInitializedAsync();
         InitParameters();
+        await base.OnInitializedAsync();
     }
 
     private async Task<bool> LoadData()
@@ -182,22 +181,63 @@
     private void InitParameters()
     {
         _paramDic = new Dictionary<string, FrontParamInfo>();
-        //Todo:考虑通过PageModel恢复已填写的值
+        bool hasUpdate = false;
 
         foreach (var frontParamInfo in _currentConfig.FrontParamInfoArray)
         {
             _paramDic.Add(frontParamInfo.Code, frontParamInfo);
-            if (frontParamInfo.Mode == ParamMode.Selection && string.IsNullOrEmpty(frontParamInfo.StringValue))
+            if (_pvePageModel.ParamValuesDictionary.TryGetValue(frontParamInfo.Code, out var param))
             {
-                // Console.WriteLine(frontParamInfo.Name + "-" + frontParamInfo.Code);
-                frontParamInfo.StringValue = frontParamInfo.Options.FirstOrDefault();
+                frontParamInfo.StringValue = param.StringValue;
+                frontParamInfo.NumberValue = param.NumberValue;
             }
+            else
+            {
+                if (frontParamInfo.Mode == ParamMode.Selection && string.IsNullOrEmpty(frontParamInfo.StringValue))
+                {
+                    frontParamInfo.StringValue = frontParamInfo.Options.FirstOrDefault();
+                }
+
+                var newParam = new ParamValue(frontParamInfo);
+                _pvePageModel.ParamValuesDictionary.Add(frontParamInfo.Code, newParam);
+                hasUpdate = true;
+            }
+        }
+
+        StateHasChanged();
+
+        Console.WriteLine(DateTime.Now.ToString());
+        PveUtility.InitUtilityFromConfig(_currentConfig);
+        Console.WriteLine(DateTime.Now.ToString());
+
+        if (hasUpdate)
+        {
+            Snackbar.Add($"更新/初始化配置成功", Severity.Success);
+            SaveInfo();
         }
     }
 
     private void OnCalculate()
     {
-        Console.WriteLine(_paramDic.Count);
+        foreach ((string? code, var param) in _paramDic)
+        {
+            if (_pvePageModel.ParamValuesDictionary.TryGetValue(code, out var paramValue))
+            {
+                paramValue.StringValue = param.StringValue;
+                paramValue.NumberValue = param.NumberValue;
+            }
+        }
+
+        // _pvePageModel.ParamValuesDictionary["P_SZ_01"].NumberValue = 220;
+        // PveUtility.InsertParam(_pvePageModel.ParamValuesDictionary);
+        // var list = PveUtility.Calculate(["RF_JCSZ_011"]);
+
+        SaveInfo();
+    }
+
+    private void SaveInfo()
+    {
+        LocalStorage.SetItem(nameof(_pvePageModel), _pvePageModel);
     }
 
 }
