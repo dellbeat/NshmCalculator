@@ -7,7 +7,8 @@ namespace NshmCalculator.Shared;
 
 public class PveUtility
 {
-    private static readonly ExpressionContext ExpContext = new() { Options = ExpressionOptions.IgnoreCaseAtBuiltInFunctions };
+    private static readonly ExpressionContext ExpContext = new()
+        { Options = ExpressionOptions.IgnoreCaseAtBuiltInFunctions | ExpressionOptions.StrictTypeMatching };
 
     /// <summary>
     /// 用于关联公式层级的映射
@@ -15,9 +16,14 @@ public class PveUtility
     private static readonly Dictionary<int, List<string>> FormulaLevelDic = new();
 
     /// <summary>
-    /// 用于关联公式代号与表达式实体的映射
+    /// 中间公式代号与表达式实体的映射
     /// </summary>
-    private static readonly Dictionary<string, Expression> FormulaExpressionDic = new();
+    private static readonly Dictionary<string, Expression> InternalFormulaExpressionDic = new();
+    
+    /// <summary>
+    /// 最终结果的代号与表达式实体映射
+    /// </summary>
+    private static readonly Dictionary<string, Expression> ResultFormulaExpressionDic = new();
 
     /// <summary>
     /// 用于关联参数代号与表达式实体的映射
@@ -29,45 +35,68 @@ public class PveUtility
     /// </summary>
     private static readonly Dictionary<string, SpecialParamRule> SpecialParamRuleDic = new();
 
-    // /// <summary>
-    // /// 结果公式与表达式实体的映射
-    // /// </summary>
-    // private static readonly Dictionary<string, Expression> ResultExpressionDic = new();
+    private static readonly List<string> LambdaCodes = new();
 
     public static void InitUtilityFromConfig(PveConfig config)
     {
         ParamExpressionDic.Clear();
         FormulaLevelDic.Clear();
-        FormulaExpressionDic.Clear();
-        InitParamDic(config.FrontParamInfoArray);
-        InitFormulaDic(config.PveFormulas);
+        InternalFormulaExpressionDic.Clear();
+        LambdaCodes.Clear();
+        InitParamDic(config.FrontParamInfoArray.Select(s => s.Code));
+        InitInternalFormulaDic(config.InternalFormulas);
     }
 
     /// <summary>
     /// 将参数初始化为表达式实体
     /// </summary>
     /// <param name="array"></param>
-    private static void InitParamDic(FrontParamInfo[] array)
+    private static void InitParamDic(IEnumerable<string> array)
     {
         ParamExpressionDic.Clear();
 
-        foreach (var paramInfo in array)
+        foreach (var code in array)
         {
             Expression exp = new Expression("[value]");
-            ParamExpressionDic.Add(paramInfo.Code, exp);
+            ParamExpressionDic.Add(code, exp);
+        }
+    }
+
+    /// <summary>
+    /// 初始化结果表达式的方法
+    /// </summary>
+    /// <param name="array"></param>
+    private static void InitResultFormulaDic(PveFormula[] array)
+    {
+        foreach (var formula in array)
+        {
+            Expression exp = new Expression(formula.Formula, ExpressionOptions.IgnoreCaseAtBuiltInFunctions | ExpressionOptions.StrictTypeMatching);
+            foreach (string param in formula.FormulaParam)
+            {
+                if (InternalFormulaExpressionDic.TryGetValue(param, out var formulaExp))
+                {
+                    exp.Parameters[param] = formulaExp;
+                }
+                else if (ParamExpressionDic.TryGetValue(param, out var paramExp))
+                {
+                    exp.Parameters[param] = paramExp;
+                }
+            }
+            ResultFormulaExpressionDic.Add(formula.Code, exp);
         }
     }
 
     /// <summary>
     /// 初始化公式的方法，如再次初始化会清空所有私有变量
     /// </summary>
-    private static void InitFormulaDic(PveFormula[] array)
+    private static void InitInternalFormulaDic(PveFormula[] array)
     {
         var lambdaFormulas = array.Where(s => s.Rule != null && s.Rule.Any(y => y.Mode == FormulaMode.Lambda)).ToArray();
         foreach (var formula in lambdaFormulas)
         {
-            Expression exp = new Expression(formula.Formula, ExpressionOptions.IgnoreCaseAtBuiltInFunctions);
-            FormulaExpressionDic.Add(formula.Code, exp);
+            Expression exp = new Expression(formula.Formula, ExpressionOptions.IgnoreCaseAtBuiltInFunctions | ExpressionOptions.StrictTypeMatching);
+            InternalFormulaExpressionDic.Add(formula.Code, exp);
+            LambdaCodes.Add(formula.Code);
         }
 
         int levelCount = array.Select(s => s.Level).Where(s => s > 0).Distinct().Count();
@@ -78,12 +107,12 @@ public class PveUtility
             FormulaLevelDic[i].AddRange(levelArray.Select(s => s.Code));
             foreach (var singleFormula in levelArray)
             {
-                Expression exp = FormulaExpressionDic.TryGetValue(singleFormula.Code, out var relateExp)
+                Expression exp = InternalFormulaExpressionDic.TryGetValue(singleFormula.Code, out var relateExp)
                     ? relateExp
-                    : new Expression(singleFormula.Formula, ExpressionOptions.IgnoreCaseAtBuiltInFunctions);
+                    : new Expression(singleFormula.Formula, ExpressionOptions.IgnoreCaseAtBuiltInFunctions | ExpressionOptions.StrictTypeMatching);
                 foreach (string singleParam in singleFormula.FormulaParam)
                 {
-                    if (FormulaExpressionDic.TryGetValue(singleParam, out var formulaExp))
+                    if (InternalFormulaExpressionDic.TryGetValue(singleParam, out var formulaExp))
                     {
                         exp.Parameters[singleParam] = formulaExp;
                     }
@@ -95,20 +124,25 @@ public class PveUtility
 
                 if (singleFormula.Rule != null)
                 {
-                    foreach (var rule in singleFormula.Rule)
+                    foreach (var rule in singleFormula.Rule.Where(s=>s.Mode == FormulaMode.LinkLambda))
                     {
-                        switch (rule.Mode)
+                        foreach (string functionName in rule.LambdaParam)
                         {
-                            case FormulaMode.Ki:
-                            {
-                                exp.Functions[nameof(VLookup).ToLower()] = args => VLookup(args[0].Evaluate().ToString());
-                            }
-                                break;
+                            //TODO:实现调用其他公式的关联
+                            // exp.Functions[functionName] += (args =>
+                            // {
+                            //     var fun = InternalFormulaExpressionDic[functionName];
+                            //     int index = 0;
+                            //     foreach (var expression in args)
+                            //     {
+                            //         
+                            //     }
+                            // });
                         }
                     }
                 }
 
-                FormulaExpressionDic.TryAdd(singleFormula.Code, exp);
+                InternalFormulaExpressionDic.TryAdd(singleFormula.Code, exp);
             }
         }
     }
@@ -157,19 +191,19 @@ public class PveUtility
     public static List<double?> Calculate(List<string> codeList)
     {
         List<double?> result = new List<double?>();
-        
+
         foreach ((string? code, var exp) in ParamExpressionDic)
         {
             exp.Evaluate();
         }
-        
+
         foreach ((int level, var list) in FormulaLevelDic)
         {
             foreach (string code in list)
             {
                 try
                 {
-                    if (FormulaExpressionDic.TryGetValue(code, out var codeExp))
+                    if (!LambdaCodes.Contains(code) && InternalFormulaExpressionDic.TryGetValue(code, out var codeExp))
                     {
                         codeExp.Evaluate();
                     }
@@ -184,7 +218,7 @@ public class PveUtility
 
         foreach (string code in codeList)
         {
-            if (FormulaExpressionDic.TryGetValue(code, out var formulaExp))
+            if (InternalFormulaExpressionDic.TryGetValue(code, out var formulaExp))
             {
                 foreach ((string? key, object? _) in formulaExp.Parameters)
                 {
@@ -192,12 +226,12 @@ public class PveUtility
                     {
                         formulaExp.Parameters[key] = paramExp.Evaluate();
                     }
-                    else if (FormulaExpressionDic.TryGetValue(key, out var subFormulaExp))
+                    else if (InternalFormulaExpressionDic.TryGetValue(key, out var subFormulaExp))
                     {
                         formulaExp.Parameters[key] = subFormulaExp;
                     }
                 }
-        
+
                 if (double.TryParse(formulaExp.Evaluate().ToString(), out double value))
                 {
                     result.Add(value);

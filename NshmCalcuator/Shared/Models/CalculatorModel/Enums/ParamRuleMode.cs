@@ -21,5 +21,13 @@ public enum ParamRuleMode
     /// <summary>
     /// 选择时自动给关联选项赋值，用于选择BOSS时更新相关数值
     /// </summary>
-    RelatedData,
+    AssignEnemyData,
+    /// <summary>
+    /// 根据前置代号的值控制自身是否可见
+    /// </summary>
+    ControlRender,
+    /// <summary>
+    /// 检查特定选项值，并根据关联选项的值赋值给自己（用于动态文本）
+    /// </summary>
+    RelatedAssignment
 }

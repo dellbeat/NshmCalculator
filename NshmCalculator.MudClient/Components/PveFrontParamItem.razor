@@ -12,7 +12,7 @@
         _renderComplete = false;
         foreach (var frontParamInfo in ItemSource)
         {
-            @if (frontParamInfo.Mode == ParamMode.Selection)
+            @if (frontParamInfo.Mode is ParamMode.Selection or ParamMode.DynamicText)
             {
                 var renderResult = GetRenderOptions(frontParamInfo);
 
@@ -33,13 +33,18 @@
             }
             else
             {
-                <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                    <MudTextField xs="6" sm="4" md="3" lg="2" xl="2" T="double" Label="@frontParamInfo.Name"
-                                  @bind-Value="frontParamInfo.NumberValue"
-                                  Variant="Variant.Outlined"
-                                  Adornment="@(frontParamInfo.Mode == ParamMode.Percent ? Adornment.End : Adornment.None)"
-                                  AdornmentText="%"/>
-                </MudItem>
+                var renderAble = GetRenderOptions(frontParamInfo).Item1;
+
+                if (renderAble)
+                {
+                    <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
+                        <MudTextField xs="6" sm="4" md="3" lg="2" xl="2" T="double" Label="@frontParamInfo.Name"
+                                      @bind-Value="frontParamInfo.NumberValue"
+                                      Variant="Variant.Outlined"
+                                      Adornment="@(frontParamInfo.Mode == ParamMode.Percent ? Adornment.End : Adornment.None)"
+                                      AdornmentText="%"/>
+                    </MudItem>
+                }
             }
         }
 
@@ -122,8 +127,8 @@
     private (bool, List<string?>) GetRenderOptions(FrontParamInfo frontParamInfo)
     {
         bool renderAble = frontParamInfo.Rule == null;
-        List<string?> renderOptions = frontParamInfo.Options.ToList();
-        // Console.WriteLine($"传入参数:{frontParamInfo.Name}");
+        Console.WriteLine(frontParamInfo.Name);
+        List<string?> renderOptions = frontParamInfo.Options == null ? null : frontParamInfo.Options.ToList();
         if (!renderAble)
         {
             var rule = frontParamInfo.Rule;
@@ -238,7 +243,7 @@
                     }
                 }
                     break;
-                case ParamRuleMode.RelatedData:
+                case ParamRuleMode.AssignEnemyData:
                 {
                     if (rule.CustomDic.TryGetValue("codes", out var codeArrayJson) && rule.CustomDic.TryGetValue(frontParamInfo.StringValue, out var numberArrayJson))
                     {
@@ -253,6 +258,76 @@
                         }
 
                         renderAble = true;
+                    }
+                }
+                    break;
+                case ParamRuleMode.ControlRender:
+                {
+                    //确认前置参数的值
+                    //符合条件则读取对应的选项
+                    //加载
+                    if (rule.CustomDic.TryGetValue("multConditionMode", out string multModeStr) && RefDic.TryGetValue(rule.FrontParamCode, out var frontInfo))
+                    {
+                        //如果有多种判据情况，则需要有mult前缀的各类属性（如前判代号）
+                        bool multMode = Convert.ToBoolean(multModeStr);
+                        if (multMode && rule.CustomDic.TryGetValue("multConditionArray", out string multConditionStr) && rule.CustomDic.TryGetValue("multOptionArray", out string multOptionStr))
+                        {
+                            List<string[]> conditionList = JsonSerializer.Deserialize<List<string[]>>(multConditionStr);
+                            List<string[]> optionList = JsonSerializer.Deserialize<List<string[]>>(multOptionStr);
+                            int index = 0;
+
+                            for (; index < conditionList.Count; index++)
+                            {
+                                if (Array.IndexOf(conditionList[index], frontInfo.StringValue) > -1)
+                                {
+                                    break;
+                                }
+                            }
+
+                            if (index < conditionList.Count)
+                            {
+                                renderOptions = optionList[index].ToList();
+                                renderAble = true;
+                            }
+                        }
+                        else if (!multMode && rule.CustomDic.TryGetValue("conditionArray", out string conditionStr) && rule.CustomDic.TryGetValue("optionArray", out string optionStr))
+                        {
+                            string[] conditionArray = JsonSerializer.Deserialize<string[]>(conditionStr);
+                            string[] optionArray = JsonSerializer.Deserialize<string[]>(optionStr);
+
+                            renderAble = Array.IndexOf(conditionArray, frontInfo.StringValue) > -1;
+                            if (renderAble)
+                            {
+                                renderOptions = optionArray.ToList();
+                            }
+                        }
+                    }
+                }
+                    break;
+                case ParamRuleMode.RelatedAssignment:
+                {
+                    if (rule.CustomDic.TryGetValue("frontCodeArray", out string codeArrayStr) && rule.CustomDic.TryGetValue("optionArray", out string optionStr))
+                    {
+                        List<string[]> codeList = JsonSerializer.Deserialize<List<string[]>>(codeArrayStr); //每个子数组内至多有两个代号，分别为检查/引用参数，如只有一个代号则兼有两种功能
+                        List<string[]> optionList = JsonSerializer.Deserialize<List<string[]>>(optionStr);
+
+                        bool assignFlag = false;
+
+                        for (int arrayIndex = 0; arrayIndex < codeList.Count; arrayIndex++)
+                        {
+                            string[] checkCodeArray = codeList[arrayIndex];
+                            if (RefDic.TryGetValue(checkCodeArray.First(), out var checkParam) && Array.IndexOf(optionList[arrayIndex], checkParam.StringValue) > -1 && RefDic.TryGetValue(checkCodeArray.Last(), out var resultParam))
+                            {
+                                frontParamInfo.StringValue = resultParam.StringValue;
+                                assignFlag = true;
+                                break;
+                            }
+                        }
+
+                        if (!assignFlag)
+                        {
+                            frontParamInfo.StringValue = string.Empty;
+                        }
                     }
                 }
                     break;

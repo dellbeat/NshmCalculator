@@ -50,7 +50,7 @@ public class PveConfigTest
     {
         Assert.That(_config != null, Is.True, "文件解析失败");
         Assert.Pass(
-            $"PVE配置文件({_config.InternalVersion}),公式{_config.PveFormulas.Length}条,选项{_config.FrontParamInfoArray.Length}个,分类{_config.CategoryArray.Length}个,特殊规则选项{_config.FrontParamInfoArray.Count(s => s.Rule != null)}个,特殊规则公式{_config.PveFormulas.Count(s => s.Rule != null)}个");
+            $"PVE配置文件({_config.InternalVersion}),公式{_config.InternalFormulas.Length}条,选项{_config.FrontParamInfoArray.Length}个,分类{_config.CategoryArray.Length}个,特殊规则选项{_config.FrontParamInfoArray.Count(s => s.Rule != null)}个,特殊规则公式{_config.InternalFormulas.Count(s => s.Rule != null)}个");
     }
 
     /// <summary>
@@ -118,7 +118,7 @@ public class PveConfigTest
                         rule.CustomDic.Count == 2 || rule.CustomDic.Count == 4 && rule.CustomDic.TryGetValue("emptyStr", out var emptyStr) &&
                         emptyStr != null, Is.True, $"{param.Code}-共享选项模式-关联模式下无有效的空白项标识");
                     break;
-                case ParamRuleMode.RelatedData:
+                case ParamRuleMode.AssignEnemyData:
                     Assert.That(rule.CustomDic, Has.Count.GreaterThanOrEqualTo(param.Options.Length + 1), $"{param.Code}-关联选项模式-不符合该模式的前置条件");
                     Assert.That(rule.CustomDic.FirstOrDefault().Key is "codes", Is.True, $"{param.Code}-关联选项模式-TextDic首项键值应为codes");
                     string[] relateCodeArray = JsonSerializer.Deserialize<string[]>(rule.CustomDic.FirstOrDefault().Value);
@@ -130,6 +130,10 @@ public class PveConfigTest
                             JsonSerializer.Deserialize<double[]>(rule.CustomDic[s].ToString()) is double[] valueArray &&
                             valueArray.Length == relateCodeArray.Length), $"{param.Code}-关联选项模式，有选项无法找到对应的数值数组或数组元素不符合要求");
                     break;
+                case ParamRuleMode.ControlRender:
+                case ParamRuleMode.RelatedAssignment:
+                    break;
+                //TODO:针对新模式增加检查策略
                 default:
                     Assert.Fail("不在预期中的枚举值，请确认是否在Rule中显式赋值为合法值");
                     break;
