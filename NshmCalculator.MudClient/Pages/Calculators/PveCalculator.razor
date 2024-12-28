@@ -229,10 +229,12 @@
         }
 
         SaveInfo();
-        
+
         // _pvePageModel.ParamValuesDictionary["P_SZ_01"].NumberValue = 220;
         PveUtility.InsertParam(_pvePageModel.ParamValuesDictionary);
-        var list = PveUtility.Calculate(["RF_NG_001"]);
+        var list = PveUtility.Calculate(_currentConfig.ResultFormulas.Select(s => s.Code).ToList());
+        
+        Console.WriteLine(list.Count);
     }
 
     private void SaveInfo()

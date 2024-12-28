@@ -8,7 +8,7 @@ namespace NshmCalculator.Shared;
 public class PveUtility
 {
     private static readonly ExpressionContext ExpContext = new()
-        { Options = ExpressionOptions.IgnoreCaseAtBuiltInFunctions | ExpressionOptions.StrictTypeMatching };
+        { Options = ExpressionOptions.StrictTypeMatching };
 
     /// <summary>
     /// 用于关联公式层级的映射
@@ -19,7 +19,7 @@ public class PveUtility
     /// 中间公式代号与表达式实体的映射
     /// </summary>
     private static readonly Dictionary<string, Expression> InternalFormulaExpressionDic = new();
-    
+
     /// <summary>
     /// 最终结果的代号与表达式实体映射
     /// </summary>
@@ -35,16 +35,17 @@ public class PveUtility
     /// </summary>
     private static readonly Dictionary<string, SpecialParamRule> SpecialParamRuleDic = new();
 
-    private static readonly List<string> LambdaCodes = new();
+    private static readonly Dictionary<string, SpecialFormulaRule> SpecialFormulaRuleDic = new();
 
     public static void InitUtilityFromConfig(PveConfig config)
     {
         ParamExpressionDic.Clear();
         FormulaLevelDic.Clear();
         InternalFormulaExpressionDic.Clear();
-        LambdaCodes.Clear();
+        SpecialFormulaRuleDic.Clear();
         InitParamDic(config.FrontParamInfoArray.Select(s => s.Code));
         InitInternalFormulaDic(config.InternalFormulas);
+        InitResultFormulaDic(config.ResultFormulas);
     }
 
     /// <summary>
@@ -70,7 +71,7 @@ public class PveUtility
     {
         foreach (var formula in array)
         {
-            Expression exp = new Expression(formula.Formula, ExpressionOptions.IgnoreCaseAtBuiltInFunctions | ExpressionOptions.StrictTypeMatching);
+            Expression exp = new Expression(formula.Formula, ExpContext);
             foreach (string param in formula.FormulaParam)
             {
                 if (InternalFormulaExpressionDic.TryGetValue(param, out var formulaExp))
@@ -82,6 +83,29 @@ public class PveUtility
                     exp.Parameters[param] = paramExp;
                 }
             }
+
+            if (formula.Rule != null && formula.Rule.FirstOrDefault(s => s.Mode == FormulaMode.LinkLambda) is { } linkRule)
+            {
+                foreach (string functionName in linkRule.LambdaParam)
+                {
+                    if (!exp.Functions.ContainsKey(functionName))
+                    {
+                        exp.Functions.Add(functionName, args =>
+                        {
+                            var fun = InternalFormulaExpressionDic[functionName];
+                            var rule = SpecialFormulaRuleDic[functionName];
+                            int index = 0;
+                            foreach (var expression in args)
+                            {
+                                fun.Parameters[rule.LambdaParam[index++]] = expression;
+                            }
+
+                            return fun.Evaluate();
+                        });
+                    }
+                }
+            }
+
             ResultFormulaExpressionDic.Add(formula.Code, exp);
         }
     }
@@ -94,9 +118,9 @@ public class PveUtility
         var lambdaFormulas = array.Where(s => s.Rule != null && s.Rule.Any(y => y.Mode == FormulaMode.Lambda)).ToArray();
         foreach (var formula in lambdaFormulas)
         {
-            Expression exp = new Expression(formula.Formula, ExpressionOptions.IgnoreCaseAtBuiltInFunctions | ExpressionOptions.StrictTypeMatching);
+            Expression exp = new Expression(formula.Formula, ExpContext);
             InternalFormulaExpressionDic.Add(formula.Code, exp);
-            LambdaCodes.Add(formula.Code);
+            SpecialFormulaRuleDic.Add(formula.Code, formula.Rule.First(y => y.Mode == FormulaMode.Lambda));
         }
 
         int levelCount = array.Select(s => s.Level).Where(s => s > 0).Distinct().Count();
@@ -109,7 +133,7 @@ public class PveUtility
             {
                 Expression exp = InternalFormulaExpressionDic.TryGetValue(singleFormula.Code, out var relateExp)
                     ? relateExp
-                    : new Expression(singleFormula.Formula, ExpressionOptions.IgnoreCaseAtBuiltInFunctions | ExpressionOptions.StrictTypeMatching);
+                    : new Expression(singleFormula.Formula, ExpContext);
                 foreach (string singleParam in singleFormula.FormulaParam)
                 {
                     if (InternalFormulaExpressionDic.TryGetValue(singleParam, out var formulaExp))
@@ -124,20 +148,25 @@ public class PveUtility
 
                 if (singleFormula.Rule != null)
                 {
-                    foreach (var rule in singleFormula.Rule.Where(s=>s.Mode == FormulaMode.LinkLambda))
+                    foreach (var rule in singleFormula.Rule.Where(s => s.Mode == FormulaMode.LinkLambda))
                     {
                         foreach (string functionName in rule.LambdaParam)
                         {
-                            //TODO:实现调用其他公式的关联
-                            // exp.Functions[functionName] += (args =>
-                            // {
-                            //     var fun = InternalFormulaExpressionDic[functionName];
-                            //     int index = 0;
-                            //     foreach (var expression in args)
-                            //     {
-                            //         
-                            //     }
-                            // });
+                            if (!exp.Functions.ContainsKey(functionName))
+                            {
+                                exp.Functions.Add(functionName, args =>
+                                {
+                                    var fun = InternalFormulaExpressionDic[functionName];
+                                    var rule = SpecialFormulaRuleDic[functionName];
+                                    int index = 0;
+                                    foreach (var expression in args)
+                                    {
+                                        fun.Parameters[rule.LambdaParam[index++]] = expression;
+                                    }
+
+                                    return fun.Evaluate();
+                                });
+                            }
                         }
                     }
                 }
@@ -197,18 +226,18 @@ public class PveUtility
             exp.Evaluate();
         }
 
-        foreach ((int level, var list) in FormulaLevelDic)
+        foreach ((int _, var list) in FormulaLevelDic)
         {
             foreach (string code in list)
             {
                 try
                 {
-                    if (!LambdaCodes.Contains(code) && InternalFormulaExpressionDic.TryGetValue(code, out var codeExp))
+                    if (!SpecialFormulaRuleDic.ContainsKey(code) && InternalFormulaExpressionDic.TryGetValue(code, out var codeExp))
                     {
                         codeExp.Evaluate();
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Console.WriteLine(code);
                     throw;
@@ -218,7 +247,7 @@ public class PveUtility
 
         foreach (string code in codeList)
         {
-            if (InternalFormulaExpressionDic.TryGetValue(code, out var formulaExp))
+            if (ResultFormulaExpressionDic.TryGetValue(code, out var formulaExp))
             {
                 foreach ((string? key, object? _) in formulaExp.Parameters)
                 {
@@ -232,13 +261,21 @@ public class PveUtility
                     }
                 }
 
-                if (double.TryParse(formulaExp.Evaluate().ToString(), out double value))
+                try
                 {
-                    result.Add(value);
+                    if (double.TryParse(formulaExp.Evaluate().ToString(), out double value))
+                    {
+                        result.Add(value);
+                    }
+                    else
+                    {
+                        result.Add(null);
+                    }
                 }
-                else
+                catch (Exception)
                 {
-                    result.Add(null);
+                    Console.WriteLine(code);
+                    throw;
                 }
             }
         }
