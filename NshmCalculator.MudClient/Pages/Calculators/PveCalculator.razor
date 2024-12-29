@@ -229,12 +229,10 @@
         }
 
         SaveInfo();
-
-        // _pvePageModel.ParamValuesDictionary["P_SZ_01"].NumberValue = 220;
-        PveUtility.InsertParam(_pvePageModel.ParamValuesDictionary);
-        var list = PveUtility.Calculate(_currentConfig.ResultFormulas.Select(s => s.Code).ToList());
-        
-        Console.WriteLine(list.Count);
+        DateTime startTime = DateTime.Now;
+        _pvePageModel.ParamValuesDictionary["P_SZ_01"].NumberValue = 220;
+        var list = PveUtility.Calculate(_currentConfig.ResultFormulas.Select(s => s.Code).ToList(), _pvePageModel.ParamValuesDictionary);
+        Snackbar.Add((DateTime.Now - startTime).TotalSeconds.ToString());
     }
 
     private void SaveInfo()
