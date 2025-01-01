@@ -51,7 +51,7 @@ public class PveConfigTest
     {
         Assert.That(_config != null, Is.True, "文件解析失败");
         Assert.Pass(
-            $"PVE配置文件({_config.InternalVersion}),公式{_config.InternalFormulas.Length}条,选项{_config.FrontParamInfoArray.Length}个,分类{_config.CategoryArray.Length}个,特殊规则选项{_config.FrontParamInfoArray.Count(s => s.Rule != null)}个,特殊规则公式{_config.InternalFormulas.Count(s => s.Rule != null)}个");
+            $"PVE配置文件({_config.InternalVersion}),中间公式{_config.InternalFormulas.Length}条,结果公式{_config.ResultFormulas.Length}条,选项{_config.FrontParamInfoArray.Length}个,分类{_config.CategoryArray.Length}个,特殊规则选项{_config.FrontParamInfoArray.Count(s => s.Rule != null)}个,特殊规则中间公式{_config.InternalFormulas.Count(s => s.Rule is { Count: > 0 })}个");
     }
 
     /// <summary>
@@ -132,9 +132,20 @@ public class PveConfigTest
                             valueArray.Length == relateCodeArray.Length), $"{param.Code}-关联选项模式，有选项无法找到对应的数值数组或数组元素不符合要求");
                     break;
                 case ParamRuleMode.ControlRender:
-                case ParamRuleMode.RelatedAssignment:
+                    bool status = false;
+                    Assert.That(
+                        rule.CustomDic.TryGetValue("multConditionMode", out string multModeStr) && bool.TryParse(multModeStr, out status),
+                        Is.True, $"{param.Code}-控制渲染模式-多判据模式键值不存在或键值填写有误");
+                    Assert.That(
+                        status && rule.CustomDic.ContainsKey("multConditionArray") && rule.CustomDic.ContainsKey("multOptionArray") ||
+                        !status && rule.CustomDic.ContainsKey("conditionArray") && rule.CustomDic.ContainsKey("optionArray"),
+                        Is.True, $"{param.Code}-控制渲染模式-判据和选项键值不存在或不对应");
+                    //TODO：试试校验字符串数组？
                     break;
-                //TODO:针对新模式增加检查策略
+                case ParamRuleMode.RelatedAssignment:
+                    Assert.That(rule.CustomDic.ContainsKey("frontCodeArray") && rule.CustomDic.ContainsKey("optionArray"), Is.True,
+                        $"{param.Code}-关联赋值模式-不存在关联代码或选项数组");
+                    break;
                 default:
                     Assert.Fail("不在预期中的枚举值，请确认是否在Rule中显式赋值为合法值");
                     break;

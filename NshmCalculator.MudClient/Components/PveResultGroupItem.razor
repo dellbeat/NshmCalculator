@@ -1,10 +1,4 @@
-﻿@using LiveChartsCore
-@using LiveChartsCore.Kernel.Sketches
-@using LiveChartsCore.SkiaSharpView
-@using MudBlazor.Charts
-@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Result
-@using NshmCalculator.Shared.Models.PageModel
-
+﻿@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Result
 <MudGrid>
     <MudItem sm="12">
         <ApexChart TItem="ResultItem"
@@ -25,27 +19,8 @@
 @code {
     [Parameter] public ResultGroup Item { get; set; }
 
-    private ISeries[] Series { get; set; }
-
-    private ICartesianAxis[] XAxis { get; set; }
-
     protected override void OnParametersSet()
     {
-    }
-
-    private void InitSeries()
-    {
-        if (Item != null)
-        {
-            List<ISeries> seriesList = new List<ISeries>();
-            foreach (var itemResultLine in Item.ResultLines)
-            {
-                seriesList.Add(new ColumnSeries<double>
-                {
-                    Name = itemResultLine.LineName
-                });
-            }
-        }
     }
 
 }
