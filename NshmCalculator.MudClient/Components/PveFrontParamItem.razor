@@ -4,6 +4,7 @@
 @using NshmCalculator.MudClient.Utilities.Interface
 @using NshmCalculator.Shared.Models.CalculatorModel
 @using NshmCalculator.Shared.Models.CalculatorModel.Enums
+@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params
 @inject IStateContainer SC
 
 <MudGrid>
@@ -16,7 +17,7 @@
             {
                 var renderResult = GetRenderOptions(frontParamInfo);
 
-                if (renderResult.Item1)
+                if (renderResult.Item1 && frontParamInfo.Mode is ParamMode.Selection)
                 {
                     <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                         <MudSelect T="string?" Label="@frontParamInfo.Name" @bind-Value="frontParamInfo.StringValue"
@@ -127,7 +128,7 @@
     private (bool, List<string?>) GetRenderOptions(FrontParamInfo frontParamInfo)
     {
         bool renderAble = frontParamInfo.Rule == null;
-        Console.WriteLine(frontParamInfo.Name);
+        // Console.WriteLine(frontParamInfo.Name);
         List<string?> renderOptions = frontParamInfo.Options == null ? null : frontParamInfo.Options.ToList();
         if (!renderAble)
         {

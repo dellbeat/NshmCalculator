@@ -2,7 +2,7 @@
 
 // ReSharper disable ClassNeverInstantiated.Global
 
-namespace NshmCalculator.Shared.Models.CalculatorModel;
+namespace NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params;
 
 /// <summary>
 /// 身份玩法中的商品

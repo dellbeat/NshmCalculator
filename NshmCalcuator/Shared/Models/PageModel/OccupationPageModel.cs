@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using NshmCalculator.Shared.Models.CalculatorModel;
+using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Formula;
+using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params;
 
 namespace NshmCalculator.Shared.Models.PageModel;
 

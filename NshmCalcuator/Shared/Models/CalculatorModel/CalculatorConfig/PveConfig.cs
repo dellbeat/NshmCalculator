@@ -1,4 +1,7 @@
-﻿using NshmCalculator.Shared.Models.Interface;
+﻿using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Formula;
+using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params;
+using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Result;
+using NshmCalculator.Shared.Models.Interface;
 
 namespace NshmCalculator.Shared.Models.CalculatorModel.CalculatorConfig;
 
@@ -23,6 +26,11 @@ public class PveConfig: IGameConfig
     /// 结果公式
     /// </summary>
     public PveFormula[] ResultFormulas { get; set; }
+    
+    /// <summary>
+    /// 展示的结果集合
+    /// </summary>
+    public ResultGroup[] ResultGroups { get; set; }
     
     public long InternalVersion { get; set; } = -99999;
     

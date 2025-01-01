@@ -1,5 +1,7 @@
 ﻿// ReSharper disable ClassNeverInstantiated.Global
 
+using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Formula;
+using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params;
 using NshmCalculator.Shared.Models.Interface;
 
 namespace NshmCalculator.Shared.Models.CalculatorModel.CalculatorConfig;

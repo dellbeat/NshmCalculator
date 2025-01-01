@@ -1,7 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 using NshmCalculator.Shared.Models.CalculatorModel.Enums;
+using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.SpecialRule;
 
-namespace NshmCalculator.Shared.Models.CalculatorModel;
+namespace NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params;
 
 /// <summary>
 /// 界面动态参数配置

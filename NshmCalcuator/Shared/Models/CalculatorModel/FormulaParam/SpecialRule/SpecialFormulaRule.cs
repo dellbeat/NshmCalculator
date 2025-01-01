@@ -1,6 +1,6 @@
 ﻿using NshmCalculator.Shared.Models.CalculatorModel.Enums;
 
-namespace NshmCalculator.Shared.Models.CalculatorModel;
+namespace NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.SpecialRule;
 
 /// <summary>
 /// 特殊的公式规则

@@ -1,7 +1,9 @@
 ﻿using NCalc;
-using NshmCalculator.Shared.Models.CalculatorModel;
 using NshmCalculator.Shared.Models.CalculatorModel.CalculatorConfig;
 using NshmCalculator.Shared.Models.CalculatorModel.Enums;
+using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Formula;
+using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params;
+using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.SpecialRule;
 
 namespace NshmCalculator.Shared;
 
@@ -21,7 +23,7 @@ public class PveUtility
     /// 最终结果的代号与表达式实体映射
     /// </summary>
     private static readonly Dictionary<string, Expression> ResultFormulaExpressionDic = new();
-    
+
     /// <summary>
     /// 具有特殊规则的表达式集合
     /// </summary>
@@ -51,7 +53,7 @@ public class PveUtility
     {
         foreach (var formula in array)
         {
-            Expression exp = new Expression(formula.Formula, ExpressionOptions.StrictTypeMatching);
+            Expression exp = new Expression(formula.Formula, ExpressionOptions.StrictTypeMatching | ExpressionOptions.IgnoreCaseAtBuiltInFunctions);
             foreach (string param in formula.FormulaParam)
             {
                 if (InternalFormulaExpressionDic.ContainsKey(param))
@@ -98,7 +100,7 @@ public class PveUtility
         var lambdaFormulas = array.Where(s => s.Rule != null && s.Rule.Any(y => y.Mode == FormulaMode.Lambda)).ToArray();
         foreach (var formula in lambdaFormulas)
         {
-            Expression exp = new Expression(formula.Formula, ExpressionOptions.StrictTypeMatching);
+            Expression exp = new Expression(formula.Formula, ExpressionOptions.StrictTypeMatching | ExpressionOptions.IgnoreCaseAtBuiltInFunctions);
             InternalFormulaExpressionDic.Add(formula.Code, exp);
             SpecialFormulaRuleDic.Add(formula.Code, formula.Rule.First(y => y.Mode == FormulaMode.Lambda));
         }
@@ -113,7 +115,7 @@ public class PveUtility
             {
                 Expression exp = InternalFormulaExpressionDic.TryGetValue(singleFormula.Code, out var relateExp)
                     ? relateExp
-                    : new Expression(singleFormula.Formula, ExpressionOptions.StrictTypeMatching);
+                    : new Expression(singleFormula.Formula, ExpressionOptions.StrictTypeMatching | ExpressionOptions.IgnoreCaseAtBuiltInFunctions);
                 foreach (string singleParam in singleFormula.FormulaParam)
                 {
                     if (InternalFormulaExpressionDic.TryGetValue(singleParam, out var formulaExp))
@@ -161,9 +163,9 @@ public class PveUtility
     /// </summary>
     /// <param name="codeList"></param>
     /// <returns></returns>
-    public static List<double?> Calculate(List<string> codeList, Dictionary<string, ParamValue> valueDic)
+    public static Dictionary<string, double?> Calculate(List<string> codeList, Dictionary<string, ParamValue> valueDic)
     {
-        List<double?> result = new List<double?>();
+        Dictionary<string, double?> result = new Dictionary<string, double?>();
 
         Dictionary<string, object> internalValueDic = new Dictionary<string, object>();
         foreach ((string? key, var value) in valueDic)
@@ -207,7 +209,7 @@ public class PveUtility
                 }
             }
         }
-        
+
         foreach (string code in codeList)
         {
             if (ResultFormulaExpressionDic.TryGetValue(code, out var formulaExp))
@@ -219,16 +221,17 @@ public class PveUtility
                         formulaExp.Parameters[key] = internalValue;
                     }
                 }
-        
+
                 try
                 {
                     if (double.TryParse(formulaExp.Evaluate().ToString(), out double value))
                     {
-                        result.Add(value);
+                        result.Add(code, value);
+                        //paramList.Add($"finalValue:{value}");
                     }
                     else
                     {
-                        result.Add(null);
+                        result.Add(code, null);
                     }
                 }
                 catch (Exception)

@@ -1,4 +1,6 @@
-﻿namespace NshmCalculator.Shared.Models.CalculatorModel;
+﻿using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.SpecialRule;
+
+namespace NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Formula;
 
 /// <summary>
 /// 新PVE计算器公式类

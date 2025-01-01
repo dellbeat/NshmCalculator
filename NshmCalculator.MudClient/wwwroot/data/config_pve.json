@@ -4,7 +4,7 @@
       "Code": "FBL_01",
       "Name": "防御穿透率",
       "BelongResultCode": null,
-      "Formula": "[BO_06]/([BO_06]+Max([BO_01]-[ST_004]-[FZJ_015],0))-0.1",
+      "Formula": "[BO_06]/([BO_06]+MAX([BO_01]-[ST_004]-[FZJ_015],0))-0.1",
       "FormulaParam": [
         "BO_06",
         "BO_01",
@@ -24,7 +24,7 @@
       "Code": "FBL_02",
       "Name": "元素穿透率",
       "BelongResultCode": null,
-      "Formula": "[BO_07]/([BO_07]+Max([BO_03]-[ST_006]-[FZJ_013],0))",
+      "Formula": "[BO_07]/([BO_07]+MAX([BO_03]-[ST_006]-[FZJ_013],0))",
       "FormulaParam": [
         "BO_07",
         "BO_03",
@@ -33,7 +33,7 @@
       ],
       "Rule": [],
       "NotComplete": false,
-      "Level": 4,
+      "Level": 3,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -44,7 +44,7 @@
       "Code": "FBL_03",
       "Name": "无冽雷会心率",
       "BelongResultCode": null,
-      "Formula": "Min((115*(([ST_007]/(1+0.06*[FTZ_007])+[FZJ_014])*[FZJ_007]-[BO_04])-[BO_09])/(([ST_007]/(1+0.06*[FTZ_007])+[FZJ_014])*[FZJ_007]-[BO_04]+[BO_10])/100+0.05*[FMB_001],1)",
+      "Formula": "MIN((115*(([ST_007]/(1+0.06*[FTZ_007])+[FZJ_014])*[FZJ_007]-[BO_04])-[BO_09])/(([ST_007]/(1+0.06*[FTZ_007])+[FZJ_014])*[FZJ_007]-[BO_04]+[BO_10])/100+0.05*[FMB_001],1)",
       "FormulaParam": [
         "ST_007",
         "FTZ_007",
@@ -57,7 +57,7 @@
       ],
       "Rule": [],
       "NotComplete": false,
-      "Level": 4,
+      "Level": 5,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -68,7 +68,7 @@
       "Code": "FBL_04",
       "Name": "命中率",
       "BelongResultCode": null,
-      "Formula": "Min(0.95+1.43*([ST_008]+([FZJ_012]+[FMB_017])*(1+0.04*[FTZ_010])-[BO_05])/([ST_008]+[FZJ_012]*(1+0.04*[FTZ_010])-[BO_05]+[BO_08]),1)",
+      "Formula": "MIN(0.95+1.43*([ST_008]+([FZJ_012]+[FMB_017])*(1+0.04*[FTZ_010])-[BO_05])/([ST_008]+[FZJ_012]*(1+0.04*[FTZ_010])-[BO_05]+[BO_08]),1)",
       "FormulaParam": [
         "ST_008",
         "FZJ_012",
@@ -79,7 +79,7 @@
       ],
       "Rule": [],
       "NotComplete": false,
-      "Level": 4,
+      "Level": 3,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -115,7 +115,7 @@
       ],
       "Rule": [],
       "NotComplete": false,
-      "Level": 7,
+      "Level": 8,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -124,13 +124,32 @@
     },
     {
       "Code": "FBL_07",
-      "Name": "零状态面板满命中所需值",
+      "Name": "站街100%命中所需命中值",
       "BelongResultCode": null,
-      "Formula": "[BO_05]+0.05/1.38*[BO_08]-[FZJ_012]",
+      "Formula": "[BO_05]+0.05/1.38*[BO_08]-[FZJ_012]*(1+0.04*[FTZ_010])",
       "FormulaParam": [
         "BO_05",
         "BO_08",
-        "FZJ_012"
+        "FZJ_012",
+        "FTZ_010"
+      ],
+      "Rule": [],
+      "NotComplete": false,
+      "Level": 3,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "FBL_08",
+      "Name": "站街100%穿透所需忽视值",
+      "BelongResultCode": null,
+      "Formula": "[BO_03]-[FZJ_013]",
+      "FormulaParam": [
+        "BO_03",
+        "FZJ_013"
       ],
       "Rule": [],
       "NotComplete": false,
@@ -145,7 +164,7 @@
       "Code": "FMB_001",
       "Name": "金周天",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_018]='无',0,[KG_018]='三金',1,[KG_018]='一金',0.6,[KG_018]='二金',0.8,0)",
+      "Formula": "IFS([KG_018]='无',0,[KG_018]='三金',1,[KG_018]='一金',0.6,[KG_018]='二金',0.8,0)",
       "FormulaParam": [
         "KG_018"
       ],
@@ -162,7 +181,7 @@
       "Code": "FMB_002",
       "Name": "三火周天",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_019]='无',0,[KG_019]='三火',0.07727,0)",
+      "Formula": "IFS([KG_019]='无',0,[KG_019]='三火',0.07727,0)",
       "FormulaParam": [
         "KG_019"
       ],
@@ -179,7 +198,7 @@
       "Code": "FMB_003",
       "Name": "云阔天流",
       "BelongResultCode": null,
-      "Formula": "if([KG_032]='云阔天流',1,0)*if([KG_033]='初传',70,100)",
+      "Formula": "IF([KG_032]='云阔天流',1,0)*IF([KG_033]='初传',70,100)",
       "FormulaParam": [
         "KG_032",
         "KG_033"
@@ -197,7 +216,7 @@
       "Code": "FMB_004",
       "Name": "彤光飞虹",
       "BelongResultCode": null,
-      "Formula": "if([KG_032]='彤光飞虹',1,0)*if([KG_033]='初传',0,350)",
+      "Formula": "IF([KG_032]='彤光飞虹',1,0)*IF([KG_033]='初传',0,350)",
       "FormulaParam": [
         "KG_032",
         "KG_033"
@@ -215,7 +234,7 @@
       "Code": "FMB_005",
       "Name": "孤刀斩影",
       "BelongResultCode": null,
-      "Formula": "if([KG_032]='孤刀斩影',1,0)*ifs([KG_033]='初传',0,[KG_033]='进阶',0,[KG_033]='化境',0,[KG_033]='登峰',1200*[SH_005],[KG_033]='绝尘',1200*[SH_005],[KG_033]='凌云',1200*[SH_005],0)",
+      "Formula": "IF([KG_032]='孤刀斩影',1,0)*IFS([KG_033]='初传',0,[KG_033]='进阶',0,[KG_033]='化境',0,[KG_033]='登峰',1200*[SH_005],[KG_033]='绝尘',1200*[SH_005],[KG_033]='凌云',1200*[SH_005],0)",
       "FormulaParam": [
         "KG_032",
         "KG_033",
@@ -234,7 +253,7 @@
       "Code": "FMB_006",
       "Name": "剑荡云心",
       "BelongResultCode": null,
-      "Formula": "if([KG_032]='剑荡云心',1,0)*ifs([KG_033]='初传',0,[KG_033]='进阶',0,[KG_033]='化境',0,[KG_033]='登峰',400*[SH_004]+40,[KG_033]='绝尘',400*[SH_004]+40,[KG_033]='凌云',400*[SH_004]+40,0)",
+      "Formula": "IF([KG_032]='剑荡云心',1,0)*IFS([KG_033]='初传',0,[KG_033]='进阶',0,[KG_033]='化境',0,[KG_033]='登峰',400*[SH_004]+40,[KG_033]='绝尘',400*[SH_004]+40,[KG_033]='凌云',400*[SH_004]+40,0)",
       "FormulaParam": [
         "KG_032",
         "KG_033",
@@ -253,7 +272,7 @@
       "Code": "FMB_007",
       "Name": "蜜语含香",
       "BelongResultCode": null,
-      "Formula": "if([KG_032]='蜜语含香',1,0)*if([KG_033]='凌云',1,30/33)",
+      "Formula": "IF([KG_032]='蜜语含香',1,0)*IF([KG_033]='凌云',1,30/33)",
       "FormulaParam": [
         "KG_032",
         "KG_033"
@@ -271,7 +290,7 @@
       "Code": "FMB_008",
       "Name": "兵锋现世",
       "BelongResultCode": null,
-      "Formula": "if([KG_032]='兵锋现世',0.01,0)*if([KG_033]='凌云',1,0)",
+      "Formula": "IF([KG_032]='兵锋现世',0.01,0)*IF([KG_033]='凌云',1,0)",
       "FormulaParam": [
         "KG_032",
         "KG_033"
@@ -289,7 +308,7 @@
       "Code": "FMB_009",
       "Name": "善恶断",
       "BelongResultCode": null,
-      "Formula": "if([KG_040]='善恶断·伶音',0.032,0)",
+      "Formula": "IF([KG_040]='善恶断·伶音',0.032,0)",
       "FormulaParam": [
         "KG_040"
       ],
@@ -306,7 +325,7 @@
       "Code": "FMB_010",
       "Name": "打虎一式",
       "BelongResultCode": null,
-      "Formula": "if([KG_040]='打虎一式',0.06,0)*(1+0.25*[FTZ_003])",
+      "Formula": "IF([KG_040]='打虎一式',0.06,0)*(1+0.25*[FTZ_003])",
       "FormulaParam": [
         "KG_040",
         "FTZ_003"
@@ -324,7 +343,7 @@
       "Code": "FMB_011",
       "Name": "万想鹰扬",
       "BelongResultCode": null,
-      "Formula": "if([KG_034]='万想鹰扬',1,0)*ifs([KG_035]='初传',0,[KG_035]='进阶',0,[KG_035]='化境',0,[KG_035]='登峰',0,[KG_035]='绝尘',600*10/[KG_045],[KG_035]='凌云',600*10/[KG_045],0)",
+      "Formula": "IF([KG_034]='万想鹰扬',1,0)*IFS([KG_035]='初传',0,[KG_035]='进阶',0,[KG_035]='化境',0,[KG_035]='登峰',0,[KG_035]='绝尘',600*10/[KG_045],[KG_035]='凌云',600*10/[KG_045],0)",
       "FormulaParam": [
         "KG_034",
         "KG_035",
@@ -343,7 +362,7 @@
       "Code": "FMB_012",
       "Name": "终焉裁决",
       "BelongResultCode": null,
-      "Formula": "if([KG_034]='终焉裁决',1,0)*ifs([KG_035]='初传',0,[KG_035]='进阶',0,[KG_035]='化境',0,[KG_035]='登峰',if([KG_004]='群体',[SH_004],([SH_005]-[SH_004])/3)*0.05*25/[KG_045],[KG_035]='绝尘',if([KG_004]='群体',[SH_004],([SH_005]-[SH_004])/3)*0.05*25/[KG_045],[KG_035]='凌云',if([KG_004]='群体',[SH_004],([SH_005]-[SH_004])/3)*0.05*25/[KG_045],0)",
+      "Formula": "IF([KG_034]='终焉裁决',1,0)*IFS([KG_035]='初传',0,[KG_035]='进阶',0,[KG_035]='化境',0,[KG_035]='登峰',IF([KG_004]='群体',[SH_004],([SH_005]-[SH_004])/3)*0.05*25/[KG_045],[KG_035]='绝尘',IF([KG_004]='群体',[SH_004],([SH_005]-[SH_004])/3)*0.05*25/[KG_045],[KG_035]='凌云',IF([KG_004]='群体',[SH_004],([SH_005]-[SH_004])/3)*0.05*25/[KG_045],0)",
       "FormulaParam": [
         "KG_034",
         "KG_035",
@@ -365,7 +384,7 @@
       "Code": "FMB_013",
       "Name": "九宫八卦",
       "BelongResultCode": null,
-      "Formula": "if([KG_039]='无',0,1)*if([KG_038]='九宫八卦',1,0)",
+      "Formula": "IF([KG_039]='无',0,1)*IF([KG_038]='九宫八卦',1,0)",
       "FormulaParam": [
         "KG_039",
         "KG_038"
@@ -383,7 +402,7 @@
       "Code": "FMB_014",
       "Name": "千机如至·矢",
       "BelongResultCode": null,
-      "Formula": "if([KG_037]='有',9+3*[KG_005],0)*if([KG_036]='千机如至·矢',1,0)",
+      "Formula": "IF([KG_037]='有',9+3*[KG_005],0)*IF([KG_036]='千机如至·矢',1,0)",
       "FormulaParam": [
         "KG_037",
         "KG_005",
@@ -402,7 +421,7 @@
       "Code": "FMB_015",
       "Name": "飞丹猛焰",
       "BelongResultCode": null,
-      "Formula": "if([FMB_014]=0,0,1)*if([FMB_013]=0,0,1)",
+      "Formula": "IF([FMB_014]=0,0,1)*IF([FMB_013]=0,0,1)",
       "FormulaParam": [
         "FMB_014",
         "FMB_013"
@@ -420,16 +439,33 @@
       "Code": "FMB_016",
       "Name": "野利会心",
       "BelongResultCode": null,
-      "Formula": "if(in('*野利白妙*', [LQ_004],[LQ_006],[LQ_008],[LQ_010]),1,0)*(500*ifs([LQ_017]='惊雷',[LQ_001],[LQ_017]='坚冰',[LQ_002],[LQ_017]='衍木',[LQ_003],0)/([LQ_001]+[LQ_002]+[LQ_003])-if([LQ_017]='惊雷',0,500))",
+      "Formula": "IFS([KG_046]='会心',-((IFS([LQ_006]='惊雷',[FTZ_021],[LQ_006]='坚冰',[FTZ_022],[LQ_006]='衍木',[FTZ_023]))+IF([LQ_006]=[LQ_007],0,(IFS([LQ_007]='惊雷',[FTZ_021],[LQ_007]='坚冰',[FTZ_022],[LQ_007]='衍木',[FTZ_023])))),[KG_046]='命中',(1-(IFS([LQ_006]='惊雷',[FTZ_021],[LQ_006]='坚冰',[FTZ_022],[LQ_006]='衍木',[FTZ_023]))-IF([LQ_006]=[LQ_007],0,(IFS([LQ_007]='惊雷',[FTZ_021],[LQ_007]='坚冰',[FTZ_022],[LQ_007]='衍木',[FTZ_023])))),TRUE,0,0)*IF((IF([LQ_005]='英雄',1,0)),510,500)",
       "FormulaParam": [
-        "LQ_004",
+        "KG_046",
         "LQ_006",
-        "LQ_008",
-        "LQ_010",
-        "LQ_017",
-        "LQ_001",
-        "LQ_002",
-        "LQ_003"
+        "FTZ_021",
+        "FTZ_022",
+        "FTZ_023",
+        "LQ_007",
+        "LQ_005"
+      ],
+      "Rule": [],
+      "NotComplete": false,
+      "Level": 3,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "FMB_017",
+      "Name": "野利命中",
+      "BelongResultCode": null,
+      "Formula": "IF([KG_046]='命中',-IF((IF([LQ_005]='英雄',1,0)),370,350),0)",
+      "FormulaParam": [
+        "KG_046",
+        "LQ_005"
       ],
       "Rule": [],
       "NotComplete": false,
@@ -441,57 +477,23 @@
       "DynamicalText": null
     },
     {
-      "Code": "FMB_017",
-      "Name": "野利命中",
-      "BelongResultCode": null,
-      "Formula": "if(in('*野利白妙*', [LQ_004],[LQ_006],[LQ_008],[LQ_010]),1,0)*(Min([BO_05]+0.05/1.38*[BO_08]-[ST_008]+if([LQ_017]='惊雷',350,0)+2-[FZJ_012]*(1+0.04*[FTZ_010]),350)*ifs([LQ_017]='惊雷',[LQ_001],[LQ_017]='坚冰',[LQ_002],[LQ_017]='衍木',[LQ_003],0)/([LQ_001]+[LQ_002]+[LQ_003])-if([LQ_017]='惊雷',350,0))",
-      "FormulaParam": [
-        "LQ_004",
-        "LQ_006",
-        "LQ_008",
-        "LQ_010",
-        "BO_05",
-        "BO_08",
-        "ST_008",
-        "LQ_017",
-        "FZJ_012",
-        "FTZ_010",
-        "LQ_001",
-        "LQ_002",
-        "LQ_003"
-      ],
-      "Rule": [],
-      "NotComplete": false,
-      "Level": 3,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
       "Code": "FMB_018",
       "Name": "命中收益折算",
       "BelongResultCode": null,
-      "Formula": "if(if(([BO_05]+0.05/1.38*[BO_08]-[ST_008]+if([LQ_017]='惊雷',350,0)-2-[FZJ_012]*(1+0.04*[FTZ_010]))>350, TRUE, if(ifs([LQ_017]='惊雷',[LQ_001],[LQ_017]='坚冰',[LQ_002],[LQ_017]='衍木',[LQ_003],0)/([LQ_001]+[LQ_002]+[LQ_003])=1, TRUE, FALSE)),1,1-if(in('*野利白妙*', [LQ_004],[LQ_006],[LQ_008],[LQ_010]),1,0)*ifs([LQ_017]='惊雷',[LQ_001],[LQ_017]='坚冰',[LQ_002],[LQ_017]='衍木',[LQ_003],0)/([LQ_001]+[LQ_002]+[LQ_003]))",
+      "Formula": "IF(IF((IF([FTZ_021]=0,1,0)+IF([FTZ_022]=0,1,0)+IF([FTZ_023]=0,1,0))<2, IF([ST_008]+370>[FBL_07], IF((IF([KG_046]='会心',1,0))+(IF([KG_046]='命中',1,0))>0, TRUE, FALSE), FALSE), FALSE),1-((IFS([LQ_006]='惊雷',[FTZ_021],[LQ_006]='坚冰',[FTZ_022],[LQ_006]='衍木',[FTZ_023],0))+IF([LQ_006]=[LQ_007],0,(IFS([LQ_007]='惊雷',[FTZ_021],[LQ_007]='坚冰',[FTZ_022],[LQ_007]='衍木',[FTZ_023],0)))),1)",
       "FormulaParam": [
-        "BO_05",
-        "BO_08",
+        "FTZ_021",
+        "FTZ_022",
+        "FTZ_023",
         "ST_008",
-        "LQ_017",
-        "FZJ_012",
-        "FTZ_010",
-        "LQ_001",
-        "LQ_002",
-        "LQ_003",
-        "LQ_004",
+        "FBL_07",
+        "KG_046",
         "LQ_006",
-        "LQ_008",
-        "LQ_010"
+        "LQ_007"
       ],
       "Rule": [],
       "NotComplete": false,
-      "Level": 3,
+      "Level": 4,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -502,20 +504,16 @@
       "Code": "FMB_019",
       "Name": "幽烛侍者·凋疫戒",
       "BelongResultCode": null,
-      "Formula": "if(in('*幽烛侍者·凋疫戒*', [LQ_004],[LQ_006],[LQ_008],[LQ_010]),1,0)*(300+(1-[FZY_001])*(100*[LQ_002]/([LQ_001]+[LQ_002]+[LQ_003])))",
+      "Formula": "IF([KG_047]='无',0,(300+(1-[FZY_001])*IF((IF([KG_047]='英雄',1,0)),200,100)*([FTZ_022]+[FTZ_023])))",
       "FormulaParam": [
-        "LQ_004",
-        "LQ_006",
-        "LQ_008",
-        "LQ_010",
+        "KG_047",
         "FZY_001",
-        "LQ_002",
-        "LQ_001",
-        "LQ_003"
+        "FTZ_022",
+        "FTZ_023"
       ],
       "Rule": [],
       "NotComplete": false,
-      "Level": 2,
+      "Level": 3,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -526,7 +524,7 @@
       "Code": "FMB_020",
       "Name": "广陵散·必闻",
       "BelongResultCode": null,
-      "Formula": "if([KG_037]='有',1,0)*if([KG_036]='广陵散·必闻',1,0)",
+      "Formula": "IF([KG_037]='有',1,0)*IF([KG_036]='广陵散·必闻',1,0)",
       "FormulaParam": [
         "KG_037",
         "KG_036"
@@ -542,111 +540,6 @@
     },
     {
       "Code": "FMB_021",
-      "Name": "圣巫忽视",
-      "BelongResultCode": null,
-      "Formula": "if(if([LQ_004]=[LQ_014], TRUE, if([LQ_006]=[LQ_014], TRUE, FALSE)),if([LQ_016]='忽视倾向',[F_EQ_004]-312*1.6-237,0),0)",
-      "FormulaParam": [
-        "LQ_004",
-        "LQ_014",
-        "LQ_006",
-        "LQ_016",
-        "F_EQ_004"
-      ],
-      "Rule": [],
-      "NotComplete": false,
-      "Level": 2,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
-      "Code": "FMB_022",
-      "Name": "圣巫破防",
-      "BelongResultCode": null,
-      "Formula": "if(if([LQ_004]=[LQ_014], TRUE, if([LQ_006]=[LQ_014], TRUE, FALSE)),if([LQ_016]='忽视倾向',0,[F_EQ_003]-904*1.6),0)",
-      "FormulaParam": [
-        "LQ_004",
-        "LQ_014",
-        "LQ_006",
-        "LQ_016",
-        "F_EQ_003"
-      ],
-      "Rule": [],
-      "NotComplete": false,
-      "Level": 2,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
-      "Code": "FMB_023",
-      "Name": "上身忽视",
-      "BelongResultCode": null,
-      "Formula": "if(if([LQ_004]=[LQ_013], TRUE, if([LQ_006]=[LQ_013], TRUE, FALSE)),[F_EQ_002]-0,0)+if(if([LQ_004]='雀隐·朽墨臂甲', TRUE, if([LQ_006]='雀隐·朽墨臂甲', TRUE, FALSE)),290,0)+if(if([LQ_004]=[LQ_014], TRUE, if([LQ_006]=[LQ_014], TRUE, FALSE)),[F_EQ_004]-549,0)",
-      "FormulaParam": [
-        "LQ_004",
-        "LQ_013",
-        "LQ_006",
-        "F_EQ_002",
-        "LQ_014",
-        "F_EQ_004"
-      ],
-      "Rule": [],
-      "NotComplete": false,
-      "Level": 2,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
-      "Code": "FMB_024",
-      "Name": "上身破防",
-      "BelongResultCode": null,
-      "Formula": "if(if([LQ_004]=[LQ_013], TRUE, if([LQ_006]=[LQ_013], TRUE, FALSE)),[F_EQ_001]-1593,0)+if(if([LQ_004]=[LQ_014], TRUE, if([LQ_006]=[LQ_014], TRUE, FALSE)),[F_EQ_003]-0,0)",
-      "FormulaParam": [
-        "LQ_004",
-        "LQ_013",
-        "LQ_006",
-        "F_EQ_001",
-        "LQ_014",
-        "F_EQ_003"
-      ],
-      "Rule": [],
-      "NotComplete": false,
-      "Level": 2,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
-      "Code": "FMB_025",
-      "Name": "下身会心",
-      "BelongResultCode": null,
-      "Formula": "if(if([LQ_008]='野利白妙凝霜数珠', TRUE, if([LQ_010]='野利白妙凝霜数珠', TRUE, FALSE)),0,0)+if(if([LQ_008]='幽烛侍者·凋疫戒', TRUE, if([LQ_010]='幽烛侍者·凋疫戒', TRUE, FALSE)),300+[FMB_019],0)",
-      "FormulaParam": [
-        "LQ_008",
-        "LQ_010",
-        "FMB_019"
-      ],
-      "Rule": [],
-      "NotComplete": false,
-      "Level": 3,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
-      "Code": "FMB_026",
       "Name": "相同灵气",
       "BelongResultCode": null,
       "Formula": "([LQ_001]*[LQ_001]+[LQ_002]*[LQ_002]+[LQ_003]*[LQ_003])/([LQ_001]+[LQ_002]+[LQ_003])/([LQ_001]+[LQ_002]+[LQ_003])",
@@ -665,10 +558,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "FMB_027",
+      "Code": "FMB_022",
       "Name": "会心药",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_043]='下品凌云烈心丹',215,[KG_043]='上品凌云烈心丹',230,TRUE,0,0)",
+      "Formula": "IFS([KG_043]='下品凌云烈心丹',215,[KG_043]='上品凌云烈心丹',230,TRUE,0,0)",
       "FormulaParam": [
         "KG_043"
       ],
@@ -682,10 +575,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "FMB_028",
+      "Code": "FMB_023",
       "Name": "攻击药",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_042]='下品凌云千钧合剂',20*14/3+20*1.65*([FTZ_019]+[FTZ_017]),[KG_042]='上品凌云千钧合剂',24*14/3+24*1.65*([FTZ_003]+[FTZ_017]),TRUE,0,0)+ifs([KG_044]='下品扶光厉锋丹',200,[KG_044]='上品扶光厉锋丹',220,TRUE,0,0)",
+      "Formula": "IFS([KG_042]='下品凌云千钧合剂',20*14/3+20*1.65*([FTZ_019]+[FTZ_017]),[KG_042]='上品凌云千钧合剂',24*14/3+24*1.65*([FTZ_003]+[FTZ_017]),TRUE,0,0)+IFS([KG_044]='下品扶光厉锋丹',200,[KG_044]='上品扶光厉锋丹',220,TRUE,0,0)",
       "FormulaParam": [
         "KG_042",
         "FTZ_019",
@@ -703,10 +596,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "FMB_029",
+      "Code": "FMB_024",
       "Name": "命中药",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_042]='下品凌云定风合剂',100,[KG_042]='上品凌云定风合剂',120,TRUE,0,0)",
+      "Formula": "IFS([KG_042]='下品凌云定风合剂',100,[KG_042]='上品凌云定风合剂',120,TRUE,0,0)",
       "FormulaParam": [
         "KG_042"
       ],
@@ -720,12 +613,88 @@
       "DynamicalText": null
     },
     {
-      "Code": "FMB_030",
+      "Code": "FMB_025",
       "Name": "破防药",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_042]='下品凌云千钧合剂',20*2,[KG_042]='上品凌云千钧合剂',24*2,TRUE,0,0)",
+      "Formula": "IFS([KG_042]='下品凌云千钧合剂',20*2,[KG_042]='上品凌云千钧合剂',24*2,TRUE,0,0)",
       "FormulaParam": [
         "KG_042"
+      ],
+      "Rule": [],
+      "NotComplete": false,
+      "Level": 1,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "FMB_026",
+      "Name": "剑霄飞流",
+      "BelongResultCode": null,
+      "Formula": "IF([KG_034]='剑霄飞流',1,0)*IFS([KG_035]='初传',0.05,[KG_035]='进阶',0.05,[KG_035]='化境',0.05,[KG_035]='登峰',0.06,[KG_035]='绝尘',0.06,[KG_035]='凌云',0.06,0)",
+      "FormulaParam": [
+        "KG_034",
+        "KG_035"
+      ],
+      "Rule": [],
+      "NotComplete": false,
+      "Level": 1,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "FMB_027",
+      "Name": "贯破连城",
+      "BelongResultCode": null,
+      "Formula": "IF([KG_032]='贯破连城',1,0)*IFS([KG_033]='初传',0,[KG_033]='进阶',0,[KG_033]='化境',0,[KG_033]='登峰',120,[KG_033]='绝尘',120,[KG_033]='凌云',120,0)",
+      "FormulaParam": [
+        "KG_032",
+        "KG_033"
+      ],
+      "Rule": [],
+      "NotComplete": false,
+      "Level": 1,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "FMB_028",
+      "Name": "白衣服",
+      "BelongResultCode": null,
+      "Formula": "IF((IF([LQ_001]=0,1,0)+IF([LQ_002]=0,1,0)+IF([LQ_003]=0,1,0))<2,1,0)*(IF([LQ_004]='多灵气必定不同',1,0))",
+      "FormulaParam": [
+        "LQ_001",
+        "LQ_002",
+        "LQ_003",
+        "LQ_004"
+      ],
+      "Rule": [],
+      "NotComplete": false,
+      "Level": 1,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "FMB_029",
+      "Name": "黑衣服",
+      "BelongResultCode": null,
+      "Formula": "IFS(IF([LQ_001]>[LQ_002], IF([LQ_001]>[LQ_003], TRUE, FALSE), FALSE),1,IF([LQ_002]>[LQ_001], IF([LQ_002]>[LQ_003], TRUE, FALSE), FALSE),1,IF([LQ_003]>[LQ_002], IF([LQ_003]>[LQ_001], TRUE, FALSE), FALSE),1,TRUE,0,0)*(IF([LQ_004]='唯一最多必定相同',1,0))",
+      "FormulaParam": [
+        "LQ_001",
+        "LQ_002",
+        "LQ_003",
+        "LQ_004"
       ],
       "Rule": [],
       "NotComplete": false,
@@ -740,7 +709,7 @@
       "Code": "FZY_001",
       "Name": "总开关",
       "BelongResultCode": null,
-      "Formula": "if([FB_001]='关',0,1)",
+      "Formula": "IF([FB_001]='关',0,1)",
       "FormulaParam": [
         "FB_001"
       ],
@@ -757,7 +726,7 @@
       "Code": "FZY_002",
       "Name": "有碎弱点增益",
       "BelongResultCode": null,
-      "Formula": "[SH_001]*(if(if([FB_001]='开', if([FB_002]='弱火', TRUE, FALSE), FALSE),0.5,0.1)*([FZY_029]+[FZY_030])+if(if([FB_001]='开', if([FB_002]='弱金', TRUE, FALSE), FALSE),0.5,0.1)*if([KG_001]='碎梦',1,0)+if(if([FB_001]='开', if([FB_002]='弱木', TRUE, FALSE), FALSE),0.5,0.1)*if([KG_001]='九灵',1,0)+if(if([FB_001]='开', if([FB_002]='弱风', TRUE, FALSE), FALSE),0.5,0.1)*if(if([KG_001]='玄机', TRUE, if([KG_001]='素问', TRUE, FALSE)),1,0)+if(if([FB_001]='开', if([FB_002]='弱雷', TRUE, FALSE), FALSE),0.5,0.1)*if([KG_001]='龙吟',1,0)+if(if([FB_001]='开', if([FB_002]='弱土', TRUE, FALSE), FALSE),0.5,0.1)*if([FZY_028]=0,0,1))+if([KG_006]='冽雷疾风',[SH_003]*if(if([FB_001]='开', if([FB_002]='弱金', TRUE, FALSE), FALSE),0.5,0.1)+0.1*(1-[SH_001]-[SH_003]),(1-[SH_001])*0.1)",
+      "Formula": "[SH_001]*(IF(IF([FB_001]='开', IF([FB_002]='弱火', TRUE, FALSE), FALSE),0.5,0.1)*([FZY_029]+[FZY_030])+IF(IF([FB_001]='开', IF([FB_002]='弱金', TRUE, FALSE), FALSE),0.5,0.1)*IF([KG_001]='碎梦',1,0)+IF(IF([FB_001]='开', IF([FB_002]='弱木', TRUE, FALSE), FALSE),0.5,0.1)*IF([KG_001]='九灵',1,0)+IF(IF([FB_001]='开', IF([FB_002]='弱风', TRUE, FALSE), FALSE),0.5,0.1)*IF(IF([KG_001]='玄机', TRUE, IF([KG_001]='素问', TRUE, FALSE)),1,0)+IF(IF([FB_001]='开', IF([FB_002]='弱雷', TRUE, FALSE), FALSE),0.5,0.1)*IF([KG_001]='龙吟',1,0)+IF(IF([FB_001]='开', IF([FB_002]='弱土', TRUE, FALSE), FALSE),0.5,0.1)*IF([FZY_028]=0,0,1))+IF([KG_006]='冽雷疾风',[SH_003]*IF(IF([FB_001]='开', IF([FB_002]='弱金', TRUE, FALSE), FALSE),0.5,0.1)+0.1*(1-[SH_001]-[SH_003]),(1-[SH_001])*0.1)",
       "FormulaParam": [
         "SH_001",
         "FB_001",
@@ -782,7 +751,7 @@
       "Code": "FZY_003",
       "Name": "无碎弱点增益",
       "BelongResultCode": null,
-      "Formula": "[SH_001]*(if(if([FB_001]='开', if([FB_002]='弱火', TRUE, FALSE), FALSE),0.5,0)*([FZY_029]+[FZY_030])+if(if([FB_001]='开', if([FB_002]='弱金', TRUE, FALSE), FALSE),0.5,0)*if([KG_001]='碎梦',1,0)+if(if([FB_001]='开', if([FB_002]='弱木', TRUE, FALSE), FALSE),0.5,0)*if([KG_001]='九灵',1,0)+if(if([FB_001]='开', if([FB_002]='弱风', TRUE, FALSE), FALSE),0.5,0)*if(if([KG_001]='玄机', TRUE, if([KG_001]='素问', TRUE, FALSE)),1,0)+if(if([FB_001]='开', if([FB_002]='弱雷', TRUE, FALSE), FALSE),0.5,0)*if([KG_001]='龙吟',1,0)+if(if([FB_001]='开', if([FB_002]='弱土', TRUE, FALSE), FALSE),0.5,0)*if([FZY_028]=0,0,1))+if([KG_006]='冽雷疾风',[SH_003]*if(if([FB_001]='开', if([FB_002]='弱金', TRUE, FALSE), FALSE),0.5,0),0)",
+      "Formula": "[SH_001]*(IF(IF([FB_001]='开', IF([FB_002]='弱火', TRUE, FALSE), FALSE),0.5,0)*([FZY_029]+[FZY_030])+IF(IF([FB_001]='开', IF([FB_002]='弱金', TRUE, FALSE), FALSE),0.5,0)*IF([KG_001]='碎梦',1,0)+IF(IF([FB_001]='开', IF([FB_002]='弱木', TRUE, FALSE), FALSE),0.5,0)*IF([KG_001]='九灵',1,0)+IF(IF([FB_001]='开', IF([FB_002]='弱风', TRUE, FALSE), FALSE),0.5,0)*IF(IF([KG_001]='玄机', TRUE, IF([KG_001]='素问', TRUE, FALSE)),1,0)+IF(IF([FB_001]='开', IF([FB_002]='弱雷', TRUE, FALSE), FALSE),0.5,0)*IF([KG_001]='龙吟',1,0)+IF(IF([FB_001]='开', IF([FB_002]='弱土', TRUE, FALSE), FALSE),0.5,0)*IF([FZY_028]=0,0,1))+IF([KG_006]='冽雷疾风',[SH_003]*IF(IF([FB_001]='开', IF([FB_002]='弱金', TRUE, FALSE), FALSE),0.5,0),0)",
       "FormulaParam": [
         "SH_001",
         "FB_001",
@@ -807,7 +776,7 @@
       "Code": "FZY_004",
       "Name": "灵犀",
       "BelongResultCode": null,
-      "Formula": "ifs([FB_008]='无',0,[FB_008]='普通',0.04,[FB_008]='灵韵',0.05,0)",
+      "Formula": "IFS([FB_008]='无',0,[FB_008]='普通',0.04,[FB_008]='灵韵',0.05,0)",
       "FormulaParam": [
         "FB_008"
       ],
@@ -824,7 +793,7 @@
       "Code": "FZY_005",
       "Name": "碧血旗",
       "BelongResultCode": null,
-      "Formula": "ifs([FB_009]='无',0,[FB_009]='悟',30+10*[KG_005],[FB_009]='携',36+12*[KG_005],0)*if([KG_001]='血河',0,1)",
+      "Formula": "IFS([FB_009]='无',0,[FB_009]='悟',30+10*[KG_005],[FB_009]='携',36+12*[KG_005],0)*IF([KG_001]='血河',0,1)",
       "FormulaParam": [
         "FB_009",
         "KG_005",
@@ -858,7 +827,7 @@
       "Code": "FZY_007",
       "Name": "逐星阵",
       "BelongResultCode": null,
-      "Formula": "ifs([FB_010]='无',0,[FB_010]='悟',8+7*[KG_005],[FB_010]='携',10+9*[KG_005],0)*if([KG_001]='龙吟',0,1)",
+      "Formula": "IFS([FB_010]='无',0,[FB_010]='悟',8+7*[KG_005],[FB_010]='携',10+9*[KG_005],0)*IF([KG_001]='龙吟',0,1)",
       "FormulaParam": [
         "FB_010",
         "KG_005",
@@ -877,7 +846,7 @@
       "Code": "FZY_008",
       "Name": "九宫八卦",
       "BelongResultCode": null,
-      "Formula": "ifs([FB_011]='无',0,[FB_011]='悟',6+[KG_005]*3,[FB_011]='携',10+5*[KG_005],0)*if([KG_001]='玄机',0,1)",
+      "Formula": "IFS([FB_011]='无',0,[FB_011]='悟',6+[KG_005]*3,[FB_011]='携',10+5*[KG_005],0)*IF([KG_001]='玄机',0,1)",
       "FormulaParam": [
         "FB_011",
         "KG_005",
@@ -896,7 +865,7 @@
       "Code": "FZY_009",
       "Name": "清风•华筵",
       "BelongResultCode": null,
-      "Formula": "if([FB_014]='无',0,1)",
+      "Formula": "IF([FB_014]='无',0,1)",
       "FormulaParam": [
         "FB_014"
       ],
@@ -913,7 +882,7 @@
       "Code": "FZY_010",
       "Name": "察微迅进•极",
       "BelongResultCode": null,
-      "Formula": "if([FB_015]='无',0,1)",
+      "Formula": "IF([FB_015]='无',0,1)",
       "FormulaParam": [
         "FB_015"
       ],
@@ -930,7 +899,7 @@
       "Code": "FZY_011",
       "Name": "芳心妙愈",
       "BelongResultCode": null,
-      "Formula": "if([FB_016]='无',0,(140+[KG_005])*31/35)",
+      "Formula": "IF([FB_016]='无',0,(140+[KG_005])*31/35)",
       "FormulaParam": [
         "FB_016",
         "KG_005"
@@ -948,7 +917,7 @@
       "Code": "FZY_012",
       "Name": "凤成天锦",
       "BelongResultCode": null,
-      "Formula": "if([FB_017]='无',0,1)",
+      "Formula": "IF([FB_017]='无',0,1)",
       "FormulaParam": [
         "FB_017"
       ],
@@ -965,7 +934,7 @@
       "Code": "FZY_013",
       "Name": "撼海门",
       "BelongResultCode": null,
-      "Formula": "ifs([FB_018]='无',0,[FB_018]='普通',120,[FB_018]='灵韵',150,0)",
+      "Formula": "IFS([FB_018]='无',0,[FB_018]='普通',120,[FB_018]='灵韵',150,0)",
       "FormulaParam": [
         "FB_018"
       ],
@@ -982,7 +951,7 @@
       "Code": "FZY_014",
       "Name": "望惊川",
       "BelongResultCode": null,
-      "Formula": "ifs([FB_019]='无',0,[FB_019]='普通',160,[FB_019]='灵韵',200,0)",
+      "Formula": "IFS([FB_019]='无',0,[FB_019]='普通',160,[FB_019]='灵韵',200,0)",
       "FormulaParam": [
         "FB_019"
       ],
@@ -999,7 +968,7 @@
       "Code": "FZY_015",
       "Name": "水周天",
       "BelongResultCode": null,
-      "Formula": "if([FB_020]='无',0,1)",
+      "Formula": "IF([FB_020]='无',0,1)",
       "FormulaParam": [
         "FB_020"
       ],
@@ -1016,7 +985,7 @@
       "Code": "FZY_016",
       "Name": "引灵阵",
       "BelongResultCode": null,
-      "Formula": "ifs([FB_012]='无',0,[FB_012]='悟',0.069,[FB_012]='携',0.084,0)*if([KG_001]='九灵',0,1)",
+      "Formula": "IFS([FB_012]='无',0,[FB_012]='悟',0.069,[FB_012]='携',0.084,0)*IF([KG_001]='九灵',0,1)",
       "FormulaParam": [
         "FB_012",
         "KG_001"
@@ -1034,7 +1003,7 @@
       "Code": "FZY_017",
       "Name": "广陵散",
       "BelongResultCode": null,
-      "Formula": "ifs([FB_013]='无',0,[FB_013]='悟',15+3*[KG_005],[FB_013]='携',80+5*[KG_005],0)*if([KG_001]='神相',0,1)",
+      "Formula": "IFS([FB_013]='无',0,[FB_013]='悟',15+3*[KG_005],[FB_013]='携',80+5*[KG_005],0)*IF([KG_001]='神相',0,1)",
       "FormulaParam": [
         "FB_013",
         "KG_005",
@@ -1053,7 +1022,7 @@
       "Code": "FZY_018",
       "Name": "长歌献君",
       "BelongResultCode": null,
-      "Formula": "if([FB_022]='无',0,1)",
+      "Formula": "IF([FB_022]='无',0,1)",
       "FormulaParam": [
         "FB_022"
       ],
@@ -1070,7 +1039,7 @@
       "Code": "FZY_019",
       "Name": "星火满天",
       "BelongResultCode": null,
-      "Formula": "if([FB_023]='无',0,1)",
+      "Formula": "IF([FB_023]='无',0,1)",
       "FormulaParam": [
         "FB_023"
       ],
@@ -1087,7 +1056,7 @@
       "Code": "FZY_020",
       "Name": "一线牵",
       "BelongResultCode": null,
-      "Formula": "if([FB_024]='无',0,0.05)",
+      "Formula": "IF([FB_024]='无',0,0.05)",
       "FormulaParam": [
         "FB_024"
       ],
@@ -1104,7 +1073,7 @@
       "Code": "FZY_021",
       "Name": "木怜青·青蕊佩羽",
       "BelongResultCode": null,
-      "Formula": "ifs([FB_025]='无',0,[FB_025]='普通',250,[FB_025]='英雄',270,0)",
+      "Formula": "IFS([FB_025]='无',0,[FB_025]='普通',250,[FB_025]='英雄',270,0)",
       "FormulaParam": [
         "FB_025"
       ],
@@ -1121,7 +1090,7 @@
       "Code": "FZY_022",
       "Name": "幽烛侍者·祷语戒",
       "BelongResultCode": null,
-      "Formula": "if([FB_026]='无',0,150)",
+      "Formula": "IF([FB_026]='无',0,150)",
       "FormulaParam": [
         "FB_026"
       ],
@@ -1138,7 +1107,7 @@
       "Code": "FZY_023",
       "Name": "心眼",
       "BelongResultCode": null,
-      "Formula": "if([FB_027]='无',0,1)",
+      "Formula": "IF([FB_027]='无',0,1)",
       "FormulaParam": [
         "FB_027"
       ],
@@ -1155,7 +1124,7 @@
       "Code": "FZY_024",
       "Name": "澄影碧霄",
       "BelongResultCode": null,
-      "Formula": "ifs([FB_021]='无',0,[FB_021]='红',500,[FB_021]='紫',750,[FB_021]='橙',1000,0)",
+      "Formula": "IFS([FB_021]='无',0,[FB_021]='红',500,[FB_021]='紫',750,[FB_021]='橙',1000,0)",
       "FormulaParam": [
         "FB_021"
       ],
@@ -1172,7 +1141,7 @@
       "Code": "FZY_025",
       "Name": "献祭buff",
       "BelongResultCode": null,
-      "Formula": "if([FB_029]='无',0,8.4)",
+      "Formula": "IF([FB_029]='无',0,8.4)",
       "FormulaParam": [
         "FB_029"
       ],
@@ -1206,7 +1175,7 @@
       "Code": "FZY_027",
       "Name": "天问",
       "BelongResultCode": null,
-      "Formula": "if([KG_001]='天问',1,0)",
+      "Formula": "IF([KG_001]='天问',1,0)",
       "FormulaParam": [
         "KG_001"
       ],
@@ -1223,7 +1192,7 @@
       "Code": "FZY_028",
       "Name": "铁甲",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_001]='破铁衣',1,[KG_001]='御铁衣',-1,TRUE,0,0)",
+      "Formula": "IFS([KG_001]='破铁衣',1,[KG_001]='御铁衣',-1,TRUE,0,0)",
       "FormulaParam": [
         "KG_001"
       ],
@@ -1240,7 +1209,7 @@
       "Code": "FZY_029",
       "Name": "血河",
       "BelongResultCode": null,
-      "Formula": "if([KG_001]='血河',1,0)",
+      "Formula": "IF([KG_001]='血河',1,0)",
       "FormulaParam": [
         "KG_001"
       ],
@@ -1257,7 +1226,7 @@
       "Code": "FZY_030",
       "Name": "神相",
       "BelongResultCode": null,
-      "Formula": "if([KG_001]='神相',1,0)",
+      "Formula": "IF([KG_001]='神相',1,0)",
       "FormulaParam": [
         "KG_001"
       ],
@@ -1274,7 +1243,7 @@
       "Code": "FZY_031",
       "Name": "惊雷·怒剑",
       "BelongResultCode": null,
-      "Formula": "if([KG_036]='惊雷·怒剑',1,0)*if([KG_037]='有',1,0)",
+      "Formula": "IF([KG_036]='惊雷·怒剑',1,0)*IF([KG_037]='有',1,0)",
       "FormulaParam": [
         "KG_036",
         "KG_037"
@@ -1289,10 +1258,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "NG_001",
+      "Code": "FNG_001",
       "Name": "凛风绝刃",
       "BelongResultCode": null,
-      "Formula": "if(ifs('凛风绝刃'=[KG_020],[KG_021],'凛风绝刃'=[KG_022],[KG_023],'凛风绝刃'=[KG_024],[KG_025],'凛风绝刃'=[KG_026],[KG_027],'凛风绝刃'=[KG_028],[KG_029],'凛风绝刃'=[KG_030],[KG_031],0)<>0,if(ifs('凛风绝刃'=[KG_020],[KG_021],'凛风绝刃'=[KG_022],[KG_023],'凛风绝刃'=[KG_024],[KG_025],'凛风绝刃'=[KG_026],[KG_027],'凛风绝刃'=[KG_028],[KG_029],'凛风绝刃'=[KG_030],[KG_031],0)='普通',400,600),0)",
+      "Formula": "IF((IFS('凛风绝刃'=[KG_020],[KG_021],'凛风绝刃'=[KG_022],[KG_023],'凛风绝刃'=[KG_024],[KG_025],'凛风绝刃'=[KG_026],[KG_027],'凛风绝刃'=[KG_028],[KG_029],'凛风绝刃'=[KG_030],[KG_031],0))<>'0',IF((IFS('凛风绝刃'=[KG_020],[KG_021],'凛风绝刃'=[KG_022],[KG_023],'凛风绝刃'=[KG_024],[KG_025],'凛风绝刃'=[KG_026],[KG_027],'凛风绝刃'=[KG_028],[KG_029],'凛风绝刃'=[KG_030],[KG_031],0))='普通',400,600),0)",
       "FormulaParam": [
         "KG_020",
         "KG_021",
@@ -1317,10 +1286,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "NG_002",
+      "Code": "FNG_002",
       "Name": "昆吾断玉",
       "BelongResultCode": null,
-      "Formula": "if(ifs('昆吾断玉'=[KG_020],[KG_021],'昆吾断玉'=[KG_022],[KG_023],'昆吾断玉'=[KG_024],[KG_025],'昆吾断玉'=[KG_026],[KG_027],'昆吾断玉'=[KG_028],[KG_029],'昆吾断玉'=[KG_030],[KG_031],0)<>0,if(ifs('昆吾断玉'=[KG_020],[KG_021],'昆吾断玉'=[KG_022],[KG_023],'昆吾断玉'=[KG_024],[KG_025],'昆吾断玉'=[KG_026],[KG_027],'昆吾断玉'=[KG_028],[KG_029],'昆吾断玉'=[KG_030],[KG_031],0)='普通',0.14,0.192),0)",
+      "Formula": "IF((IFS('昆吾断玉'=[KG_020],[KG_021],'昆吾断玉'=[KG_022],[KG_023],'昆吾断玉'=[KG_024],[KG_025],'昆吾断玉'=[KG_026],[KG_027],'昆吾断玉'=[KG_028],[KG_029],'昆吾断玉'=[KG_030],[KG_031],0))<>'0',IF((IFS('昆吾断玉'=[KG_020],[KG_021],'昆吾断玉'=[KG_022],[KG_023],'昆吾断玉'=[KG_024],[KG_025],'昆吾断玉'=[KG_026],[KG_027],'昆吾断玉'=[KG_028],[KG_029],'昆吾断玉'=[KG_030],[KG_031],0))='普通',0.14,0.192),0)",
       "FormulaParam": [
         "KG_020",
         "KG_021",
@@ -1345,10 +1314,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "NG_003",
+      "Code": "FNG_003",
       "Name": "淬锋镝",
       "BelongResultCode": null,
-      "Formula": "if(ifs('淬锋镝'=[KG_020],[KG_021],'淬锋镝'=[KG_022],[KG_023],'淬锋镝'=[KG_024],[KG_025],'淬锋镝'=[KG_026],[KG_027],'淬锋镝'=[KG_028],[KG_029],'淬锋镝'=[KG_030],[KG_031],0)<>0,if(ifs('淬锋镝'=[KG_020],[KG_021],'淬锋镝'=[KG_022],[KG_023],'淬锋镝'=[KG_024],[KG_025],'淬锋镝'=[KG_026],[KG_027],'淬锋镝'=[KG_028],[KG_029],'淬锋镝'=[KG_030],[KG_031],0)='普通',0.05,0.06),0)",
+      "Formula": "IF((IFS('淬锋镝'=[KG_020],[KG_021],'淬锋镝'=[KG_022],[KG_023],'淬锋镝'=[KG_024],[KG_025],'淬锋镝'=[KG_026],[KG_027],'淬锋镝'=[KG_028],[KG_029],'淬锋镝'=[KG_030],[KG_031],0))<>'0',IF((IFS('淬锋镝'=[KG_020],[KG_021],'淬锋镝'=[KG_022],[KG_023],'淬锋镝'=[KG_024],[KG_025],'淬锋镝'=[KG_026],[KG_027],'淬锋镝'=[KG_028],[KG_029],'淬锋镝'=[KG_030],[KG_031],0))='普通',0.05,0.06),0)",
       "FormulaParam": [
         "KG_020",
         "KG_021",
@@ -1373,10 +1342,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "NG_004",
+      "Code": "FNG_004",
       "Name": "淬锋镝",
       "BelongResultCode": null,
-      "Formula": "if(ifs('淬锋镝'=[KG_020],[KG_021],'淬锋镝'=[KG_022],[KG_023],'淬锋镝'=[KG_024],[KG_025],'淬锋镝'=[KG_026],[KG_027],'淬锋镝'=[KG_028],[KG_029],'淬锋镝'=[KG_030],[KG_031],0)<>0,if(ifs('淬锋镝'=[KG_020],[KG_021],'淬锋镝'=[KG_022],[KG_023],'淬锋镝'=[KG_024],[KG_025],'淬锋镝'=[KG_026],[KG_027],'淬锋镝'=[KG_028],[KG_029],'淬锋镝'=[KG_030],[KG_031],0)='普通',210,280),0)",
+      "Formula": "IF((IFS('淬锋镝'=[KG_020],[KG_021],'淬锋镝'=[KG_022],[KG_023],'淬锋镝'=[KG_024],[KG_025],'淬锋镝'=[KG_026],[KG_027],'淬锋镝'=[KG_028],[KG_029],'淬锋镝'=[KG_030],[KG_031],0))<>'0',IF((IFS('淬锋镝'=[KG_020],[KG_021],'淬锋镝'=[KG_022],[KG_023],'淬锋镝'=[KG_024],[KG_025],'淬锋镝'=[KG_026],[KG_027],'淬锋镝'=[KG_028],[KG_029],'淬锋镝'=[KG_030],[KG_031],0))='普通',210,280),0)",
       "FormulaParam": [
         "KG_020",
         "KG_021",
@@ -1401,10 +1370,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "NG_005",
+      "Code": "FNG_005",
       "Name": "破釜",
       "BelongResultCode": null,
-      "Formula": "if(ifs('破釜'=[KG_020],[KG_021],'破釜'=[KG_022],[KG_023],'破釜'=[KG_024],[KG_025],'破釜'=[KG_026],[KG_027],'破釜'=[KG_028],[KG_029],'破釜'=[KG_030],[KG_031],0)<>0,if(ifs('破釜'=[KG_020],[KG_021],'破釜'=[KG_022],[KG_023],'破釜'=[KG_024],[KG_025],'破釜'=[KG_026],[KG_027],'破釜'=[KG_028],[KG_029],'破釜'=[KG_030],[KG_031],0)='普通',0.08,0.1),0)",
+      "Formula": "IF((IFS('破釜'=[KG_020],[KG_021],'破釜'=[KG_022],[KG_023],'破釜'=[KG_024],[KG_025],'破釜'=[KG_026],[KG_027],'破釜'=[KG_028],[KG_029],'破釜'=[KG_030],[KG_031],0))<>'0',IF((IFS('破釜'=[KG_020],[KG_021],'破釜'=[KG_022],[KG_023],'破釜'=[KG_024],[KG_025],'破釜'=[KG_026],[KG_027],'破釜'=[KG_028],[KG_029],'破釜'=[KG_030],[KG_031],0))='普通',0.08,0.1),0)",
       "FormulaParam": [
         "KG_020",
         "KG_021",
@@ -1429,10 +1398,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "NG_006",
+      "Code": "FNG_006",
       "Name": "技强内功",
       "BelongResultCode": null,
-      "Formula": "if(ifs('技强内功'=[KG_020],[KG_021],'技强内功'=[KG_022],[KG_023],'技强内功'=[KG_024],[KG_025],'技强内功'=[KG_026],[KG_027],'技强内功'=[KG_028],[KG_029],'技强内功'=[KG_030],[KG_031],0)<>0,if(ifs('技强内功'=[KG_020],[KG_021],'技强内功'=[KG_022],[KG_023],'技强内功'=[KG_024],[KG_025],'技强内功'=[KG_026],[KG_027],'技强内功'=[KG_028],[KG_029],'技强内功'=[KG_030],[KG_031],0)='普通',1.12,1.15),1)",
+      "Formula": "IF((IFS('技强内功'=[KG_020],[KG_021],'技强内功'=[KG_022],[KG_023],'技强内功'=[KG_024],[KG_025],'技强内功'=[KG_026],[KG_027],'技强内功'=[KG_028],[KG_029],'技强内功'=[KG_030],[KG_031],0))<>'0',IF((IFS('技强内功'=[KG_020],[KG_021],'技强内功'=[KG_022],[KG_023],'技强内功'=[KG_024],[KG_025],'技强内功'=[KG_026],[KG_027],'技强内功'=[KG_028],[KG_029],'技强内功'=[KG_030],[KG_031],0))='普通',1.12,1.15),1)",
       "FormulaParam": [
         "KG_020",
         "KG_021",
@@ -1457,10 +1426,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "NG_007",
+      "Code": "FNG_007",
       "Name": "明佑",
       "BelongResultCode": null,
-      "Formula": "if(ifs('明佑'=[KG_020],[KG_021],'明佑'=[KG_022],[KG_023],'明佑'=[KG_024],[KG_025],'明佑'=[KG_026],[KG_027],'明佑'=[KG_028],[KG_029],'明佑'=[KG_030],[KG_031],0)<>0,if(ifs('明佑'=[KG_020],[KG_021],'明佑'=[KG_022],[KG_023],'明佑'=[KG_024],[KG_025],'明佑'=[KG_026],[KG_027],'明佑'=[KG_028],[KG_029],'明佑'=[KG_030],[KG_031],0)='普通',1,1.25),0)",
+      "Formula": "IF((IFS('明佑'=[KG_020],[KG_021],'明佑'=[KG_022],[KG_023],'明佑'=[KG_024],[KG_025],'明佑'=[KG_026],[KG_027],'明佑'=[KG_028],[KG_029],'明佑'=[KG_030],[KG_031],0))<>'0',IF((IFS('明佑'=[KG_020],[KG_021],'明佑'=[KG_022],[KG_023],'明佑'=[KG_024],[KG_025],'明佑'=[KG_026],[KG_027],'明佑'=[KG_028],[KG_029],'明佑'=[KG_030],[KG_031],0))='普通',1,1.25),0)",
       "FormulaParam": [
         "KG_020",
         "KG_021",
@@ -1485,10 +1454,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "NG_008",
+      "Code": "FNG_008",
       "Name": "望惊川",
       "BelongResultCode": null,
-      "Formula": "if(ifs('望惊川'=[KG_020],[KG_021],'望惊川'=[KG_022],[KG_023],'望惊川'=[KG_024],[KG_025],'望惊川'=[KG_026],[KG_027],'望惊川'=[KG_028],[KG_029],'望惊川'=[KG_030],[KG_031],0)<>0,if(ifs('望惊川'=[KG_020],[KG_021],'望惊川'=[KG_022],[KG_023],'望惊川'=[KG_024],[KG_025],'望惊川'=[KG_026],[KG_027],'望惊川'=[KG_028],[KG_029],'望惊川'=[KG_030],[KG_031],0)='普通',1080-480*[FZY_001],1260-560*[FZY_001]),0)",
+      "Formula": "IF((IFS('望惊川'=[KG_020],[KG_021],'望惊川'=[KG_022],[KG_023],'望惊川'=[KG_024],[KG_025],'望惊川'=[KG_026],[KG_027],'望惊川'=[KG_028],[KG_029],'望惊川'=[KG_030],[KG_031],0))<>'0',IF((IFS('望惊川'=[KG_020],[KG_021],'望惊川'=[KG_022],[KG_023],'望惊川'=[KG_024],[KG_025],'望惊川'=[KG_026],[KG_027],'望惊川'=[KG_028],[KG_029],'望惊川'=[KG_030],[KG_031],0))='普通',1080-480*[FZY_001],1260-560*[FZY_001]),0)",
       "FormulaParam": [
         "KG_020",
         "KG_021",
@@ -1514,10 +1483,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "NG_009",
+      "Code": "FNG_009",
       "Name": "通微",
       "BelongResultCode": null,
-      "Formula": "if(ifs('通微'=[KG_020],[KG_021],'通微'=[KG_022],[KG_023],'通微'=[KG_024],[KG_025],'通微'=[KG_026],[KG_027],'通微'=[KG_028],[KG_029],'通微'=[KG_030],[KG_031],0)<>0,if(ifs('通微'=[KG_020],[KG_021],'通微'=[KG_022],[KG_023],'通微'=[KG_024],[KG_025],'通微'=[KG_026],[KG_027],'通微'=[KG_028],[KG_029],'通微'=[KG_030],[KG_031],0)='普通',600,750),0)",
+      "Formula": "IF((IFS('通微'=[KG_020],[KG_021],'通微'=[KG_022],[KG_023],'通微'=[KG_024],[KG_025],'通微'=[KG_026],[KG_027],'通微'=[KG_028],[KG_029],'通微'=[KG_030],[KG_031],0))<>'0',IF((IFS('通微'=[KG_020],[KG_021],'通微'=[KG_022],[KG_023],'通微'=[KG_024],[KG_025],'通微'=[KG_026],[KG_027],'通微'=[KG_028],[KG_029],'通微'=[KG_030],[KG_031],0))='普通',600,750),0)",
       "FormulaParam": [
         "KG_020",
         "KG_021",
@@ -1542,10 +1511,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "NG_010",
+      "Code": "FNG_010",
       "Name": "焚秽",
       "BelongResultCode": null,
-      "Formula": "if(ifs('焚秽'=[KG_020],[KG_021],'焚秽'=[KG_022],[KG_023],'焚秽'=[KG_024],[KG_025],'焚秽'=[KG_026],[KG_027],'焚秽'=[KG_028],[KG_029],'焚秽'=[KG_030],[KG_031],0)<>0,if(ifs('焚秽'=[KG_020],[KG_021],'焚秽'=[KG_022],[KG_023],'焚秽'=[KG_024],[KG_025],'焚秽'=[KG_026],[KG_027],'焚秽'=[KG_028],[KG_029],'焚秽'=[KG_030],[KG_031],0)='普通',0.08/3,0.1/3),0)",
+      "Formula": "IF((IFS('焚秽'=[KG_020],[KG_021],'焚秽'=[KG_022],[KG_023],'焚秽'=[KG_024],[KG_025],'焚秽'=[KG_026],[KG_027],'焚秽'=[KG_028],[KG_029],'焚秽'=[KG_030],[KG_031],0))<>'0',IF((IFS('焚秽'=[KG_020],[KG_021],'焚秽'=[KG_022],[KG_023],'焚秽'=[KG_024],[KG_025],'焚秽'=[KG_026],[KG_027],'焚秽'=[KG_028],[KG_029],'焚秽'=[KG_030],[KG_031],0))='普通',0.08/3,0.1/3),0)",
       "FormulaParam": [
         "KG_020",
         "KG_021",
@@ -1570,10 +1539,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "NG_011",
+      "Code": "FNG_011",
       "Name": "销干戈",
       "BelongResultCode": null,
-      "Formula": "if(ifs('销干戈'=[KG_020],[KG_021],'销干戈'=[KG_022],[KG_023],'销干戈'=[KG_024],[KG_025],'销干戈'=[KG_026],[KG_027],'销干戈'=[KG_028],[KG_029],'销干戈'=[KG_030],[KG_031],0)<>0,if(ifs('销干戈'=[KG_020],[KG_021],'销干戈'=[KG_022],[KG_023],'销干戈'=[KG_024],[KG_025],'销干戈'=[KG_026],[KG_027],'销干戈'=[KG_028],[KG_029],'销干戈'=[KG_030],[KG_031],0)='普通',0.064,0.08),0)",
+      "Formula": "IF((IFS('销干戈'=[KG_020],[KG_021],'销干戈'=[KG_022],[KG_023],'销干戈'=[KG_024],[KG_025],'销干戈'=[KG_026],[KG_027],'销干戈'=[KG_028],[KG_029],'销干戈'=[KG_030],[KG_031],0))<>'0',IF((IFS('销干戈'=[KG_020],[KG_021],'销干戈'=[KG_022],[KG_023],'销干戈'=[KG_024],[KG_025],'销干戈'=[KG_026],[KG_027],'销干戈'=[KG_028],[KG_029],'销干戈'=[KG_030],[KG_031],0))='普通',0.064,0.08),0)",
       "FormulaParam": [
         "KG_020",
         "KG_021",
@@ -1598,10 +1567,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "NG_012",
+      "Code": "FNG_012",
       "Name": "破重云",
       "BelongResultCode": null,
-      "Formula": "if(ifs('破重云'=[KG_020],[KG_021],'破重云'=[KG_022],[KG_023],'破重云'=[KG_024],[KG_025],'破重云'=[KG_026],[KG_027],'破重云'=[KG_028],[KG_029],'破重云'=[KG_030],[KG_031],0)<>0,if(ifs('破重云'=[KG_020],[KG_021],'破重云'=[KG_022],[KG_023],'破重云'=[KG_024],[KG_025],'破重云'=[KG_026],[KG_027],'破重云'=[KG_028],[KG_029],'破重云'=[KG_030],[KG_031],0)='普通',0.0375,0.045),0)",
+      "Formula": "IF((IFS('破重云'=[KG_020],[KG_021],'破重云'=[KG_022],[KG_023],'破重云'=[KG_024],[KG_025],'破重云'=[KG_026],[KG_027],'破重云'=[KG_028],[KG_029],'破重云'=[KG_030],[KG_031],0))<>'0',IF((IFS('破重云'=[KG_020],[KG_021],'破重云'=[KG_022],[KG_023],'破重云'=[KG_024],[KG_025],'破重云'=[KG_026],[KG_027],'破重云'=[KG_028],[KG_029],'破重云'=[KG_030],[KG_031],0))='普通',0.0375,0.045),0)",
       "FormulaParam": [
         "KG_020",
         "KG_021",
@@ -1626,10 +1595,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "NG_013",
+      "Code": "FNG_013",
       "Name": "日月两仪",
       "BelongResultCode": null,
-      "Formula": "if(ifs('日月两仪'=[KG_020],[KG_021],'日月两仪'=[KG_022],[KG_023],'日月两仪'=[KG_024],[KG_025],'日月两仪'=[KG_026],[KG_027],'日月两仪'=[KG_028],[KG_029],'日月两仪'=[KG_030],[KG_031],0)<>0,if(ifs('日月两仪'=[KG_020],[KG_021],'日月两仪'=[KG_022],[KG_023],'日月两仪'=[KG_024],[KG_025],'日月两仪'=[KG_026],[KG_027],'日月两仪'=[KG_028],[KG_029],'日月两仪'=[KG_030],[KG_031],0)='普通',0.05,0.075),0)",
+      "Formula": "IF((IFS('日月两仪'=[KG_020],[KG_021],'日月两仪'=[KG_022],[KG_023],'日月两仪'=[KG_024],[KG_025],'日月两仪'=[KG_026],[KG_027],'日月两仪'=[KG_028],[KG_029],'日月两仪'=[KG_030],[KG_031],0))<>'0',IF((IFS('日月两仪'=[KG_020],[KG_021],'日月两仪'=[KG_022],[KG_023],'日月两仪'=[KG_024],[KG_025],'日月两仪'=[KG_026],[KG_027],'日月两仪'=[KG_028],[KG_029],'日月两仪'=[KG_030],[KG_031],0))='普通',0.05,0.075),0)",
       "FormulaParam": [
         "KG_020",
         "KG_021",
@@ -1654,10 +1623,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "NG_014",
+      "Code": "FNG_014",
       "Name": "燎野",
       "BelongResultCode": null,
-      "Formula": "if(ifs('燎野'=[KG_020],[KG_021],'燎野'=[KG_022],[KG_023],'燎野'=[KG_024],[KG_025],'燎野'=[KG_026],[KG_027],'燎野'=[KG_028],[KG_029],'燎野'=[KG_030],[KG_031],0)<>0,if(ifs('燎野'=[KG_020],[KG_021],'燎野'=[KG_022],[KG_023],'燎野'=[KG_024],[KG_025],'燎野'=[KG_026],[KG_027],'燎野'=[KG_028],[KG_029],'燎野'=[KG_030],[KG_031],0)='普通',0.0455,0.056),0)",
+      "Formula": "IF((IFS('燎野'=[KG_020],[KG_021],'燎野'=[KG_022],[KG_023],'燎野'=[KG_024],[KG_025],'燎野'=[KG_026],[KG_027],'燎野'=[KG_028],[KG_029],'燎野'=[KG_030],[KG_031],0))<>'0',IF((IFS('燎野'=[KG_020],[KG_021],'燎野'=[KG_022],[KG_023],'燎野'=[KG_024],[KG_025],'燎野'=[KG_026],[KG_027],'燎野'=[KG_028],[KG_029],'燎野'=[KG_030],[KG_031],0))='普通',0.0455,0.056),0)",
       "FormulaParam": [
         "KG_020",
         "KG_021",
@@ -1682,10 +1651,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "NG_015",
+      "Code": "FNG_015",
       "Name": "撼金阙",
       "BelongResultCode": null,
-      "Formula": "if(ifs('撼金阙'=[KG_020],[KG_021],'撼金阙'=[KG_022],[KG_023],'撼金阙'=[KG_024],[KG_025],'撼金阙'=[KG_026],[KG_027],'撼金阙'=[KG_028],[KG_029],'撼金阙'=[KG_030],[KG_031],0)<>0,if(ifs('撼金阙'=[KG_020],[KG_021],'撼金阙'=[KG_022],[KG_023],'撼金阙'=[KG_024],[KG_025],'撼金阙'=[KG_026],[KG_027],'撼金阙'=[KG_028],[KG_029],'撼金阙'=[KG_030],[KG_031],0)='普通',2,2.5),0)",
+      "Formula": "IF((IFS('撼金阙'=[KG_020],[KG_021],'撼金阙'=[KG_022],[KG_023],'撼金阙'=[KG_024],[KG_025],'撼金阙'=[KG_026],[KG_027],'撼金阙'=[KG_028],[KG_029],'撼金阙'=[KG_030],[KG_031],0))<>'0',IF((IFS('撼金阙'=[KG_020],[KG_021],'撼金阙'=[KG_022],[KG_023],'撼金阙'=[KG_024],[KG_025],'撼金阙'=[KG_026],[KG_027],'撼金阙'=[KG_028],[KG_029],'撼金阙'=[KG_030],[KG_031],0))='普通',2,2.5),0)",
       "FormulaParam": [
         "KG_020",
         "KG_021",
@@ -1710,10 +1679,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "NG_016",
+      "Code": "FNG_016",
       "Name": "擒丹火",
       "BelongResultCode": null,
-      "Formula": "if(ifs('擒丹火'=[KG_020],[KG_021],'擒丹火'=[KG_022],[KG_023],'擒丹火'=[KG_024],[KG_025],'擒丹火'=[KG_026],[KG_027],'擒丹火'=[KG_028],[KG_029],'擒丹火'=[KG_030],[KG_031],0)<>0,if(ifs('擒丹火'=[KG_020],[KG_021],'擒丹火'=[KG_022],[KG_023],'擒丹火'=[KG_024],[KG_025],'擒丹火'=[KG_026],[KG_027],'擒丹火'=[KG_028],[KG_029],'擒丹火'=[KG_030],[KG_031],0)='普通',750,900),0)",
+      "Formula": "IF((IFS('擒丹火'=[KG_020],[KG_021],'擒丹火'=[KG_022],[KG_023],'擒丹火'=[KG_024],[KG_025],'擒丹火'=[KG_026],[KG_027],'擒丹火'=[KG_028],[KG_029],'擒丹火'=[KG_030],[KG_031],0))<>'0',IF((IFS('擒丹火'=[KG_020],[KG_021],'擒丹火'=[KG_022],[KG_023],'擒丹火'=[KG_024],[KG_025],'擒丹火'=[KG_026],[KG_027],'擒丹火'=[KG_028],[KG_029],'擒丹火'=[KG_030],[KG_031],0))='普通',750,900),0)",
       "FormulaParam": [
         "KG_020",
         "KG_021",
@@ -1738,10 +1707,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "NG_017",
+      "Code": "FNG_017",
       "Name": "贯天穹",
       "BelongResultCode": null,
-      "Formula": "if(ifs('贯天穹'=[KG_020],[KG_021],'贯天穹'=[KG_022],[KG_023],'贯天穹'=[KG_024],[KG_025],'贯天穹'=[KG_026],[KG_027],'贯天穹'=[KG_028],[KG_029],'贯天穹'=[KG_030],[KG_031],0)<>0,if(ifs('贯天穹'=[KG_020],[KG_021],'贯天穹'=[KG_022],[KG_023],'贯天穹'=[KG_024],[KG_025],'贯天穹'=[KG_026],[KG_027],'贯天穹'=[KG_028],[KG_029],'贯天穹'=[KG_030],[KG_031],0)='普通',320,460),0)",
+      "Formula": "IF((IFS('贯天穹'=[KG_020],[KG_021],'贯天穹'=[KG_022],[KG_023],'贯天穹'=[KG_024],[KG_025],'贯天穹'=[KG_026],[KG_027],'贯天穹'=[KG_028],[KG_029],'贯天穹'=[KG_030],[KG_031],0))<>'0',IF((IFS('贯天穹'=[KG_020],[KG_021],'贯天穹'=[KG_022],[KG_023],'贯天穹'=[KG_024],[KG_025],'贯天穹'=[KG_026],[KG_027],'贯天穹'=[KG_028],[KG_029],'贯天穹'=[KG_030],[KG_031],0))='普通',320,460),0)",
       "FormulaParam": [
         "KG_020",
         "KG_021",
@@ -1766,10 +1735,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "NG_018",
+      "Code": "FNG_018",
       "Name": "撼海门",
       "BelongResultCode": null,
-      "Formula": "if(ifs('撼海门'=[KG_020],[KG_021],'撼海门'=[KG_022],[KG_023],'撼海门'=[KG_024],[KG_025],'撼海门'=[KG_026],[KG_027],'撼海门'=[KG_028],[KG_029],'撼海门'=[KG_030],[KG_031],0)<>0,if(ifs('撼海门'=[KG_020],[KG_021],'撼海门'=[KG_022],[KG_023],'撼海门'=[KG_024],[KG_025],'撼海门'=[KG_026],[KG_027],'撼海门'=[KG_028],[KG_029],'撼海门'=[KG_030],[KG_031],0)='普通',800,1000),0)",
+      "Formula": "IF((IFS('撼海门'=[KG_020],[KG_021],'撼海门'=[KG_022],[KG_023],'撼海门'=[KG_024],[KG_025],'撼海门'=[KG_026],[KG_027],'撼海门'=[KG_028],[KG_029],'撼海门'=[KG_030],[KG_031],0))<>'0',IF((IFS('撼海门'=[KG_020],[KG_021],'撼海门'=[KG_022],[KG_023],'撼海门'=[KG_024],[KG_025],'撼海门'=[KG_026],[KG_027],'撼海门'=[KG_028],[KG_029],'撼海门'=[KG_030],[KG_031],0))='普通',800,1000),0)",
       "FormulaParam": [
         "KG_020",
         "KG_021",
@@ -1794,10 +1763,38 @@
       "DynamicalText": null
     },
     {
-      "Code": "DZ_001",
+      "Code": "FNG_019",
+      "Name": "揽狂风",
+      "BelongResultCode": null,
+      "Formula": "IF((IFS('揽狂风'=[KG_020],[KG_021],'揽狂风'=[KG_022],[KG_023],'揽狂风'=[KG_024],[KG_025],'揽狂风'=[KG_026],[KG_027],'揽狂风'=[KG_028],[KG_029],'揽狂风'=[KG_030],[KG_031],0))<>'0',IF((IFS('揽狂风'=[KG_020],[KG_021],'揽狂风'=[KG_022],[KG_023],'揽狂风'=[KG_024],[KG_025],'揽狂风'=[KG_026],[KG_027],'揽狂风'=[KG_028],[KG_029],'揽狂风'=[KG_030],[KG_031],0))='普通',800,960),0)",
+      "FormulaParam": [
+        "KG_020",
+        "KG_021",
+        "KG_022",
+        "KG_023",
+        "KG_024",
+        "KG_025",
+        "KG_026",
+        "KG_027",
+        "KG_028",
+        "KG_029",
+        "KG_030",
+        "KG_031"
+      ],
+      "Rule": [],
+      "NotComplete": false,
+      "Level": 1,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "FDZ_001",
       "Name": "鞋子破防",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_009]='红',600,[KG_009]='紫',800,[KG_009]='橙',1000,0)*if([KG_008]='迅霆裂月',1,0)+ifs([KG_009]='红',400,[KG_009]='紫',600,[KG_009]='橙',800,0)*if([KG_008]='千载锋鸣',1,0)+ifs([KG_009]='红',500,[KG_009]='紫',750,[KG_009]='橙',1000,0)*if([KG_008]='崩摧撼岳',1,0)",
+      "Formula": "IFS([KG_009]='红',600,[KG_009]='紫',800,[KG_009]='橙',1000,0)*IF([KG_008]='迅霆裂月',1,0)+IFS([KG_009]='红',400,[KG_009]='紫',600,[KG_009]='橙',800,0)*IF([KG_008]='千载锋鸣',1,0)+IFS([KG_009]='红',500,[KG_009]='紫',750,[KG_009]='橙',1000,0)*IF([KG_008]='崩摧撼岳',1,0)",
       "FormulaParam": [
         "KG_009",
         "KG_008"
@@ -1812,10 +1809,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "DZ_002",
+      "Code": "FDZ_002",
       "Name": "鞋子攻击",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_009]='红',300,[KG_009]='紫',400,[KG_009]='橙',500,0)*if([KG_008]='踏空蹴蛟',1,0)",
+      "Formula": "IFS([KG_009]='红',300,[KG_009]='紫',400,[KG_009]='橙',500,0)*IF([KG_008]='踏空蹴蛟',1,0)",
       "FormulaParam": [
         "KG_009",
         "KG_008"
@@ -1830,10 +1827,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "DZ_003",
+      "Code": "FDZ_003",
       "Name": "鞋子忽视",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_009]='红',240,[KG_009]='紫',300,[KG_009]='橙',360,0)*if([KG_008]='悸魂绝魄',1,0)+ifs([KG_009]='红',90,[KG_009]='紫',120,[KG_009]='橙',150,0)*if([KG_008]='踏霄驭鹏',1,0)+ifs([KG_009]='红',150,[KG_009]='紫',225,[KG_009]='橙',300,0)*if([KG_008]='回崖踏嶂',1,0)",
+      "Formula": "IFS([KG_009]='红',240,[KG_009]='紫',300,[KG_009]='橙',360,0)*IF([KG_008]='悸魂绝魄',1,0)+IFS([KG_009]='红',90,[KG_009]='紫',120,[KG_009]='橙',150,0)*IF([KG_008]='踏霄驭鹏',1,0)+IFS([KG_009]='红',150,[KG_009]='紫',225,[KG_009]='橙',300,0)*IF([KG_008]='回崖踏嶂',1,0)",
       "FormulaParam": [
         "KG_009",
         "KG_008"
@@ -1848,10 +1845,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "DZ_004",
+      "Code": "FDZ_004",
       "Name": "鞋子命中",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_009]='红',180,[KG_009]='紫',240,[KG_009]='橙',300,0)*if([KG_008]='白虹贯日',1,0)+ifs([KG_009]='红',120,[KG_009]='紫',180,[KG_009]='橙',240,0)*if([KG_008]='烈辉平野',1,0)",
+      "Formula": "IFS([KG_009]='红',180,[KG_009]='紫',240,[KG_009]='橙',300,0)*IF([KG_008]='白虹贯日',1,0)+IFS([KG_009]='红',120,[KG_009]='紫',180,[KG_009]='橙',240,0)*IF([KG_008]='烈辉平野',1,0)",
       "FormulaParam": [
         "KG_009",
         "KG_008"
@@ -1866,10 +1863,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "DZ_005",
+      "Code": "FDZ_005",
       "Name": "鞋子克制",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_009]='红',200,[KG_009]='紫',400,[KG_009]='橙',600,0)*if([KG_008]='灼翼雀心',1,0)+[SH_005]*ifs([KG_009]='红',400,[KG_009]='紫',600,[KG_009]='橙',800,0)*if([KG_008]='水鉴英锋',1,0)+ifs([KG_009]='红',300,[KG_009]='紫',450,[KG_009]='橙',600,0)*if([KG_008]='崩摧撼岳',1,0)",
+      "Formula": "IFS([KG_009]='红',200,[KG_009]='紫',400,[KG_009]='橙',600,0)*IF([KG_008]='灼翼雀心',1,0)+[SH_005]*IFS([KG_009]='红',400,[KG_009]='紫',600,[KG_009]='橙',800,0)*IF([KG_008]='水鉴英锋',1,0)+IFS([KG_009]='红',300,[KG_009]='紫',450,[KG_009]='橙',600,0)*IF([KG_008]='崩摧撼岳',1,0)",
       "FormulaParam": [
         "KG_009",
         "KG_008",
@@ -1885,10 +1882,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "DZ_006",
+      "Code": "FDZ_006",
       "Name": "鞋子会心",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_009]='红',100,[KG_009]='紫',200,[KG_009]='橙',300,0)*if([KG_008]='狞爪撕风',1,0)+ifs([KG_009]='红',180,[KG_009]='紫',270,[KG_009]='橙',360,0)*if([KG_008]='烈辉平野',1,0)+ifs([KG_009]='红',200,[KG_009]='紫',300,[KG_009]='橙',400,0)*if([KG_008]='万械无竭',1,0)",
+      "Formula": "IFS([KG_009]='红',100,[KG_009]='紫',200,[KG_009]='橙',300,0)*IF([KG_008]='狞爪撕风',1,0)+IFS([KG_009]='红',180,[KG_009]='紫',270,[KG_009]='橙',360,0)*IF([KG_008]='烈辉平野',1,0)+IFS([KG_009]='红',200,[KG_009]='紫',300,[KG_009]='橙',400,0)*IF([KG_008]='万械无竭',1,0)",
       "FormulaParam": [
         "KG_009",
         "KG_008"
@@ -1903,10 +1900,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "DZ_007",
+      "Code": "FDZ_007",
       "Name": "鞋子元素",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_009]='红',180,[KG_009]='紫',240,[KG_009]='橙',300,0)*if([KG_008]='踏霄驭鹏',1,0)+ifs([KG_009]='红',240,[KG_009]='紫',360,[KG_009]='橙',480,0)*if([KG_008]='蹈武在庭',1,0)",
+      "Formula": "IFS([KG_009]='红',180,[KG_009]='紫',240,[KG_009]='橙',300,0)*IF([KG_008]='踏霄驭鹏',1,0)+IFS([KG_009]='红',240,[KG_009]='紫',360,[KG_009]='橙',480,0)*IF([KG_008]='蹈武在庭',1,0)",
       "FormulaParam": [
         "KG_009",
         "KG_008"
@@ -1921,10 +1918,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "DZ_008",
+      "Code": "FDZ_008",
       "Name": "鞋子克制%",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_009]='红',0.01,[KG_009]='紫',0.02,[KG_009]='橙',0.03,0)*if([KG_008]='水鉴英锋',1,0)+ifs([KG_009]='红',0.02,[KG_009]='紫',0.03,[KG_009]='橙',0.04,0)*if([KG_008]='回崖踏嶂',1,0)",
+      "Formula": "IFS([KG_009]='红',0.01,[KG_009]='紫',0.02,[KG_009]='橙',0.03,0)*IF([KG_008]='水鉴英锋',1,0)+IFS([KG_009]='红',0.02,[KG_009]='紫',0.03,[KG_009]='橙',0.04,0)*IF([KG_008]='回崖踏嶂',1,0)",
       "FormulaParam": [
         "KG_009",
         "KG_008"
@@ -1939,10 +1936,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "DZ_009",
+      "Code": "FDZ_009",
       "Name": "鞋子会伤",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_009]='红',0.04,[KG_009]='紫',0.06,[KG_009]='橙',0.08,0)*if([KG_008]='千载锋鸣',1,0)+ifs([KG_009]='红',0.02,[KG_009]='紫',0.04,[KG_009]='橙',0.06,0)*if([KG_008]='蹈武在庭',1,0)+ifs([KG_009]='红',0,[KG_009]='紫',0.05,[KG_009]='橙',0.1,0)*if([KG_008]='狞爪撕风',1,0)",
+      "Formula": "IFS([KG_009]='红',0.04,[KG_009]='紫',0.06,[KG_009]='橙',0.08,0)*IF([KG_008]='千载锋鸣',1,0)+IFS([KG_009]='红',0.02,[KG_009]='紫',0.04,[KG_009]='橙',0.06,0)*IF([KG_008]='蹈武在庭',1,0)+IFS([KG_009]='红',0,[KG_009]='紫',0.05,[KG_009]='橙',0.1,0)*IF([KG_008]='狞爪撕风',1,0)",
       "FormulaParam": [
         "KG_009",
         "KG_008"
@@ -1957,10 +1954,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "DZ_010",
+      "Code": "FDZ_010",
       "Name": "万械无竭",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_009]='红',200,[KG_009]='紫',300,[KG_009]='橙',400,0)*if([KG_008]='万械无竭',1,0)",
+      "Formula": "IFS([KG_009]='红',200,[KG_009]='紫',300,[KG_009]='橙',400,0)*IF([KG_008]='万械无竭',1,0)",
       "FormulaParam": [
         "KG_009",
         "KG_008"
@@ -1975,10 +1972,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "DZ_011",
+      "Code": "FDZ_011",
       "Name": "冽雷疾风",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_007]='无',0,[KG_007]='红',0.2,[KG_007]='紫',0.25,[KG_007]='橙',0.3,0)*if([KG_006]='冽雷疾风',1,0)",
+      "Formula": "IFS([KG_007]='无',0,[KG_007]='红',0.2,[KG_007]='紫',0.25,[KG_007]='橙',0.3,0)*IF([KG_006]='冽雷疾风',1,0)",
       "FormulaParam": [
         "KG_007",
         "KG_006"
@@ -1993,10 +1990,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "DZ_012",
+      "Code": "FDZ_012",
       "Name": "狞兽驰鹜",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_007]='无',-100,[KG_007]='红',1,[KG_007]='紫',2,[KG_007]='橙',3,0)+if([KG_006]='狞兽驰鹜',0,-100)",
+      "Formula": "IFS([KG_007]='无',-100,[KG_007]='红',1,[KG_007]='紫',2,[KG_007]='橙',3,0)+IF([KG_006]='狞兽驰鹜',0,-100)",
       "FormulaParam": [
         "KG_007",
         "KG_006"
@@ -2011,10 +2008,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "DZ_013",
+      "Code": "FDZ_013",
       "Name": "越海斫蛟",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_007]='无',0,[KG_007]='红',2,[KG_007]='紫',3,[KG_007]='橙',4,0)*if([KG_006]='越海斫蛟',1,0)",
+      "Formula": "IFS([KG_007]='无',0,[KG_007]='红',2,[KG_007]='紫',3,[KG_007]='橙',4,0)*IF([KG_006]='越海斫蛟',1,0)",
       "FormulaParam": [
         "KG_007",
         "KG_006"
@@ -2029,10 +2026,10 @@
       "DynamicalText": null
     },
     {
-      "Code": "DZ_014",
+      "Code": "FDZ_014",
       "Name": "锋越凌苍",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_007]='无',0,[KG_007]='红',2000/3,[KG_007]='紫',2500/3,[KG_007]='橙',1000,0)*if([KG_006]='锋越凌苍',1,0)",
+      "Formula": "IFS([KG_007]='无',0,[KG_007]='红',2000/3,[KG_007]='紫',2500/3,[KG_007]='橙',1000,0)*IF([KG_006]='锋越凌苍',1,0)",
       "FormulaParam": [
         "KG_007",
         "KG_006"
@@ -2047,10 +2044,64 @@
       "DynamicalText": null
     },
     {
-      "Code": "DZ_015",
+      "Code": "FDZ_015",
       "Name": "含仞重霄",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_007]='无',0,[KG_007]='红',840,[KG_007]='紫',1260,[KG_007]='橙',1680,0)*if([KG_006]='含仞重霄',1,0)",
+      "Formula": "IFS([KG_007]='无',0,[KG_007]='红',840,[KG_007]='紫',1260,[KG_007]='橙',1680,0)*IF([KG_006]='含仞重霄',1,0)",
+      "FormulaParam": [
+        "KG_007",
+        "KG_006"
+      ],
+      "Rule": [],
+      "NotComplete": false,
+      "Level": 1,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "FDZ_016",
+      "Name": "鞋子技强%",
+      "BelongResultCode": null,
+      "Formula": "IFS([KG_007]='红',0.01,[KG_007]='紫',0.02,[KG_007]='橙',0.03,0)*IF([KG_006]='祀天悟法',1,0)",
+      "FormulaParam": [
+        "KG_007",
+        "KG_006"
+      ],
+      "Rule": [],
+      "NotComplete": false,
+      "Level": 1,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "FDZ_017",
+      "Name": "临战决峰",
+      "BelongResultCode": null,
+      "Formula": "IFS([KG_007]='无',0,[KG_007]='红',1,[KG_007]='紫',1.5,[KG_007]='橙',2,0)*IF([KG_006]='临战决峰',1,0)",
+      "FormulaParam": [
+        "KG_007",
+        "KG_006"
+      ],
+      "Rule": [],
+      "NotComplete": false,
+      "Level": 1,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "FDZ_018",
+      "Name": "意斩绝天",
+      "BelongResultCode": null,
+      "Formula": "IFS([KG_007]='无',0,[KG_007]='红',1,[KG_007]='紫',1.5,[KG_007]='橙',2,0)*IF([KG_006]='意斩绝天',1,0)",
       "FormulaParam": [
         "KG_007",
         "KG_006"
@@ -2068,7 +2119,7 @@
       "Code": "FTZ_001",
       "Name": "临机制变",
       "BelongResultCode": null,
-      "Formula": "if(if([KG_010]='玄机', TRUE, if([KG_001]='玄机', TRUE, FALSE)),1,0)",
+      "Formula": "IF(IF([KG_010]='玄机', TRUE, IF([KG_001]='玄机', TRUE, FALSE)),1,0)",
       "FormulaParam": [
         "KG_010",
         "KG_001"
@@ -2086,7 +2137,7 @@
       "Code": "FTZ_002",
       "Name": "蚀残月（偷师）",
       "BelongResultCode": null,
-      "Formula": "if([KG_010]='碎梦',1,0)",
+      "Formula": "IF([KG_010]='碎梦',1,0)",
       "FormulaParam": [
         "KG_010"
       ],
@@ -2103,7 +2154,7 @@
       "Code": "FTZ_003",
       "Name": "聚灵",
       "BelongResultCode": null,
-      "Formula": "if(if([KG_010]='九灵', TRUE, if([KG_001]='九灵', TRUE, FALSE)),1,0)",
+      "Formula": "IF(IF([KG_010]='九灵', TRUE, IF([KG_001]='九灵', TRUE, FALSE)),1,0)",
       "FormulaParam": [
         "KG_010",
         "KG_001"
@@ -2121,7 +2172,7 @@
       "Code": "FTZ_004",
       "Name": "丹焰凝冰",
       "BelongResultCode": null,
-      "Formula": "if(if([KG_010]='神相', TRUE, if([KG_001]='神相', TRUE, FALSE)),1,0)",
+      "Formula": "IF(IF([KG_010]='神相', TRUE, IF([KG_001]='神相', TRUE, FALSE)),1,0)",
       "FormulaParam": [
         "KG_010",
         "KG_001"
@@ -2139,7 +2190,7 @@
       "Code": "FTZ_005",
       "Name": "龙泉鸣",
       "BelongResultCode": null,
-      "Formula": "if(if([KG_010]='龙吟', TRUE, if([KG_001]='龙吟', TRUE, FALSE)),1,0)",
+      "Formula": "IF(IF([KG_010]='龙吟', TRUE, IF([KG_001]='龙吟', TRUE, FALSE)),1,0)",
       "FormulaParam": [
         "KG_010",
         "KG_001"
@@ -2157,7 +2208,7 @@
       "Code": "FTZ_006",
       "Name": "素问大特质",
       "BelongResultCode": null,
-      "Formula": "if([KG_010]='素问（负提升）',1,0)",
+      "Formula": "IF([KG_010]='素问（负提升）',1,0)",
       "FormulaParam": [
         "KG_010"
       ],
@@ -2174,7 +2225,7 @@
       "Code": "FTZ_007",
       "Name": "刀意",
       "BelongResultCode": null,
-      "Formula": "if(in('刀意', [KG_012],[KG_014],[KG_016],[KG_010],[KG_011],[KG_013],[KG_015],[KG_017]),1,0)",
+      "Formula": "(IF([KG_012]='刀意',1,0)+IF([KG_014]='刀意',1,0)+IF([KG_016]='刀意',1,0)+IF([KG_010]='刀意',1,0)+IF([KG_011]='刀意',1,0)+IF([KG_013]='刀意',1,0)+IF([KG_015]='刀意',1,0)+IF([KG_017]='刀意',1,0))",
       "FormulaParam": [
         "KG_012",
         "KG_014",
@@ -2198,7 +2249,7 @@
       "Code": "FTZ_008",
       "Name": "剑心",
       "BelongResultCode": null,
-      "Formula": "if(in('剑心', [KG_012],[KG_014],[KG_016],[KG_010],[KG_011],[KG_013],[KG_015],[KG_017]),1,0)",
+      "Formula": "(IF([KG_012]='剑心',1,0)+IF([KG_014]='剑心',1,0)+IF([KG_016]='剑心',1,0)+IF([KG_010]='剑心',1,0)+IF([KG_011]='剑心',1,0)+IF([KG_013]='剑心',1,0)+IF([KG_015]='剑心',1,0)+IF([KG_017]='剑心',1,0))",
       "FormulaParam": [
         "KG_012",
         "KG_014",
@@ -2222,7 +2273,7 @@
       "Code": "FTZ_009",
       "Name": "向天歌",
       "BelongResultCode": null,
-      "Formula": "if(in('向天歌', [KG_012],[KG_014],[KG_016],[KG_010],[KG_011],[KG_013],[KG_015],[KG_017]),1,0)",
+      "Formula": "(IF([KG_012]='向天歌',1,0)+IF([KG_014]='向天歌',1,0)+IF([KG_016]='向天歌',1,0)+IF([KG_010]='向天歌',1,0)+IF([KG_011]='向天歌',1,0)+IF([KG_013]='向天歌',1,0)+IF([KG_015]='向天歌',1,0)+IF([KG_017]='向天歌',1,0))",
       "FormulaParam": [
         "KG_012",
         "KG_014",
@@ -2246,7 +2297,7 @@
       "Code": "FTZ_010",
       "Name": "握枢",
       "BelongResultCode": null,
-      "Formula": "if(in('握枢', [KG_012],[KG_014],[KG_016],[KG_010],[KG_011],[KG_013],[KG_015],[KG_017]),1,0)",
+      "Formula": "(IF([KG_012]='握枢',1,0)+IF([KG_014]='握枢',1,0)+IF([KG_016]='握枢',1,0)+IF([KG_010]='握枢',1,0)+IF([KG_011]='握枢',1,0)+IF([KG_013]='握枢',1,0)+IF([KG_015]='握枢',1,0)+IF([KG_017]='握枢',1,0))",
       "FormulaParam": [
         "KG_012",
         "KG_014",
@@ -2270,7 +2321,7 @@
       "Code": "FTZ_011",
       "Name": "白日临辰",
       "BelongResultCode": null,
-      "Formula": "if(in('白日临辰', [KG_012],[KG_014],[KG_016],[KG_010],[KG_011],[KG_013],[KG_015],[KG_017]),1,0)",
+      "Formula": "(IF([KG_012]='白日临辰',1,0)+IF([KG_014]='白日临辰',1,0)+IF([KG_016]='白日临辰',1,0)+IF([KG_010]='白日临辰',1,0)+IF([KG_011]='白日临辰',1,0)+IF([KG_013]='白日临辰',1,0)+IF([KG_015]='白日临辰',1,0)+IF([KG_017]='白日临辰',1,0))",
       "FormulaParam": [
         "KG_012",
         "KG_014",
@@ -2294,7 +2345,7 @@
       "Code": "FTZ_012",
       "Name": "奇想天开",
       "BelongResultCode": null,
-      "Formula": "if(in('奇想天开', [KG_012],[KG_014],[KG_016],[KG_010],[KG_011],[KG_013],[KG_015],[KG_017]),1,0)",
+      "Formula": "(IF([KG_012]='奇想天开',1,0)+IF([KG_014]='奇想天开',1,0)+IF([KG_016]='奇想天开',1,0)+IF([KG_010]='奇想天开',1,0)+IF([KG_011]='奇想天开',1,0)+IF([KG_013]='奇想天开',1,0)+IF([KG_015]='奇想天开',1,0)+IF([KG_017]='奇想天开',1,0))",
       "FormulaParam": [
         "KG_012",
         "KG_014",
@@ -2318,7 +2369,7 @@
       "Code": "FTZ_013",
       "Name": "烈焰枪",
       "BelongResultCode": null,
-      "Formula": "if(if(if(in('烈焰枪', [KG_012],[KG_014],[KG_016],[KG_010],[KG_011],[KG_013],[KG_015],[KG_017]),1,0), TRUE, if([KG_001]='血河', TRUE, FALSE)),1,0)",
+      "Formula": "IF(IF((IF([KG_012]='烈焰枪',1,0)+IF([KG_014]='烈焰枪',1,0)+IF([KG_016]='烈焰枪',1,0)+IF([KG_010]='烈焰枪',1,0)+IF([KG_011]='烈焰枪',1,0)+IF([KG_013]='烈焰枪',1,0)+IF([KG_015]='烈焰枪',1,0)+IF([KG_017]='烈焰枪',1,0)), TRUE, IF([KG_001]='血河', TRUE, FALSE)),1,0)",
       "FormulaParam": [
         "KG_012",
         "KG_014",
@@ -2343,7 +2394,7 @@
       "Code": "FTZ_014",
       "Name": "藏巧",
       "BelongResultCode": null,
-      "Formula": "if(if(if(in('藏巧', [KG_012],[KG_014],[KG_016],[KG_011],[KG_013],[KG_015],[KG_017]),1,0), TRUE, if([KG_010]='玄机', TRUE, FALSE)),1,0)",
+      "Formula": "IF(IF((IF([KG_012]='藏巧',1,0)+IF([KG_014]='藏巧',1,0)+IF([KG_016]='藏巧',1,0)+IF([KG_011]='藏巧',1,0)+IF([KG_013]='藏巧',1,0)+IF([KG_015]='藏巧',1,0)+IF([KG_017]='藏巧',1,0)), TRUE, IF([KG_010]='玄机', TRUE, FALSE)),1,0)",
       "FormulaParam": [
         "KG_012",
         "KG_014",
@@ -2367,7 +2418,7 @@
       "Code": "FTZ_015",
       "Name": "妙音入神",
       "BelongResultCode": null,
-      "Formula": "if(if(if(in('妙音入神', [KG_012],[KG_014],[KG_016],[KG_011],[KG_013],[KG_015],[KG_017]),1,0), TRUE, if([KG_010]='神相', TRUE, FALSE)),1,0)",
+      "Formula": "IF(IF((IF([KG_012]='妙音入神',1,0)+IF([KG_014]='妙音入神',1,0)+IF([KG_016]='妙音入神',1,0)+IF([KG_011]='妙音入神',1,0)+IF([KG_013]='妙音入神',1,0)+IF([KG_015]='妙音入神',1,0)+IF([KG_017]='妙音入神',1,0)), TRUE, IF([KG_010]='神相', TRUE, FALSE)),1,0)",
       "FormulaParam": [
         "KG_012",
         "KG_014",
@@ -2391,7 +2442,7 @@
       "Code": "FTZ_016",
       "Name": "孤鸿影",
       "BelongResultCode": null,
-      "Formula": "if(if(if(in('孤鸿影', [KG_012],[KG_014],[KG_016],[KG_011],[KG_013],[KG_015],[KG_017]),1,0), TRUE, if([KG_010]='碎梦', TRUE, FALSE)),1,0)",
+      "Formula": "IF(IF((IF([KG_012]='孤鸿影',1,0)+IF([KG_014]='孤鸿影',1,0)+IF([KG_016]='孤鸿影',1,0)+IF([KG_011]='孤鸿影',1,0)+IF([KG_013]='孤鸿影',1,0)+IF([KG_015]='孤鸿影',1,0)+IF([KG_017]='孤鸿影',1,0)), TRUE, IF([KG_010]='碎梦', TRUE, FALSE)),1,0)",
       "FormulaParam": [
         "KG_012",
         "KG_014",
@@ -2415,7 +2466,7 @@
       "Code": "FTZ_017",
       "Name": "坚骨灵根",
       "BelongResultCode": null,
-      "Formula": "if(if(if(in('坚骨灵根', [KG_012],[KG_014],[KG_016],[KG_011],[KG_013],[KG_015],[KG_017]),1,0), TRUE, if([KG_010]='血河', TRUE, FALSE)),1,0)",
+      "Formula": "IF(IF((IF([KG_012]='坚骨灵根',1,0)+IF([KG_014]='坚骨灵根',1,0)+IF([KG_016]='坚骨灵根',1,0)+IF([KG_011]='坚骨灵根',1,0)+IF([KG_013]='坚骨灵根',1,0)+IF([KG_015]='坚骨灵根',1,0)+IF([KG_017]='坚骨灵根',1,0)), TRUE, IF([KG_010]='血河', TRUE, FALSE)),1,0)",
       "FormulaParam": [
         "KG_012",
         "KG_014",
@@ -2439,7 +2490,7 @@
       "Code": "FTZ_018",
       "Name": "剑骨凌",
       "BelongResultCode": null,
-      "Formula": "if(if(if(in('剑骨凌', [KG_012],[KG_014],[KG_016],[KG_011],[KG_013],[KG_015],[KG_017]),1,0), TRUE, if([KG_010]='龙吟', TRUE, FALSE)),1,0)",
+      "Formula": "IF(IF((IF([KG_012]='剑骨凌',1,0)+IF([KG_014]='剑骨凌',1,0)+IF([KG_016]='剑骨凌',1,0)+IF([KG_011]='剑骨凌',1,0)+IF([KG_013]='剑骨凌',1,0)+IF([KG_015]='剑骨凌',1,0)+IF([KG_017]='剑骨凌',1,0)), TRUE, IF([KG_010]='龙吟', TRUE, FALSE)),1,0)",
       "FormulaParam": [
         "KG_012",
         "KG_014",
@@ -2463,7 +2514,7 @@
       "Code": "FTZ_019",
       "Name": "雪魄",
       "BelongResultCode": null,
-      "Formula": "if(if(if(in('雪魄', [KG_012],[KG_014],[KG_016],[KG_011],[KG_013],[KG_015],[KG_017]),1,0), TRUE, if([KG_010]='九灵', TRUE, FALSE)),1,0)",
+      "Formula": "IF(IF((IF([KG_012]='雪魄',1,0)+IF([KG_014]='雪魄',1,0)+IF([KG_016]='雪魄',1,0)+IF([KG_011]='雪魄',1,0)+IF([KG_013]='雪魄',1,0)+IF([KG_015]='雪魄',1,0)+IF([KG_017]='雪魄',1,0)), TRUE, IF([KG_010]='九灵', TRUE, FALSE)),1,0)",
       "FormulaParam": [
         "KG_012",
         "KG_014",
@@ -2487,7 +2538,7 @@
       "Code": "FTZ_020",
       "Name": "折荆化匕",
       "BelongResultCode": null,
-      "Formula": "if(in('折荆化匕', [KG_012],[KG_014],[KG_016],[KG_010],[KG_011],[KG_013],[KG_015],[KG_017]),1,0)",
+      "Formula": "(IF([KG_012]='折荆化匕',1,0)+IF([KG_014]='折荆化匕',1,0)+IF([KG_016]='折荆化匕',1,0)+IF([KG_010]='折荆化匕',1,0)+IF([KG_011]='折荆化匕',1,0)+IF([KG_013]='折荆化匕',1,0)+IF([KG_015]='折荆化匕',1,0)+IF([KG_017]='折荆化匕',1,0))",
       "FormulaParam": [
         "KG_012",
         "KG_014",
@@ -2508,12 +2559,75 @@
       "DynamicalText": null
     },
     {
+      "Code": "FTZ_021",
+      "Name": "惊雷概率",
+      "BelongResultCode": null,
+      "Formula": "IFS([FMB_028],[LQ_001]*([LQ_002]+[LQ_003])*([LQ_001]+[LQ_002]+[LQ_003])/2/(([LQ_001]+[LQ_002])*([LQ_001]+[LQ_003])*([LQ_002]+[LQ_003])+[LQ_001]*[LQ_002]*[LQ_003]),[FMB_029],IF(IF([LQ_001]>[LQ_002], IF([LQ_001]>[LQ_003], TRUE, FALSE), FALSE),1,0),TRUE,[LQ_001]/([LQ_001]+[LQ_002]+[LQ_003]),0)",
+      "FormulaParam": [
+        "FMB_028",
+        "LQ_001",
+        "LQ_002",
+        "LQ_003",
+        "FMB_029"
+      ],
+      "Rule": [],
+      "NotComplete": false,
+      "Level": 2,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "FTZ_022",
+      "Name": "坚冰概率",
+      "BelongResultCode": null,
+      "Formula": "IFS([FMB_028],[LQ_002]*([LQ_001]+[LQ_003])*([LQ_001]+[LQ_002]+[LQ_003])/2/(([LQ_001]+[LQ_003])*([LQ_002]+[LQ_003])*([LQ_001]+[LQ_002])+[LQ_001]*[LQ_002]*[LQ_003]),[FMB_029],IF(IF([LQ_002]>[LQ_001], IF([LQ_002]>[LQ_003], TRUE, FALSE), FALSE),1,0),TRUE,[LQ_002]/([LQ_001]+[LQ_002]+[LQ_003]),0)",
+      "FormulaParam": [
+        "FMB_028",
+        "LQ_002",
+        "LQ_001",
+        "LQ_003",
+        "FMB_029"
+      ],
+      "Rule": [],
+      "NotComplete": false,
+      "Level": 2,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "FTZ_023",
+      "Name": "衍木概率",
+      "BelongResultCode": null,
+      "Formula": "IFS([FMB_028],[LQ_003]*([LQ_001]+[LQ_002])*([LQ_001]+[LQ_002]+[LQ_003])/2/(([LQ_001]+[LQ_003])*([LQ_002]+[LQ_003])*([LQ_001]+[LQ_002])+[LQ_001]*[LQ_002]*[LQ_003]),[FMB_029],IF(IF([LQ_003]>[LQ_002], IF([LQ_003]>[LQ_001], TRUE, FALSE), FALSE),1,0),TRUE,[LQ_003]/([LQ_001]+[LQ_002]+[LQ_003]),0)",
+      "FormulaParam": [
+        "FMB_028",
+        "LQ_003",
+        "LQ_001",
+        "LQ_002",
+        "FMB_029"
+      ],
+      "Rule": [],
+      "NotComplete": false,
+      "Level": 2,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
       "Code": "FZJ_001",
       "Name": "最终攻击%",
       "BelongResultCode": null,
-      "Formula": "[NG_005]+[FMB_008]+[FTZ_008]*0.03+[FMB_002]+[FZY_001]*([FB_005]+[FZY_020])+1+0.05*[FG_004]*([FZY_030]+[FTZ_004])",
+      "Formula": "[FNG_005]+[FMB_008]+[FTZ_008]*0.03+[FMB_002]+[FZY_001]*([FB_005]+[FZY_020])+1+0.05*[FG_004]*([FZY_030]+[FTZ_004])",
       "FormulaParam": [
-        "NG_005",
+        "FNG_005",
         "FMB_008",
         "FTZ_008",
         "FMB_002",
@@ -2537,9 +2651,9 @@
       "Code": "FZJ_002",
       "Name": "面板攻击%",
       "BelongResultCode": null,
-      "Formula": "[NG_005]+[FTZ_008]*0.03+1+[FMB_008]",
+      "Formula": "[FNG_005]+[FTZ_008]*0.03+1+[FMB_008]",
       "FormulaParam": [
-        "NG_005",
+        "FNG_005",
         "FTZ_008",
         "FMB_008"
       ],
@@ -2556,12 +2670,12 @@
       "Code": "FZJ_003",
       "Name": "额外会伤",
       "BelongResultCode": null,
-      "Formula": "[FG_004]*0.1*[FTZ_004]+[NG_002]+if([NG_017]=0,1,0)*if([FMB_001]>0.7,([FMB_001]-0.2)*0.125,0)+[FZY_001]*([FZY_004]+[FZY_016]+[FZY_019]*12/60*0.017+[FZY_023]*0.069)",
+      "Formula": "[FG_004]*0.1*[FTZ_004]+[FNG_002]+IF([FNG_017]=0,1,0)*IF([FMB_001]>0.7,([FMB_001]-0.2)*0.125,0)+[FZY_001]*([FZY_004]+[FZY_016]+[FZY_019]*12/60*0.017+[FZY_023]*0.069)",
       "FormulaParam": [
         "FG_004",
         "FTZ_004",
-        "NG_002",
-        "NG_017",
+        "FNG_002",
+        "FNG_017",
         "FMB_001",
         "FZY_001",
         "FZY_004",
@@ -2582,7 +2696,7 @@
       "Code": "FZJ_004",
       "Name": "最终首克",
       "BelongResultCode": null,
-      "Formula": "[ST_002]+[ST_003]+[FMB_009]/0.032*(15.5*[KG_005]+256)*24/30+600*[FZY_031]+[FZY_001]*([FB_006]+[FZY_005]+[FZY_011]*2+(300+3*[KG_005])*1.1*[FZY_012]+[FZY_013]+[FZY_014])+Max(300*[DZ_012]+100,0)+[FG_008]*[DZ_013]*200+([SH_005]-[SH_003])*[DZ_013]*200+[NG_008]+480*[NG_007]*[FG_009]*0.7+[NG_009]+[SH_005]*[NG_016]+[NG_018]+[FZY_027]*900*15/18+[FMB_015]*[FG_007]*750+[DZ_015]+[FMB_004]+[FMB_005]+[FMB_006]+[FMB_007]*(230+[KG_005]*12)",
+      "Formula": "[ST_002]+[ST_003]+[FMB_009]/0.032*(15.5*[KG_005]+256)*24/30+600*[FZY_031]+[FZY_001]*([FB_006]+[FZY_005]+[FZY_011]*2+(300+3*[KG_005])*1.1*[FZY_012]+[FZY_013]+[FZY_014])+MAX(300*[FDZ_012]+100,0)+[FG_008]*[FDZ_013]*200+([SH_005]-[SH_003])*[FDZ_013]*200+[FNG_008]+480*[FNG_007]*[FG_009]*0.7+[FNG_009]+[SH_005]*[FNG_016]+[FNG_018]+[FZY_027]*900*15/18+[FMB_015]*[FG_007]*750+[FDZ_015]+[FMB_004]+[FMB_005]+[FMB_006]+[FMB_007]*(230+[KG_005]*12)+[FDZ_018]*500*2/3*[SH_005]",
       "FormulaParam": [
         "ST_002",
         "ST_003",
@@ -2596,25 +2710,26 @@
         "FZY_012",
         "FZY_013",
         "FZY_014",
-        "DZ_012",
+        "FDZ_012",
         "FG_008",
-        "DZ_013",
+        "FDZ_013",
         "SH_005",
         "SH_003",
-        "NG_008",
-        "NG_007",
+        "FNG_008",
+        "FNG_007",
         "FG_009",
-        "NG_009",
-        "NG_016",
-        "NG_018",
+        "FNG_009",
+        "FNG_016",
+        "FNG_018",
         "FZY_027",
         "FMB_015",
         "FG_007",
-        "DZ_015",
+        "FDZ_015",
         "FMB_004",
         "FMB_005",
         "FMB_006",
-        "FMB_007"
+        "FMB_007",
+        "FDZ_018"
       ],
       "Rule": [],
       "NotComplete": false,
@@ -2629,14 +2744,14 @@
       "Code": "FZJ_005",
       "Name": "元素增伤",
       "BelongResultCode": null,
-      "Formula": "1+[NG_003]+if([FTZ_002]=1,[FZY_002],[FZY_003])+[NG_013]+[NG_014]+[FTZ_011]*Min(0.005*Round([FZJ_011]/500,0),0.06)+[FZY_028]*0.1+[FZY_001]*([FZY_025]+[FZY_026])",
+      "Formula": "1+[FNG_003]+IF([FTZ_002]=1,[FZY_002],[FZY_003])+[FNG_013]+[FNG_014]+[FTZ_011]*MIN(0.005*Round([FZJ_011]/500,0),0.06)+[FZY_028]*0.1+[FZY_001]*([FZY_025]+[FZY_026])",
       "FormulaParam": [
-        "NG_003",
+        "FNG_003",
         "FTZ_002",
         "FZY_002",
         "FZY_003",
-        "NG_013",
-        "NG_014",
+        "FNG_013",
+        "FNG_014",
         "FTZ_011",
         "FZJ_011",
         "FZY_028",
@@ -2657,10 +2772,10 @@
       "Code": "FZJ_006",
       "Name": "内外攻增伤",
       "BelongResultCode": null,
-      "Formula": "1+[NG_013]+[NG_014]+[FZY_028]*0.1+[FZY_001]*([FZY_025]+[FZY_026])",
+      "Formula": "1+[FNG_013]+[FNG_014]+[FZY_028]*0.1+[FZY_001]*([FZY_025]+[FZY_026])",
       "FormulaParam": [
-        "NG_013",
-        "NG_014",
+        "FNG_013",
+        "FNG_014",
         "FZY_028",
         "FZY_001",
         "FZY_025",
@@ -2716,11 +2831,11 @@
       "Code": "FZJ_009",
       "Name": "首克%",
       "BelongResultCode": null,
-      "Formula": "1+[NG_011]+[NG_010]+[NG_012]+[ST_010]+[FZY_001]*([FB_003]+[FB_004])+0.05*[FG_007]*[FMB_015]+[FMB_009]+[FMB_010]+[FMB_007]*0.04",
+      "Formula": "1+[FNG_011]+[FNG_010]+[FNG_012]+[ST_010]+[FZY_001]*([FB_003]+[FB_004])+0.05*[FG_007]*[FMB_015]+[FMB_009]+[FMB_010]+[FMB_007]*0.04+[FMB_026]",
       "FormulaParam": [
-        "NG_011",
-        "NG_010",
-        "NG_012",
+        "FNG_011",
+        "FNG_010",
+        "FNG_012",
         "ST_010",
         "FZY_001",
         "FB_003",
@@ -2729,7 +2844,8 @@
         "FMB_015",
         "FMB_009",
         "FMB_010",
-        "FMB_007"
+        "FMB_007",
+        "FMB_026"
       ],
       "Rule": [],
       "NotComplete": false,
@@ -2744,13 +2860,14 @@
       "Code": "FZJ_010",
       "Name": "技强%",
       "BelongResultCode": null,
-      "Formula": "1+0.075*[SH_001]+[NG_016]/30000+([NG_006]-1)*[SH_004]+[FMB_012]",
+      "Formula": "1+0.075*[SH_001]+[FNG_016]/30000+([FNG_006]-1)*[SH_004]+[FMB_012]+[FDZ_016]",
       "FormulaParam": [
         "SH_001",
-        "NG_016",
-        "NG_006",
+        "FNG_016",
+        "FNG_006",
         "SH_004",
-        "FMB_012"
+        "FMB_012",
+        "FDZ_016"
       ],
       "Rule": [],
       "NotComplete": false,
@@ -2785,7 +2902,7 @@
       "Code": "FZJ_012",
       "Name": "额外命中",
       "BelongResultCode": null,
-      "Formula": "([FMB_003]+[FZY_031]*200+[FZY_001]*[FZY_008]+[FZY_001]*[FZY_015]*[FG_003]*0.83*([FTZ_015]+1)*([ST_012]*0.1+20)+Max(0.25*30*(1+[DZ_012]),0))+[FMB_029]",
+      "Formula": "([FMB_003]+[FZY_031]*200+[FZY_001]*[FZY_008]+[FZY_001]*[FZY_015]*[FG_003]*0.83*([FTZ_015]+1)*([ST_012]*0.1+20)+MAX(0.25*30*(1+[FDZ_012]),0))+[FMB_024]",
       "FormulaParam": [
         "FMB_003",
         "FZY_031",
@@ -2795,8 +2912,8 @@
         "FG_003",
         "FTZ_015",
         "ST_012",
-        "DZ_012",
-        "FMB_029"
+        "FDZ_012",
+        "FMB_024"
       ],
       "Rule": [],
       "NotComplete": false,
@@ -2811,7 +2928,7 @@
       "Code": "FZJ_013",
       "Name": "额外法穿",
       "BelongResultCode": null,
-      "Formula": "[FTZ_002]*80+[FZY_001]*[FZY_010]*50*12/15+[FZY_001]*if([FB_013]='携',(46+[KG_005])/3,0)+[FMB_020]*(46+[KG_005])+[FMB_021]+180*[FTZ_020]",
+      "Formula": "[FTZ_002]*80+[FZY_001]*[FZY_010]*50*12/15+[FZY_001]*IF([FB_013]='携',(46+[KG_005])/3,0)+[FMB_020]*(8+2*[KG_005])+180*[FTZ_020]",
       "FormulaParam": [
         "FTZ_002",
         "FZY_001",
@@ -2819,12 +2936,11 @@
         "FB_013",
         "KG_005",
         "FMB_020",
-        "FMB_021",
         "FTZ_020"
       ],
       "Rule": [],
       "NotComplete": false,
-      "Level": 3,
+      "Level": 2,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -2835,7 +2951,7 @@
       "Code": "FZJ_014",
       "Name": "额外会心",
       "BelongResultCode": null,
-      "Formula": "[FZY_001]*(137*[FZY_023]+800*[FZY_019]*12/60+[FZY_006]+[FZY_015]*[FG_003]*(1.6+[FTZ_016]*0.6)*([ST_012]*0.1+20)+[FZY_022]+[FZY_012]*(160+[KG_005]))+Max(0.75*30*(2+[DZ_012]),0)+[DZ_010]+0+[FMB_019]+[FMB_027]+[FMB_016]",
+      "Formula": "[FZY_001]*(137*[FZY_023]+800*[FZY_019]*12/60+[FZY_006]+[FZY_015]*[FG_003]*(1.6+[FTZ_016]*0.6)*([ST_012]*0.1+20)+[FZY_022]+[FZY_012]*(160+[KG_005]))+MAX(0.75*30*(2+[FDZ_012]),0)+[FDZ_010]+[FMB_019]+[FMB_022]+[FMB_016]+[FMB_027]",
       "FormulaParam": [
         "FZY_001",
         "FZY_023",
@@ -2848,15 +2964,16 @@
         "FZY_022",
         "FZY_012",
         "KG_005",
-        "DZ_012",
-        "DZ_010",
+        "FDZ_012",
+        "FDZ_010",
         "FMB_019",
-        "FMB_027",
-        "FMB_016"
+        "FMB_022",
+        "FMB_016",
+        "FMB_027"
       ],
       "Rule": [],
       "NotComplete": false,
-      "Level": 3,
+      "Level": 4,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -2867,7 +2984,7 @@
       "Code": "FZJ_015",
       "Name": "额外破防",
       "BelongResultCode": null,
-      "Formula": "[FZY_001]*([FZY_009]*320+[FZY_010]*150*12/15+[FZY_007]+2*[FZY_015]*[FG_003]*(([ST_011]*0.1+20)+[FTZ_005]*([ST_013]*0.1+20))+[FZY_024]*[FG_005])+[FTZ_001]*2.4*Min(250,Max(0,[ST_008]+[FZJ_012]*(1+0.04*[FTZ_010])-[BO_05]))-[FTZ_006]*2*([ST_011]+[FZY_015]*[FG_003]*([ST_011]*0.1+20))+[FTZ_005]*0.08*[BO_01]*[FG_001]+[FMB_022]+[FMB_030]+[FMB_011]",
+      "Formula": "[FZY_001]*([FZY_009]*320+[FZY_010]*150*12/15+[FZY_007]+2*[FZY_015]*[FG_003]*(([ST_011]*0.1+20)+[FTZ_005]*([ST_013]*0.1+20))+[FZY_024]*[FG_005])+[FTZ_001]*2.4*MIN(250,MAX(0,[ST_008]+[FZJ_012]*(1+0.04*[FTZ_010])-[BO_05]))-[FTZ_006]*2*([ST_011]+[FZY_015]*[FG_003]*([ST_011]*0.1+20))+[FTZ_005]*0.08*[BO_01]*[FG_001]+[FMB_025]+[FMB_011]",
       "FormulaParam": [
         "FZY_001",
         "FZY_009",
@@ -2888,8 +3005,7 @@
         "FTZ_006",
         "BO_01",
         "FG_001",
-        "FMB_022",
-        "FMB_030",
+        "FMB_025",
         "FMB_011"
       ],
       "Rule": [],
@@ -2905,7 +3021,7 @@
       "Code": "FZJ_016",
       "Name": "额外攻击",
       "BelongResultCode": null,
-      "Formula": "[FG_002]*611*[FTZ_013]+[FZY_001]*[FZY_015]*[FG_003]*(([ST_011]*0.1+20)*4.6+[FZY_029]*1.65*([ST_013]*0.1+20)+[FTZ_019]*1.65*([ST_014]*0.1+20))+[FZY_001]*if([FZY_008]=10+[KG_005]*5,(20+[KG_005])*18/24,0)+[FMB_013]*(15+5*[KG_005])*18/24+[FZY_001]*[FZY_021]+[FMB_014]+[DZ_014]+[FMB_028]",
+      "Formula": "[FG_002]*611*[FTZ_013]+[FZY_001]*[FZY_015]*[FG_003]*(([ST_011]*0.1+20)*4.6+[FZY_029]*1.65*([ST_013]*0.1+20)+[FTZ_019]*1.65*([ST_014]*0.1+20))+[FZY_001]*IF([FZY_008]=10+[KG_005]*5,(20+[KG_005])*18/24,0)+[FMB_013]*(15+5*[KG_005])*18/24+[FZY_001]*[FZY_021]+[FMB_014]+[FDZ_014]+[FMB_023]+300*[FDZ_017]",
       "FormulaParam": [
         "FG_002",
         "FTZ_013",
@@ -2922,8 +3038,9 @@
         "FMB_013",
         "FZY_021",
         "FMB_014",
-        "DZ_014",
-        "FMB_028"
+        "FDZ_014",
+        "FMB_023",
+        "FDZ_017"
       ],
       "Rule": [],
       "NotComplete": false,
@@ -2938,19 +3055,20 @@
       "Code": "FZJ_017",
       "Name": "额外元素攻",
       "BelongResultCode": null,
-      "Formula": "[FZY_001]*([FZY_018]*87*13/50+[FZY_017]+[FZY_011]+[FZY_009]*160)+[FZY_001]*[FZY_015]*[FG_003]*1.07*([ST_012]*0.1+20)+[FMB_020]*(176+8*[KG_005])+[FB_007]",
+      "Formula": "[FZY_001]*([FZY_018]*87*13/50+[FZY_017]+[FZY_011]+[FZY_009]*160+[FB_007])+[FZY_001]*[FZY_015]*[FG_003]*1.07*([ST_012]*0.1+20)+[FMB_020]*(176+8*[KG_005])+240*[FDZ_017]",
       "FormulaParam": [
         "FZY_001",
         "FZY_018",
         "FZY_017",
         "FZY_011",
         "FZY_009",
+        "FB_007",
         "FZY_015",
         "FG_003",
         "ST_012",
         "FMB_020",
         "KG_005",
-        "FB_007"
+        "FDZ_017"
       ],
       "Rule": [],
       "NotComplete": false,
@@ -3048,18 +3166,18 @@
       "Code": "FSC_04",
       "Name": "伤害倍率",
       "BelongResultCode": null,
-      "Formula": "(1-[FBL_04])*0.5+[FBL_04]*(1+([FBL_03]+Min(1-[FBL_03],[DZ_011])*[SH_003])*([ST_009]+[FZJ_003]-1))",
+      "Formula": "(1-[FBL_04])*0.5+[FBL_04]*(1+([FBL_03]+MIN(1-[FBL_03],[FDZ_011])*[SH_003])*([ST_009]+[FZJ_003]-1))",
       "FormulaParam": [
         "FBL_04",
         "FBL_03",
-        "DZ_011",
+        "FDZ_011",
         "SH_003",
         "ST_009",
         "FZJ_003"
       ],
       "Rule": [],
       "NotComplete": false,
-      "Level": 5,
+      "Level": 6,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -3078,7 +3196,7 @@
       ],
       "Rule": [],
       "NotComplete": false,
-      "Level": 6,
+      "Level": 7,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -3089,7 +3207,7 @@
       "Code": "FHX_001",
       "Name": "会心",
       "BelongResultCode": null,
-      "Formula": "((1-[FBL_04])*0.5+[FBL_04]*(1+(Min((115*(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]+[X]-[X]*[Y])*[FZJ_007]-[BO_04])-[BO_09])/(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]+[X]-[X]*[Y])*[FZJ_007]-[BO_04]+[BO_10])/100+0.05*[FMB_001],1)+Min(1-Min((115*(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]+[X]-[X]*[Y])*[FZJ_007]-[BO_04])-[BO_09])/(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]+[X]-[X]*[Y])*[FZJ_007]-[BO_04]+[BO_10])/100+0.05*[FMB_001],1),[DZ_011])*[SH_003])*([ST_009]+[FZJ_003]-1)))/((1-[FBL_04])*0.5+[FBL_04]*(1+(Min((115*(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]-[X]*[Y])*[FZJ_007]-[BO_04])-[BO_09])/(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]-[X]*[Y])*[FZJ_007]-[BO_04]+[BO_10])/100+0.05*[FMB_001],1)+Min(1-Min((115*(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]-[X]*[Y])*[FZJ_007]-[BO_04])-[BO_09])/(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]-[X]*[Y])*[FZJ_007]-[BO_04]+[BO_10])/100+0.05*[FMB_001],1),[DZ_011])*[SH_003])*([ST_009]+[FZJ_003]-1)))-1",
+      "Formula": "((1-[FBL_04])*0.5+[FBL_04]*(1+(MIN((115*(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]+[X]-[X]*[Y])*[FZJ_007]-[BO_04])-[BO_09])/(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]+[X]-[X]*[Y])*[FZJ_007]-[BO_04]+[BO_10])/100+0.05*[FMB_001],1)+MIN(1-MIN((115*(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]+[X]-[X]*[Y])*[FZJ_007]-[BO_04])-[BO_09])/(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]+[X]-[X]*[Y])*[FZJ_007]-[BO_04]+[BO_10])/100+0.05*[FMB_001],1),[FDZ_011])*[SH_003])*([ST_009]+[FZJ_003]-1)))/((1-[FBL_04])*0.5+[FBL_04]*(1+(MIN((115*(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]-[X]*[Y])*[FZJ_007]-[BO_04])-[BO_09])/(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]-[X]*[Y])*[FZJ_007]-[BO_04]+[BO_10])/100+0.05*[FMB_001],1)+MIN(1-MIN((115*(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]-[X]*[Y])*[FZJ_007]-[BO_04])-[BO_09])/(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]-[X]*[Y])*[FZJ_007]-[BO_04]+[BO_10])/100+0.05*[FMB_001],1),[FDZ_011])*[SH_003])*([ST_009]+[FZJ_003]-1)))-1",
       "FormulaParam": [
         "FBL_04",
         "ST_007",
@@ -3100,7 +3218,7 @@
         "BO_09",
         "BO_10",
         "FMB_001",
-        "DZ_011",
+        "FDZ_011",
         "SH_003",
         "ST_009",
         "FZJ_003"
@@ -3126,7 +3244,7 @@
       "Code": "FHX_002",
       "Name": "命中",
       "BelongResultCode": null,
-      "Formula": "((Min(0.95+1.43*([ST_008]+[FZJ_012]*(1+0.04*[FTZ_010])+([X]-[X]*[Y])*(1+[FTZ_010]*0.04)-[BO_05])/([ST_008]+[FZJ_012]*(1+0.04*[FTZ_010])+([X]-[X]*[Y])*(1+0.04*[FTZ_010])-[BO_05]+[BO_08]),1)*(0.5+([FBL_03]+Min(1-[FBL_03],[DZ_011])*[SH_003])*([ST_009]+[FZJ_003]-1))+0.5)/(Min(0.95+1.43*([ST_008]+[FZJ_012]*(1+0.04*[FTZ_010])-[X]*[Y]*(1+[FTZ_010]*0.04)-[BO_05])/([ST_008]+[FZJ_012]*(1+0.04*[FTZ_010])-[X]*[Y]*(1+0.04*[FTZ_010])-[BO_05]+[BO_08]),1)*(0.5+([FBL_03]+Min(1-[FBL_03],[DZ_011])*[SH_003])*([ST_009]+[FZJ_003]-1))+0.5)-1)*[FMB_018]",
+      "Formula": "((MIN(0.95+1.43*([ST_008]+[FZJ_012]*(1+0.04*[FTZ_010])+([X]-[X]*[Y])*(1+[FTZ_010]*0.04)-[BO_05])/([ST_008]+[FZJ_012]*(1+0.04*[FTZ_010])+([X]-[X]*[Y])*(1+0.04*[FTZ_010])-[BO_05]+[BO_08]),1)*(0.5+([FBL_03]+MIN(1-[FBL_03],[FDZ_011])*[SH_003])*([ST_009]+[FZJ_003]-1))+0.5)/(MIN(0.95+1.43*([ST_008]+[FZJ_012]*(1+0.04*[FTZ_010])-[X]*[Y]*(1+[FTZ_010]*0.04)-[BO_05])/([ST_008]+[FZJ_012]*(1+0.04*[FTZ_010])-[X]*[Y]*(1+0.04*[FTZ_010])-[BO_05]+[BO_08]),1)*(0.5+([FBL_03]+MIN(1-[FBL_03],[FDZ_011])*[SH_003])*([ST_009]+[FZJ_003]-1))+0.5)-1)*[FMB_018]",
       "FormulaParam": [
         "ST_008",
         "FZJ_012",
@@ -3134,7 +3252,7 @@
         "BO_05",
         "BO_08",
         "FBL_03",
-        "DZ_011",
+        "FDZ_011",
         "SH_003",
         "ST_009",
         "FZJ_003",
@@ -3150,7 +3268,7 @@
         }
       ],
       "NotComplete": false,
-      "Level": 5,
+      "Level": 6,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -3161,7 +3279,7 @@
       "Code": "FHX_003",
       "Name": "忽视",
       "BelongResultCode": null,
-      "Formula": "([BO_07]/([BO_07]+Max([BO_03]-[ST_006]-[X]+[X]*[Y]-[FZJ_013],0))*([ST_005]/(1+0.05*[FTZ_009])+[FZJ_017])*[FZJ_008]*[FZJ_005]+[FSC_01])/([BO_07]/([BO_07]+Max([BO_03]+[X]*[Y]-[ST_006]-[FZJ_013],0))*([ST_005]/(1+0.05*[FTZ_009])+[FZJ_017])*[FZJ_008]*[FZJ_005]+[FSC_01])-1",
+      "Formula": "([BO_07]/([BO_07]+MAX([BO_03]-[ST_006]-[X]+[X]*[Y]-[FZJ_013],0))*([ST_005]/(1+0.05*[FTZ_009])+[FZJ_017])*[FZJ_008]*[FZJ_005]+[FSC_01])/([BO_07]/([BO_07]+MAX([BO_03]+[X]*[Y]-[ST_006]-[FZJ_013],0))*([ST_005]/(1+0.05*[FTZ_009])+[FZJ_017])*[FZJ_008]*[FZJ_005]+[FSC_01])-1",
       "FormulaParam": [
         "BO_07",
         "BO_03",
@@ -3195,7 +3313,7 @@
       "Code": "FHX_004",
       "Name": "破防",
       "BelongResultCode": null,
-      "Formula": "(([BO_06]/([BO_06]+Max([BO_01]-[X]+[X]*[Y]-[ST_004]-[FZJ_015],0))-0.1)*([FZJ_004]+([ST_001]/[FZJ_002]+[FZJ_016])*[FZJ_001]-[BO_02]+[FZJ_018])*[FZJ_006]+[FSC_02])/(([BO_06]/([BO_06]+Max([BO_01]+[X]*[Y]-[ST_004]-[FZJ_015],0))-0.1)*([FZJ_004]+([ST_001]/[FZJ_002]+[FZJ_016])*[FZJ_001]-[BO_02]+[FZJ_018])*[FZJ_006]+[FSC_02])-1",
+      "Formula": "(([BO_06]/([BO_06]+MAX([BO_01]-[X]+[X]*[Y]-[ST_004]-[FZJ_015],0))-0.1)*([FZJ_004]+([ST_001]/[FZJ_002]+[FZJ_016])*[FZJ_001]-[BO_02]+[FZJ_018])*[FZJ_006]+[FSC_02])/(([BO_06]/([BO_06]+MAX([BO_01]+[X]*[Y]-[ST_004]-[FZJ_015],0))-0.1)*([FZJ_004]+([ST_001]/[FZJ_002]+[FZJ_016])*[FZJ_001]-[BO_02]+[FZJ_018])*[FZJ_006]+[FSC_02])-1",
       "FormulaParam": [
         "BO_06",
         "BO_01",
@@ -3365,11 +3483,11 @@
       "Code": "FHX_009",
       "Name": "会伤",
       "BelongResultCode": null,
-      "Formula": "((1-[FBL_04])*0.5+[FBL_04]*(1+([FBL_03]+Min(1-[FBL_03],[DZ_011])*[SH_003])*([ST_009]+[FZJ_003]+[X]-[X]*[Y]-1)))/((1-[FBL_04])*0.5+[FBL_04]*(1+([FBL_03]+Min(1-[FBL_03],[DZ_011])*[SH_003])*([ST_009]+[FZJ_003]-[X]*[Y]-1)))-1",
+      "Formula": "((1-[FBL_04])*0.5+[FBL_04]*(1+([FBL_03]+MIN(1-[FBL_03],[FDZ_011])*[SH_003])*([ST_009]+[FZJ_003]+[X]-[X]*[Y]-1)))/((1-[FBL_04])*0.5+[FBL_04]*(1+([FBL_03]+MIN(1-[FBL_03],[FDZ_011])*[SH_003])*([ST_009]+[FZJ_003]-[X]*[Y]-1)))-1",
       "FormulaParam": [
         "FBL_04",
         "FBL_03",
-        "DZ_011",
+        "FDZ_011",
         "SH_003",
         "ST_009",
         "FZJ_003"
@@ -3384,7 +3502,7 @@
         }
       ],
       "NotComplete": false,
-      "Level": 5,
+      "Level": 6,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -3524,7 +3642,7 @@
       "Code": "FHX_015",
       "Name": "会心会伤",
       "BelongResultCode": null,
-      "Formula": "((1-[FBL_04])*0.5+[FBL_04]*(1+(Min((115*(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]+[A]-[B])*[FZJ_007]-[BO_04])-[BO_09])/(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]+[A]-[B])*[FZJ_007]-[BO_04]+[BO_10])/100+0.05*[FMB_001],1)+Min(1-Min((115*(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]+[A]-[B])*[FZJ_007]-[BO_04])-[BO_09])/(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]+[A]-[B])*[FZJ_007]-[BO_04]+[BO_10])/100+0.05*[FMB_001],1),[DZ_011])*[SH_003])*([ST_009]+[FZJ_003]-1+[C]-[D])))/((1-[FBL_04])*0.5+[FBL_04]*(1+(Min((115*(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]-[B])*[FZJ_007]-[BO_04])-[BO_09])/(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]-[B])*[FZJ_007]-[BO_04]+[BO_10])/100+0.05*[FMB_001],1)+Min(1-Min((115*(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]-[B])*[FZJ_007]-[BO_04])-[BO_09])/(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]-[B])*[FZJ_007]-[BO_04]+[BO_10])/100+0.05*[FMB_001],1),[DZ_011])*[SH_003])*([ST_009]+[FZJ_003]-1-[D])))-1",
+      "Formula": "((1-[FBL_04])*0.5+[FBL_04]*(1+(MIN((115*(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]+[A]-[B])*[FZJ_007]-[BO_04])-[BO_09])/(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]+[A]-[B])*[FZJ_007]-[BO_04]+[BO_10])/100+0.05*[FMB_001],1)+MIN(1-MIN((115*(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]+[A]-[B])*[FZJ_007]-[BO_04])-[BO_09])/(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]+[A]-[B])*[FZJ_007]-[BO_04]+[BO_10])/100+0.05*[FMB_001],1),[FDZ_011])*[SH_003])*([ST_009]+[FZJ_003]-1+[C]-[D])))/((1-[FBL_04])*0.5+[FBL_04]*(1+(MIN((115*(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]-[B])*[FZJ_007]-[BO_04])-[BO_09])/(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]-[B])*[FZJ_007]-[BO_04]+[BO_10])/100+0.05*[FMB_001],1)+MIN(1-MIN((115*(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]-[B])*[FZJ_007]-[BO_04])-[BO_09])/(([ST_007]/(1+[FTZ_007]*0.06)+[FZJ_014]-[B])*[FZJ_007]-[BO_04]+[BO_10])/100+0.05*[FMB_001],1),[FDZ_011])*[SH_003])*([ST_009]+[FZJ_003]-1-[D])))-1",
       "FormulaParam": [
         "FBL_04",
         "ST_007",
@@ -3535,7 +3653,7 @@
         "BO_09",
         "BO_10",
         "FMB_001",
-        "DZ_011",
+        "FDZ_011",
         "SH_003",
         "ST_009",
         "FZJ_003"
@@ -3560,83 +3678,34 @@
       "DynamicalText": null
     },
     {
-      "Code": "F_EQ_001",
-      "Name": "姜却-破防",
+      "Code": "FHX_016",
+      "Name": "野利改动命中",
       "BelongResultCode": null,
-      "Formula": "if([LQ_013]='姜却·君授银鍪',if([LQ_015]='忽视倾向',0,904*(1.3+if([LQ_002]=0,0,0.1)+if([LQ_003]=0,0,0.1)+if([LQ_001]=0,0,0.1)))+689,if([LQ_015]='忽视倾向',0,904*(1.3+if([LQ_002]=0,0,0.15)+if([LQ_003]=0,0,0.15)+if([LQ_001]=0,0,0.15)))+788)",
+      "Formula": "((MIN(0.95+1.43*([ST_008]+[FZJ_012]*(1+0.04*[FTZ_010])+([X]-[X]*[Y])*(1+[FTZ_010]*0.04)-[BO_05])/([ST_008]+[FZJ_012]*(1+0.04*[FTZ_010])+([X]-[X]*[Y])*(1+0.04*[FTZ_010])-[BO_05]+[BO_08]),1)*(0.5+([FBL_03]+MIN(1-[FBL_03],[FDZ_011])*[SH_003])*([ST_009]+[FZJ_003]-1))+0.5)/(MIN(0.95+1.43*([ST_008]+[FZJ_012]*(1+0.04*[FTZ_010])-[X]*[Y]*(1+[FTZ_010]*0.04)-[BO_05])/([ST_008]+[FZJ_012]*(1+0.04*[FTZ_010])-[X]*[Y]*(1+0.04*[FTZ_010])-[BO_05]+[BO_08]),1)*(0.5+([FBL_03]+MIN(1-[FBL_03],[FDZ_011])*[SH_003])*([ST_009]+[FZJ_003]-1))+0.5)-1)*[FMB_018]",
       "FormulaParam": [
-        "LQ_013",
-        "LQ_015",
-        "LQ_002",
-        "LQ_003",
-        "LQ_001"
+        "ST_008",
+        "FZJ_012",
+        "FTZ_010",
+        "BO_05",
+        "BO_08",
+        "FBL_03",
+        "FDZ_011",
+        "SH_003",
+        "ST_009",
+        "FZJ_003",
+        "FMB_018"
       ],
-      "Rule": [],
-      "NotComplete": false,
-      "Level": 1,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
-      "Code": "F_EQ_002",
-      "Name": "姜却-忽视",
-      "BelongResultCode": null,
-      "Formula": "if([LQ_013]='姜却·君授银鍪',if([LQ_015]='忽视倾向',312*(1.3+if([LQ_002]=0,0,0.1)+if([LQ_003]=0,0,0.1)+if([LQ_001]=0,0,0.1)),0),if([LQ_015]='忽视倾向',312*(1.3+if([LQ_002]=0,0,0.15)+if([LQ_003]=0,0,0.15)+if([LQ_001]=0,0,0.15)),0))",
-      "FormulaParam": [
-        "LQ_013",
-        "LQ_015",
-        "LQ_002",
-        "LQ_003",
-        "LQ_001"
+      "Rule": [
+        {
+          "Mode": 1,
+          "LambdaParam": [
+            "X",
+            "Y"
+          ]
+        }
       ],
-      "Rule": [],
       "NotComplete": false,
-      "Level": 1,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
-      "Code": "F_EQ_003",
-      "Name": "圣巫-破防",
-      "BelongResultCode": null,
-      "Formula": "if([LQ_014]='圣巫·蒙尘旧涤',if([LQ_016]='忽视倾向',0,904*(1.3+0.3*[LQ_001]/([LQ_001]+[LQ_002]+[LQ_003]))),if([LQ_016]='忽视倾向',0,904*(1.24+0.48*[LQ_001]/([LQ_001]+[LQ_002]+[LQ_003]))))",
-      "FormulaParam": [
-        "LQ_014",
-        "LQ_016",
-        "LQ_001",
-        "LQ_002",
-        "LQ_003"
-      ],
-      "Rule": [],
-      "NotComplete": false,
-      "Level": 1,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
-      "Code": "F_EQ_004",
-      "Name": "圣巫-忽视",
-      "BelongResultCode": null,
-      "Formula": "if([LQ_014]='圣巫·蒙尘旧涤',if([LQ_016]='忽视倾向',312*(1.3+0.3*[LQ_001]/([LQ_001]+[LQ_002]+[LQ_003])),0)+237,if([LQ_016]='忽视倾向',312*(1.24+0.48*[LQ_001]/([LQ_001]+[LQ_002]+[LQ_003])),0)+272)",
-      "FormulaParam": [
-        "LQ_014",
-        "LQ_016",
-        "LQ_001",
-        "LQ_002",
-        "LQ_003"
-      ],
-      "Rule": [],
-      "NotComplete": false,
-      "Level": 1,
+      "Level": 6,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -3649,10 +3718,10 @@
       "Code": "RF_NG_001",
       "Name": "擒丹火",
       "BelongResultCode": null,
-      "Formula": "0.025/([FZJ_010]-[NG_016]/30000)+[SH_005]*FHX_006(750,[NG_016]/750)",
+      "Formula": "0.025/([FZJ_010]-[FNG_016]/30000)+[SH_005]*FHX_006(750,[FNG_016]/750)",
       "FormulaParam": [
         "FZJ_010",
-        "NG_016",
+        "FNG_016",
         "SH_005"
       ],
       "Rule": [
@@ -3675,10 +3744,10 @@
       "Code": "RF_NG_002",
       "Name": "擒丹火",
       "BelongResultCode": null,
-      "Formula": "0.03/([FZJ_010]-[NG_016]/30000)+[SH_005]*FHX_006(900,[NG_016]/900)",
+      "Formula": "0.03/([FZJ_010]-[FNG_016]/30000)+[SH_005]*FHX_006(900,[FNG_016]/900)",
       "FormulaParam": [
         "FZJ_010",
-        "NG_016",
+        "FNG_016",
         "SH_005"
       ],
       "Rule": [
@@ -3701,9 +3770,9 @@
       "Code": "RF_NG_003",
       "Name": "贯天穹",
       "BelongResultCode": null,
-      "Formula": "FHX_001(320,[NG_017]/320)+FHX_009(0.06,if([NG_017]=0,0,1))",
+      "Formula": "FHX_001(320,[FNG_017]/320)+FHX_009(0.06,IF([FNG_017]=0,0,1))",
       "FormulaParam": [
-        "NG_017"
+        "FNG_017"
       ],
       "Rule": [
         {
@@ -3715,7 +3784,7 @@
         }
       ],
       "NotComplete": false,
-      "Level": 6,
+      "Level": 7,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -3726,9 +3795,9 @@
       "Code": "RF_NG_004",
       "Name": "贯天穹",
       "BelongResultCode": null,
-      "Formula": "FHX_001(460,[NG_017]/460)+FHX_009(0.06,if([NG_017]=0,0,1))",
+      "Formula": "FHX_001(460,[FNG_017]/460)+FHX_009(0.06,IF([FNG_017]=0,0,1))",
       "FormulaParam": [
-        "NG_017"
+        "FNG_017"
       ],
       "Rule": [
         {
@@ -3740,7 +3809,7 @@
         }
       ],
       "NotComplete": false,
-      "Level": 6,
+      "Level": 7,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -3751,9 +3820,9 @@
       "Code": "RF_NG_005",
       "Name": "撼海门",
       "BelongResultCode": null,
-      "Formula": "(FHX_006(800,[NG_018]/800)+[SH_011]/(1-[SH_011]))*(1-[FZY_001])",
+      "Formula": "(FHX_006(800,[FNG_018]/800)+[SH_011]/(1-[SH_011]))*(1-[FZY_001])",
       "FormulaParam": [
-        "NG_018",
+        "FNG_018",
         "SH_011",
         "FZY_001"
       ],
@@ -3777,9 +3846,9 @@
       "Code": "RF_NG_006",
       "Name": "撼海门",
       "BelongResultCode": null,
-      "Formula": "(FHX_006(1000,[NG_018]/1000)+1.2*[SH_011]/(1-[SH_011]))*(1-[FZY_001])",
+      "Formula": "(FHX_006(1000,[FNG_018]/1000)+1.2*[SH_011]/(1-[SH_011]))*(1-[FZY_001])",
       "FormulaParam": [
-        "NG_018",
+        "FNG_018",
         "SH_011",
         "FZY_001"
       ],
@@ -3803,10 +3872,10 @@
       "Code": "RF_NG_007",
       "Name": "点明炉",
       "BelongResultCode": null,
-      "Formula": "[SH_004]/[NG_006]*0.12/([FZJ_010]-([NG_006]-1)*[SH_004])",
+      "Formula": "[SH_004]/[FNG_006]*0.12/([FZJ_010]-([FNG_006]-1)*[SH_004])",
       "FormulaParam": [
         "SH_004",
-        "NG_006",
+        "FNG_006",
         "FZJ_010"
       ],
       "Rule": [],
@@ -3822,10 +3891,10 @@
       "Code": "RF_NG_008",
       "Name": "点明炉",
       "BelongResultCode": null,
-      "Formula": "[SH_004]/[NG_006]*0.15/([FZJ_010]-([NG_006]-1)*[SH_004])",
+      "Formula": "[SH_004]/[FNG_006]*0.15/([FZJ_010]-([FNG_006]-1)*[SH_004])",
       "FormulaParam": [
         "SH_004",
-        "NG_006",
+        "FNG_006",
         "FZJ_010"
       ],
       "Rule": [],
@@ -3841,9 +3910,9 @@
       "Code": "RF_NG_009",
       "Name": "破釜",
       "BelongResultCode": null,
-      "Formula": "FHX_008(0.08,[NG_005]/0.08)",
+      "Formula": "FHX_008(0.08,[FNG_005]/0.08)",
       "FormulaParam": [
-        "NG_005"
+        "FNG_005"
       ],
       "Rule": [
         {
@@ -3865,9 +3934,9 @@
       "Code": "RF_NG_010",
       "Name": "破釜",
       "BelongResultCode": null,
-      "Formula": "FHX_008(0.1,[NG_005]/0.1)",
+      "Formula": "FHX_008(0.1,[FNG_005]/0.1)",
       "FormulaParam": [
-        "NG_005"
+        "FNG_005"
       ],
       "Rule": [
         {
@@ -3889,9 +3958,9 @@
       "Code": "RF_NG_011",
       "Name": "撼金阙",
       "BelongResultCode": null,
-      "Formula": "(1+FHX_006(600,[NG_015]/2))*(1+0.02/([FZJ_009]-[NG_015]*0.01))-1",
+      "Formula": "(1+FHX_006(600,[FNG_015]/2))*(1+0.02/([FZJ_009]-[FNG_015]*0.01))-1",
       "FormulaParam": [
-        "NG_015",
+        "FNG_015",
         "FZJ_009"
       ],
       "Rule": [
@@ -3914,9 +3983,9 @@
       "Code": "RF_NG_012",
       "Name": "撼金阙",
       "BelongResultCode": null,
-      "Formula": "(1+FHX_006(750,[NG_015]/2.5))*(1+0.025/([FZJ_009]-[NG_015]*0.01))-1",
+      "Formula": "(1+FHX_006(750,[FNG_015]/2.5))*(1+0.025/([FZJ_009]-[FNG_015]*0.01))-1",
       "FormulaParam": [
-        "NG_015",
+        "FNG_015",
         "FZJ_009"
       ],
       "Rule": [
@@ -3939,10 +4008,10 @@
       "Code": "RF_NG_013",
       "Name": "焚秽",
       "BelongResultCode": null,
-      "Formula": "0.08/3/([FZJ_009]-[NG_010])+[SH_008]/(1-[SH_008])",
+      "Formula": "0.08/3/([FZJ_009]-[FNG_010])+[SH_008]/(1-[SH_008])",
       "FormulaParam": [
         "FZJ_009",
-        "NG_010",
+        "FNG_010",
         "SH_008"
       ],
       "Rule": [],
@@ -3958,10 +4027,10 @@
       "Code": "RF_NG_014",
       "Name": "焚秽",
       "BelongResultCode": null,
-      "Formula": "0.1/3/([FZJ_009]-[NG_010])+1.2*[SH_008]/(1-[SH_008])",
+      "Formula": "0.1/3/([FZJ_009]-[FNG_010])+1.2*[SH_008]/(1-[SH_008])",
       "FormulaParam": [
         "FZJ_009",
-        "NG_010",
+        "FNG_010",
         "SH_008"
       ],
       "Rule": [],
@@ -3977,10 +4046,10 @@
       "Code": "RF_NG_015",
       "Name": "销干戈",
       "BelongResultCode": null,
-      "Formula": "0.064/([FZJ_009]-[NG_011])",
+      "Formula": "0.064/([FZJ_009]-[FNG_011])",
       "FormulaParam": [
         "FZJ_009",
-        "NG_011"
+        "FNG_011"
       ],
       "Rule": [],
       "NotComplete": false,
@@ -3995,10 +4064,10 @@
       "Code": "RF_NG_016",
       "Name": "销干戈",
       "BelongResultCode": null,
-      "Formula": "0.08/([FZJ_009]-[NG_011])",
+      "Formula": "0.08/([FZJ_009]-[FNG_011])",
       "FormulaParam": [
         "FZJ_009",
-        "NG_011"
+        "FNG_011"
       ],
       "Rule": [],
       "NotComplete": false,
@@ -4013,9 +4082,9 @@
       "Code": "RF_NG_017",
       "Name": "凛风绝刃",
       "BelongResultCode": null,
-      "Formula": "FHX_001(400,[NG_001]/400)+[SH_009]/(1-[SH_009])",
+      "Formula": "FHX_001(400,[FNG_001]/400)+[SH_009]/(1-[SH_009])",
       "FormulaParam": [
-        "NG_001",
+        "FNG_001",
         "SH_009"
       ],
       "Rule": [
@@ -4038,9 +4107,9 @@
       "Code": "RF_NG_018",
       "Name": "凛风绝刃",
       "BelongResultCode": null,
-      "Formula": "FHX_001(600,[NG_001]/600)+1.5*[SH_009]/(1-[SH_009])",
+      "Formula": "FHX_001(600,[FNG_001]/600)+1.5*[SH_009]/(1-[SH_009])",
       "FormulaParam": [
-        "NG_001",
+        "FNG_001",
         "SH_009"
       ],
       "Rule": [
@@ -4063,10 +4132,10 @@
       "Code": "RF_NG_019",
       "Name": "破重云",
       "BelongResultCode": null,
-      "Formula": "0.0375/([FZJ_009]-[NG_012])+[SH_010]/(1-[SH_010])",
+      "Formula": "0.0375/([FZJ_009]-[FNG_012])+[SH_010]/(1-[SH_010])",
       "FormulaParam": [
         "FZJ_009",
-        "NG_012",
+        "FNG_012",
         "SH_010"
       ],
       "Rule": [],
@@ -4082,10 +4151,10 @@
       "Code": "RF_NG_020",
       "Name": "破重云",
       "BelongResultCode": null,
-      "Formula": "0.045/([FZJ_009]-[NG_012])+1.2*[SH_010]/(1-[SH_010])",
+      "Formula": "0.045/([FZJ_009]-[FNG_012])+1.2*[SH_010]/(1-[SH_010])",
       "FormulaParam": [
         "FZJ_009",
-        "NG_012",
+        "FNG_012",
         "SH_010"
       ],
       "Rule": [],
@@ -4099,20 +4168,18 @@
     },
     {
       "Code": "RF_NG_021",
-      "Name": "明佑",
+      "Name": "通微",
       "BelongResultCode": null,
-      "Formula": "[FG_009]*(FHX_004(600,[NG_007])+FHX_006(480,[NG_007])+FHX_007(360,[NG_007]))*0.7",
+      "Formula": "FHX_006(600,[FNG_009]/600)+[SH_012]/(1-[SH_012])",
       "FormulaParam": [
-        "FG_009",
-        "NG_007"
+        "FNG_009",
+        "SH_012"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_004",
-            "FHX_006",
-            "FHX_007"
+            "FHX_006"
           ]
         }
       ],
@@ -4126,20 +4193,18 @@
     },
     {
       "Code": "RF_NG_022",
-      "Name": "明佑",
+      "Name": "通微",
       "BelongResultCode": null,
-      "Formula": "[FG_009]*(FHX_004(750,[NG_007])+FHX_006(600,[NG_007])+FHX_007(480,[NG_007]))*0.7",
+      "Formula": "FHX_006(750,[FNG_009]/750)+1.4*[SH_012]/(1-[SH_012])",
       "FormulaParam": [
-        "FG_009",
-        "NG_007"
+        "FNG_009",
+        "SH_012"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_004",
-            "FHX_006",
-            "FHX_007"
+            "FHX_006"
           ]
         }
       ],
@@ -4153,12 +4218,12 @@
     },
     {
       "Code": "RF_NG_023",
-      "Name": "望惊川",
+      "Name": "揽狂风",
       "BelongResultCode": null,
-      "Formula": "FHX_006(1080-480*[FZY_001],[NG_008]/(1080-480*[FZY_001]))",
+      "Formula": "FHX_006(800,[FNG_014]/800)+[SH_013]/(1-[SH_013])",
       "FormulaParam": [
-        "FZY_001",
-        "NG_008"
+        "FNG_014",
+        "SH_013"
       ],
       "Rule": [
         {
@@ -4178,12 +4243,12 @@
     },
     {
       "Code": "RF_NG_024",
-      "Name": "望惊川",
+      "Name": "揽狂风",
       "BelongResultCode": null,
-      "Formula": "FHX_006(1260-560*[FZY_001],[NG_008]/(1260-560*[FZY_001]))",
+      "Formula": "FHX_006(960,[FNG_019]/960)+7/6*[SH_013]/(1-7/6*[SH_013])",
       "FormulaParam": [
-        "FZY_001",
-        "NG_008"
+        "FNG_019",
+        "SH_013"
       ],
       "Rule": [
         {
@@ -4203,22 +4268,25 @@
     },
     {
       "Code": "RF_NG_025",
-      "Name": "昆吾断玉",
+      "Name": "明佑",
       "BelongResultCode": null,
-      "Formula": "FHX_009(0.14,[NG_002]/0.14)",
+      "Formula": "[FG_009]*(FHX_004(600,[FNG_007])+FHX_006(480,[FNG_007])+FHX_007(360,[FNG_007]))*0.7",
       "FormulaParam": [
-        "NG_002"
+        "FG_009",
+        "FNG_007"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_009"
+            "FHX_004",
+            "FHX_006",
+            "FHX_007"
           ]
         }
       ],
       "NotComplete": false,
-      "Level": 6,
+      "Level": 7,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -4227,11 +4295,88 @@
     },
     {
       "Code": "RF_NG_026",
+      "Name": "明佑",
+      "BelongResultCode": null,
+      "Formula": "[FG_009]*(FHX_004(750,[FNG_007])+FHX_006(600,[FNG_007])+FHX_007(480,[FNG_007]))*0.7",
+      "FormulaParam": [
+        "FG_009",
+        "FNG_007"
+      ],
+      "Rule": [
+        {
+          "Mode": 3,
+          "LambdaParam": [
+            "FHX_004",
+            "FHX_006",
+            "FHX_007"
+          ]
+        }
+      ],
+      "NotComplete": false,
+      "Level": 7,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "RF_NG_027",
+      "Name": "望惊川",
+      "BelongResultCode": null,
+      "Formula": "FHX_006(1080-480*[FZY_001],[FNG_008]/(1080-480*[FZY_001]))",
+      "FormulaParam": [
+        "FZY_001",
+        "FNG_008"
+      ],
+      "Rule": [
+        {
+          "Mode": 3,
+          "LambdaParam": [
+            "FHX_006"
+          ]
+        }
+      ],
+      "NotComplete": false,
+      "Level": 7,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "RF_NG_028",
+      "Name": "望惊川",
+      "BelongResultCode": null,
+      "Formula": "FHX_006(1260-560*[FZY_001],[FNG_008]/(1260-560*[FZY_001]))",
+      "FormulaParam": [
+        "FZY_001",
+        "FNG_008"
+      ],
+      "Rule": [
+        {
+          "Mode": 3,
+          "LambdaParam": [
+            "FHX_006"
+          ]
+        }
+      ],
+      "NotComplete": false,
+      "Level": 7,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "RF_NG_029",
       "Name": "昆吾断玉",
       "BelongResultCode": null,
-      "Formula": "FHX_009(0.192,[NG_002]/0.192)",
+      "Formula": "FHX_009(0.14,[FNG_002]/0.14)",
       "FormulaParam": [
-        "NG_002"
+        "FNG_002"
       ],
       "Rule": [
         {
@@ -4242,70 +4387,7 @@
         }
       ],
       "NotComplete": false,
-      "Level": 6,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
-      "Code": "RF_NG_027",
-      "Name": "日月两仪",
-      "BelongResultCode": null,
-      "Formula": "([FSC_01]/[FZJ_006]*([FZJ_006]-[NG_013]+0.05)+[FSC_02]/[FZJ_005]*([FZJ_005]-[NG_013]+0.05))/([FSC_01]/[FZJ_006]*([FZJ_006]-[NG_013])+[FSC_02]/[FZJ_005]*([FZJ_005]-[NG_013]))-1",
-      "FormulaParam": [
-        "FSC_01",
-        "FZJ_006",
-        "NG_013",
-        "FSC_02",
-        "FZJ_005"
-      ],
-      "Rule": [],
-      "NotComplete": false,
-      "Level": 6,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
-      "Code": "RF_NG_028",
-      "Name": "日月两仪",
-      "BelongResultCode": null,
-      "Formula": "([FSC_01]/[FZJ_006]*([FZJ_006]-[NG_013]+0.075)+[FSC_02]/[FZJ_005]*([FZJ_005]-[NG_013]+0.075))/([FSC_01]/[FZJ_006]*([FZJ_006]-[NG_013])+[FSC_02]/[FZJ_005]*([FZJ_005]-[NG_013]))-1",
-      "FormulaParam": [
-        "FSC_01",
-        "FZJ_006",
-        "NG_013",
-        "FSC_02",
-        "FZJ_005"
-      ],
-      "Rule": [],
-      "NotComplete": false,
-      "Level": 6,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
-      "Code": "RF_NG_029",
-      "Name": "燎野",
-      "BelongResultCode": null,
-      "Formula": "([FSC_01]/[FZJ_006]*([FZJ_006]-[NG_014]+0.0455)+[FSC_02]/[FZJ_005]*([FZJ_005]-[NG_014]+0.0455))/([FSC_01]/[FZJ_006]*([FZJ_006]-[NG_014])+[FSC_02]/[FZJ_005]*([FZJ_005]-[NG_014]))-1",
-      "FormulaParam": [
-        "FSC_01",
-        "FZJ_006",
-        "NG_014",
-        "FSC_02",
-        "FZJ_005"
-      ],
-      "Rule": [],
-      "NotComplete": false,
-      "Level": 6,
+      "Level": 7,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -4314,13 +4396,37 @@
     },
     {
       "Code": "RF_NG_030",
-      "Name": "燎野",
+      "Name": "昆吾断玉",
       "BelongResultCode": null,
-      "Formula": "([FSC_01]/[FZJ_006]*([FZJ_006]-[NG_014]+0.056)+[FSC_02]/[FZJ_005]*([FZJ_005]-[NG_014]+0.056))/([FSC_01]/[FZJ_006]*([FZJ_006]-[NG_014])+[FSC_02]/[FZJ_005]*([FZJ_005]-[NG_014]))-1",
+      "Formula": "FHX_009(0.192,[FNG_002]/0.192)",
+      "FormulaParam": [
+        "FNG_002"
+      ],
+      "Rule": [
+        {
+          "Mode": 3,
+          "LambdaParam": [
+            "FHX_009"
+          ]
+        }
+      ],
+      "NotComplete": false,
+      "Level": 7,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "RF_NG_031",
+      "Name": "日月两仪",
+      "BelongResultCode": null,
+      "Formula": "([FSC_01]/[FZJ_006]*([FZJ_006]-[FNG_013]+0.05)+[FSC_02]/[FZJ_005]*([FZJ_005]-[FNG_013]+0.05))/([FSC_01]/[FZJ_006]*([FZJ_006]-[FNG_013])+[FSC_02]/[FZJ_005]*([FZJ_005]-[FNG_013]))-1",
       "FormulaParam": [
         "FSC_01",
         "FZJ_006",
-        "NG_014",
+        "FNG_013",
         "FSC_02",
         "FZJ_005"
       ],
@@ -4334,55 +4440,20 @@
       "DynamicalText": null
     },
     {
-      "Code": "RF_NG_031",
-      "Name": "淬锋镝",
-      "BelongResultCode": null,
-      "Formula": "([FSC_02]/[FZJ_005]*([FZJ_005]-[NG_003]+0.05)+[FSC_01])/([FSC_02]/[FZJ_005]*([FZJ_005]-[NG_003])+[FSC_01])*(1+FHX_003(210,[NG_004]/210))-1",
-      "FormulaParam": [
-        "FSC_02",
-        "FZJ_005",
-        "NG_003",
-        "FSC_01",
-        "NG_004"
-      ],
-      "Rule": [
-        {
-          "Mode": 3,
-          "LambdaParam": [
-            "FHX_003"
-          ]
-        }
-      ],
-      "NotComplete": false,
-      "Level": 7,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
       "Code": "RF_NG_032",
-      "Name": "淬锋镝",
+      "Name": "日月两仪",
       "BelongResultCode": null,
-      "Formula": "([FSC_02]/[FZJ_005]*([FZJ_005]-[NG_003]+0.06)+[FSC_01])/([FSC_02]/[FZJ_005]*([FZJ_005]-[NG_003])+[FSC_01])*(1+FHX_003(280,[NG_004]/280))-1",
+      "Formula": "([FSC_01]/[FZJ_006]*([FZJ_006]-[FNG_013]+0.075)+[FSC_02]/[FZJ_005]*([FZJ_005]-[FNG_013]+0.075))/([FSC_01]/[FZJ_006]*([FZJ_006]-[FNG_013])+[FSC_02]/[FZJ_005]*([FZJ_005]-[FNG_013]))-1",
       "FormulaParam": [
-        "FSC_02",
-        "FZJ_005",
-        "NG_003",
         "FSC_01",
-        "NG_004"
+        "FZJ_006",
+        "FNG_013",
+        "FSC_02",
+        "FZJ_005"
       ],
-      "Rule": [
-        {
-          "Mode": 3,
-          "LambdaParam": [
-            "FHX_003"
-          ]
-        }
-      ],
+      "Rule": [],
       "NotComplete": false,
-      "Level": 7,
+      "Level": 6,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -4391,18 +4462,63 @@
     },
     {
       "Code": "RF_NG_033",
-      "Name": "通微",
+      "Name": "燎野",
       "BelongResultCode": null,
-      "Formula": "FHX_006(600,[NG_009]/600)+[SH_012]/(1-[SH_012])",
+      "Formula": "([FSC_01]/[FZJ_006]*([FZJ_006]-[FNG_014]+0.0455)+[FSC_02]/[FZJ_005]*([FZJ_005]-[FNG_014]+0.0455))/([FSC_01]/[FZJ_006]*([FZJ_006]-[FNG_014])+[FSC_02]/[FZJ_005]*([FZJ_005]-[FNG_014]))-1",
       "FormulaParam": [
-        "NG_009",
-        "SH_012"
+        "FSC_01",
+        "FZJ_006",
+        "FNG_014",
+        "FSC_02",
+        "FZJ_005"
+      ],
+      "Rule": [],
+      "NotComplete": false,
+      "Level": 6,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "RF_NG_034",
+      "Name": "燎野",
+      "BelongResultCode": null,
+      "Formula": "([FSC_01]/[FZJ_006]*([FZJ_006]-[FNG_014]+0.056)+[FSC_02]/[FZJ_005]*([FZJ_005]-[FNG_014]+0.056))/([FSC_01]/[FZJ_006]*([FZJ_006]-[FNG_014])+[FSC_02]/[FZJ_005]*([FZJ_005]-[FNG_014]))-1",
+      "FormulaParam": [
+        "FSC_01",
+        "FZJ_006",
+        "FNG_014",
+        "FSC_02",
+        "FZJ_005"
+      ],
+      "Rule": [],
+      "NotComplete": false,
+      "Level": 6,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "RF_NG_035",
+      "Name": "淬锋镝",
+      "BelongResultCode": null,
+      "Formula": "([FSC_02]/[FZJ_005]*([FZJ_005]-[FNG_003]+0.05)+[FSC_01])/([FSC_02]/[FZJ_005]*([FZJ_005]-[FNG_003])+[FSC_01])*(1+FHX_003(210,[FNG_004]/210))-1",
+      "FormulaParam": [
+        "FSC_02",
+        "FZJ_005",
+        "FNG_003",
+        "FSC_01",
+        "FNG_004"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_006"
+            "FHX_003"
           ]
         }
       ],
@@ -4415,19 +4531,22 @@
       "DynamicalText": null
     },
     {
-      "Code": "RF_NG_034",
-      "Name": "通微",
+      "Code": "RF_NG_036",
+      "Name": "淬锋镝",
       "BelongResultCode": null,
-      "Formula": "FHX_006(750,[NG_009]/750)+1.4*[SH_012]/(1-[SH_012])",
+      "Formula": "([FSC_02]/[FZJ_005]*([FZJ_005]-[FNG_003]+0.06)+[FSC_01])/([FSC_02]/[FZJ_005]*([FZJ_005]-[FNG_003])+[FSC_01])*(1+FHX_003(280,[FNG_004]/280))-1",
       "FormulaParam": [
-        "NG_009",
-        "SH_012"
+        "FSC_02",
+        "FZJ_005",
+        "FNG_003",
+        "FSC_01",
+        "FNG_004"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_006"
+            "FHX_003"
           ]
         }
       ],
@@ -4498,7 +4617,7 @@
         }
       ],
       "NotComplete": false,
-      "Level": 6,
+      "Level": 7,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -4753,7 +4872,7 @@
       "Code": "RF_SQ_015",
       "Name": "凝玉劲",
       "BelongResultCode": null,
-      "Formula": "FHX_015(378,if([KG_041]='凝玉劲',378,0),0,if([KG_041]='凌烈风',0.07,0))/14",
+      "Formula": "FHX_015(27,IF([KG_041]='凝玉劲',378,0),0,IF([KG_041]='凌烈风',0.07,0))",
       "FormulaParam": [
         "KG_041"
       ],
@@ -4777,7 +4896,7 @@
       "Code": "RF_SQ_016",
       "Name": "凌烈风",
       "BelongResultCode": null,
-      "Formula": "FHX_015(0,if([KG_041]='凝玉劲',378,0),0.01,if([KG_041]='凌烈风',0.01,0))/2",
+      "Formula": "FHX_015(0,IF([KG_041]='凝玉劲',378,0),0.01,IF([KG_041]='凌烈风',0.01,0))/2",
       "FormulaParam": [
         "KG_041"
       ],
@@ -4868,6 +4987,112 @@
       "DynamicalText": null
     },
     {
+      "Code": "RF_SQ_020",
+      "Name": "刃影摧风",
+      "BelongResultCode": null,
+      "Formula": "(FHX_005(100,0)+FHX_007(60,0))*12/30/2",
+      "FormulaParam": [],
+      "Rule": [
+        {
+          "Mode": 3,
+          "LambdaParam": [
+            "FHX_005",
+            "FHX_007"
+          ]
+        }
+      ],
+      "NotComplete": false,
+      "Level": 7,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "RF_SQ_021",
+      "Name": "绝电诛锋",
+      "BelongResultCode": null,
+      "Formula": "FHX_005(30,0)+FHX_007(15,0)",
+      "FormulaParam": [],
+      "Rule": [
+        {
+          "Mode": 3,
+          "LambdaParam": [
+            "FHX_005",
+            "FHX_007"
+          ]
+        }
+      ],
+      "NotComplete": false,
+      "Level": 7,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "RF_SQ_022",
+      "Name": "破釜成刃",
+      "BelongResultCode": null,
+      "Formula": "FHX_006(75,0)",
+      "FormulaParam": [],
+      "Rule": [
+        {
+          "Mode": 3,
+          "LambdaParam": [
+            "FHX_006"
+          ]
+        }
+      ],
+      "NotComplete": false,
+      "Level": 7,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "RF_SQ_023",
+      "Name": "众法归一",
+      "BelongResultCode": null,
+      "Formula": "FHX_005(14/3*3+3*[FTZ_019]*1.65+[FZY_029]*1.65*3,0)+FHX_004(2*3+[FTZ_018]*2*3,0)+FHX_001(1.6*3+0.6*3*[FTZ_016],0)+FHX_002(3*0.83*(1+[FTZ_015]),0)+FHX_007([FTZ_001]*1.07*3,0)+FHX_006(([ST_011]+[ST_012]+[ST_013]*1.5+[ST_014]*1.5)/10/15,0)",
+      "FormulaParam": [
+        "FTZ_019",
+        "FZY_029",
+        "FTZ_018",
+        "FTZ_016",
+        "FTZ_015",
+        "FTZ_001",
+        "ST_011",
+        "ST_012",
+        "ST_013",
+        "ST_014"
+      ],
+      "Rule": [
+        {
+          "Mode": 3,
+          "LambdaParam": [
+            "FHX_005",
+            "FHX_004",
+            "FHX_001",
+            "FHX_002",
+            "FHX_007",
+            "FHX_006"
+          ]
+        }
+      ],
+      "NotComplete": false,
+      "Level": 7,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
       "Code": "RF_TZ_001",
       "Name": "目渺云岳",
       "BelongResultCode": null,
@@ -4895,7 +5120,7 @@
       "Code": "RF_TZ_002",
       "Name": "白日临辰",
       "BelongResultCode": null,
-      "Formula": "(1+FHX_007(400,[FTZ_011]/400))*([FSC_02]/[FZJ_005]*([FZJ_005]+(1-[FTZ_011])*Min(0.005*Round(([FZJ_011]-[FTZ_011]*400+400)/500,0),0.06))+[FSC_01])/([FSC_02]/[FZJ_005]*([FZJ_005]-[FTZ_011]*Min(0.005*Round(([FZJ_011]-[FTZ_011]*400+400)/500,0),0.06))+[FSC_01])-1",
+      "Formula": "(1+FHX_007(400,[FTZ_011]/400))*([FSC_02]/[FZJ_005]*([FZJ_005]+(1-[FTZ_011])*MIN(0.005*Round(([FZJ_011]-[FTZ_011]*400+400)/500,0),0.06))+[FSC_01])/([FSC_02]/[FZJ_005]*([FZJ_005]-[FTZ_011]*MIN(0.005*Round(([FZJ_011]-[FTZ_011]*400+400)/500,0),0.06))+[FSC_01])-1",
       "FormulaParam": [
         "FTZ_011",
         "FSC_02",
@@ -4923,7 +5148,7 @@
       "Code": "RF_TZ_003",
       "Name": "妙音入神",
       "BelongResultCode": null,
-      "Formula": "ifs([KG_001]='血河',FHX_005(1.65*[ST_013],[FTZ_017]),[KG_001]='神相',FHX_002(0.83*[ST_012],[FTZ_015]),[KG_001]='九灵',FHX_005(1.65*[ST_014],[FTZ_019]),[KG_001]='龙吟',FHX_004([ST_013]*2,0),[KG_001]='碎梦',FHX_001([ST_012]*0.6,[FTZ_016]),[KG_001]='破铁衣','',[KG_001]='天问','',[KG_001]='玄机',FHX_007([ST_012]*1.07,[FTZ_014]),[KG_001]='御铁衣','0',0)",
+      "Formula": "IFS([KG_001]='血河',FHX_005(1.65*[ST_013],[FTZ_017]),[KG_001]='神相',FHX_002(0.83*[ST_012],[FTZ_015]),[KG_001]='九灵',FHX_005(1.65*[ST_014],[FTZ_019]),[KG_001]='龙吟',FHX_004([ST_013]*2,0),[KG_001]='碎梦',FHX_001([ST_012]*0.6,[FTZ_016]),[KG_001]='破铁衣','',[KG_001]='天问','',[KG_001]='玄机',FHX_007([ST_012]*1.07,[FTZ_014]),[KG_001]='御铁衣','0',0)",
       "FormulaParam": [
         "KG_001",
         "ST_013",
@@ -5107,7 +5332,7 @@
         }
       ],
       "NotComplete": false,
-      "Level": 6,
+      "Level": 7,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -5159,7 +5384,7 @@
         }
       ],
       "NotComplete": false,
-      "Level": 6,
+      "Level": 7,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -5194,7 +5419,7 @@
       "Code": "RF_TZ_013",
       "Name": "临机制变",
       "BelongResultCode": null,
-      "Formula": "(1+FHX_007([ST_012]*1.07,[FTZ_001]))*(1+FHX_004(2.4*Min(250,Max(0,[ST_008]+[FZJ_012]*(1+0.04*[FTZ_010])-[BO_05])),[FTZ_001]))-1",
+      "Formula": "(1+FHX_007([ST_012]*1.07,[FTZ_001]))*(1+FHX_004(2.4*MIN(250,MAX(0,[ST_008]+[FZJ_012]*(1+0.04*[FTZ_010])-[BO_05])),[FTZ_001]))-1",
       "FormulaParam": [
         "ST_012",
         "FTZ_001",
@@ -5224,7 +5449,7 @@
       "Code": "RF_TZ_014",
       "Name": "蚀残月",
       "BelongResultCode": null,
-      "Formula": "(1+FHX_001([ST_012]*0.6,[FTZ_016]))*(1+FHX_003(80,[FTZ_002]))*(([ST_005]/(1+0.05*[FTZ_009])+[FZJ_017])*[FZJ_008]*[FBL_02]*([FZJ_005]-if([FTZ_002]=1,[FZY_002],[FZY_003])+[FZY_002])+[FSC_01])/(([ST_005]/(1+0.05*[FTZ_009])+[FZJ_017])*[FZJ_008]*[FBL_02]*([FZJ_005]-if([FTZ_002]=1,[FZY_002],[FZY_003])+[FZY_003])+[FSC_01])-1+ifs([KG_034]='终焉裁决',[SH_006]*0.2,[KG_034]='万想鹰扬',[SH_006]*0.15,TRUE,0,0)",
+      "Formula": "(1+FHX_001([ST_012]*0.6,[FTZ_016]))*(1+FHX_003(80,[FTZ_002]))*(([ST_005]/(1+0.05*[FTZ_009])+[FZJ_017])*[FZJ_008]*[FBL_02]*([FZJ_005]-IF([FTZ_002]=1,[FZY_002],[FZY_003])+[FZY_002])+[FSC_01])/(([ST_005]/(1+0.05*[FTZ_009])+[FZJ_017])*[FZJ_008]*[FBL_02]*([FZJ_005]-IF([FTZ_002]=1,[FZY_002],[FZY_003])+[FZY_003])+[FSC_01])-1+IFS([KG_034]='终焉裁决',[SH_006]*0.2,[KG_034]='万想鹰扬',[SH_006]*0.15,TRUE,0,0)",
       "FormulaParam": [
         "ST_012",
         "FTZ_016",
@@ -5373,17 +5598,17 @@
     },
     {
       "Code": "RF_XZ_001",
-      "Name": "迅霆裂月",
+      "Name": "灼翼雀心",
       "BelongResultCode": null,
-      "Formula": "FHX_004(600,[DZ_001]/600)",
+      "Formula": "FHX_006(200,[FDZ_005]/200)",
       "FormulaParam": [
-        "DZ_001"
+        "FDZ_005"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_004"
+            "FHX_006"
           ]
         }
       ],
@@ -5397,17 +5622,18 @@
     },
     {
       "Code": "RF_XZ_002",
-      "Name": "迅霆裂月",
+      "Name": "灼翼雀心",
       "BelongResultCode": null,
-      "Formula": "FHX_004(800,[DZ_001]/800)",
+      "Formula": "(1+FHX_006(400,[FDZ_005]/400))*(1+0.015/([FZJ_009]-MAX([FDZ_005]/200*0.015-0.015,0)))-1",
       "FormulaParam": [
-        "DZ_001"
+        "FDZ_005",
+        "FZJ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_004"
+            "FHX_006"
           ]
         }
       ],
@@ -5421,17 +5647,18 @@
     },
     {
       "Code": "RF_XZ_003",
-      "Name": "迅霆裂月",
+      "Name": "灼翼雀心",
       "BelongResultCode": null,
-      "Formula": "FHX_004(1000,[DZ_001]/1000)",
+      "Formula": "(1+FHX_006(600,[FDZ_005]/600))*(1+0.03/([FZJ_009]-MAX([FDZ_005]/200*0.015-0.015,0)))-1",
       "FormulaParam": [
-        "DZ_001"
+        "FDZ_005",
+        "FZJ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_004"
+            "FHX_006"
           ]
         }
       ],
@@ -5445,22 +5672,23 @@
     },
     {
       "Code": "RF_XZ_004",
-      "Name": "踏空蹴蛟",
+      "Name": "狞爪撕风",
       "BelongResultCode": null,
-      "Formula": "FHX_005(300,[DZ_002]/300)",
+      "Formula": "FHX_015(100,[FDZ_006],0,[FDZ_009])",
       "FormulaParam": [
-        "DZ_002"
+        "FDZ_006",
+        "FDZ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_005"
+            "FHX_015"
           ]
         }
       ],
       "NotComplete": false,
-      "Level": 7,
+      "Level": 6,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -5469,22 +5697,23 @@
     },
     {
       "Code": "RF_XZ_005",
-      "Name": "踏空蹴蛟",
+      "Name": "狞爪撕风",
       "BelongResultCode": null,
-      "Formula": "FHX_005(400,[DZ_002]/400)",
+      "Formula": "FHX_015(200,[FDZ_006],0.05,[FDZ_009])",
       "FormulaParam": [
-        "DZ_002"
+        "FDZ_006",
+        "FDZ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_005"
+            "FHX_015"
           ]
         }
       ],
       "NotComplete": false,
-      "Level": 7,
+      "Level": 6,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -5493,22 +5722,23 @@
     },
     {
       "Code": "RF_XZ_006",
-      "Name": "踏空蹴蛟",
+      "Name": "狞爪撕风",
       "BelongResultCode": null,
-      "Formula": "FHX_005(500,[DZ_002]/500)",
+      "Formula": "FHX_015(300,[FDZ_006],0.1,[FDZ_009])",
       "FormulaParam": [
-        "DZ_002"
+        "FDZ_006",
+        "FDZ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_005"
+            "FHX_015"
           ]
         }
       ],
       "NotComplete": false,
-      "Level": 7,
+      "Level": 6,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -5517,16 +5747,18 @@
     },
     {
       "Code": "RF_XZ_007",
-      "Name": "悸魂绝魄",
+      "Name": "踏霄驭鹏",
       "BelongResultCode": null,
-      "Formula": "FHX_003(240,[DZ_003]/240)",
+      "Formula": "(1+FHX_007(180,[FDZ_007]/180))*(1+FHX_003(90,[FDZ_003]/90))-1",
       "FormulaParam": [
-        "DZ_003"
+        "FDZ_007",
+        "FDZ_003"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
+            "FHX_007",
             "FHX_003"
           ]
         }
@@ -5541,16 +5773,18 @@
     },
     {
       "Code": "RF_XZ_008",
-      "Name": "悸魂绝魄",
+      "Name": "踏霄驭鹏",
       "BelongResultCode": null,
-      "Formula": "FHX_003(300,[DZ_003]/300)",
+      "Formula": "(1+FHX_007(240,[FDZ_007]/240))*(1+FHX_003(120,[FDZ_003]/120))-1",
       "FormulaParam": [
-        "DZ_003"
+        "FDZ_007",
+        "FDZ_003"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
+            "FHX_007",
             "FHX_003"
           ]
         }
@@ -5565,16 +5799,18 @@
     },
     {
       "Code": "RF_XZ_009",
-      "Name": "悸魂绝魄",
+      "Name": "踏霄驭鹏",
       "BelongResultCode": null,
-      "Formula": "FHX_003(360,[DZ_003]/360)",
+      "Formula": "(1+FHX_007(300,[FDZ_007]/300))*(1+FHX_003(150,[FDZ_003]/150))-1",
       "FormulaParam": [
-        "DZ_003"
+        "FDZ_007",
+        "FDZ_003"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
+            "FHX_007",
             "FHX_003"
           ]
         }
@@ -5589,22 +5825,26 @@
     },
     {
       "Code": "RF_XZ_010",
-      "Name": "白虹贯日",
+      "Name": "万械无竭",
       "BelongResultCode": null,
-      "Formula": "FHX_002(180,[DZ_004]/180)",
+      "Formula": "(1+[SH_005]*FHX_006(200,[FDZ_005]/200))*(1+FHX_015(200,[FDZ_006],0,[FDZ_009]))-1",
       "FormulaParam": [
-        "DZ_004"
+        "SH_005",
+        "FDZ_005",
+        "FDZ_006",
+        "FDZ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_002"
+            "FHX_015",
+            "FHX_006"
           ]
         }
       ],
       "NotComplete": false,
-      "Level": 6,
+      "Level": 7,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -5613,22 +5853,26 @@
     },
     {
       "Code": "RF_XZ_011",
-      "Name": "白虹贯日",
+      "Name": "万械无竭",
       "BelongResultCode": null,
-      "Formula": "FHX_002(240,[DZ_004]/240)",
+      "Formula": "(1+[SH_005]*FHX_006(400,[FDZ_005]/400))*(1+FHX_015(300,[FDZ_006],0,[FDZ_009]))-1",
       "FormulaParam": [
-        "DZ_004"
+        "SH_005",
+        "FDZ_005",
+        "FDZ_006",
+        "FDZ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_002"
+            "FHX_015",
+            "FHX_006"
           ]
         }
       ],
       "NotComplete": false,
-      "Level": 6,
+      "Level": 7,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -5637,22 +5881,26 @@
     },
     {
       "Code": "RF_XZ_012",
-      "Name": "白虹贯日",
+      "Name": "万械无竭",
       "BelongResultCode": null,
-      "Formula": "FHX_002(300,[DZ_004]/300)",
+      "Formula": "(1+[SH_005]*FHX_006(600,[FDZ_005]/600))*(1+FHX_015(400,[FDZ_006],0,[FDZ_009]))-1",
       "FormulaParam": [
-        "DZ_004"
+        "SH_005",
+        "FDZ_005",
+        "FDZ_006",
+        "FDZ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_002"
+            "FHX_015",
+            "FHX_006"
           ]
         }
       ],
       "NotComplete": false,
-      "Level": 6,
+      "Level": 7,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -5661,17 +5909,20 @@
     },
     {
       "Code": "RF_XZ_013",
-      "Name": "灼翼雀心",
+      "Name": "烈辉平野",
       "BelongResultCode": null,
-      "Formula": "FHX_006(200,[DZ_005]/200)",
+      "Formula": "(1+FHX_002(120,[FDZ_004]/120))*(1+FHX_015(180,[FDZ_006],0,[FDZ_009]))-1",
       "FormulaParam": [
-        "DZ_005"
+        "FDZ_004",
+        "FDZ_006",
+        "FDZ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_006"
+            "FHX_015",
+            "FHX_002"
           ]
         }
       ],
@@ -5685,18 +5936,20 @@
     },
     {
       "Code": "RF_XZ_014",
-      "Name": "灼翼雀心",
+      "Name": "烈辉平野",
       "BelongResultCode": null,
-      "Formula": "(1+FHX_006(400,[DZ_005]/400))*(1+0.015/([FZJ_009]-Max([DZ_005]/200*0.015-0.015,0)))-1",
+      "Formula": "(1+FHX_002(180,[FDZ_004]/180))*(1+FHX_015(270,[FDZ_006],0,[FDZ_009]))-1",
       "FormulaParam": [
-        "DZ_005",
-        "FZJ_009"
+        "FDZ_004",
+        "FDZ_006",
+        "FDZ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_006"
+            "FHX_015",
+            "FHX_002"
           ]
         }
       ],
@@ -5710,18 +5963,20 @@
     },
     {
       "Code": "RF_XZ_015",
-      "Name": "灼翼雀心",
+      "Name": "烈辉平野",
       "BelongResultCode": null,
-      "Formula": "(1+FHX_006(600,[DZ_005]/600))*(1+0.03/([FZJ_009]-Max([DZ_005]/200*0.015-0.015,0)))-1",
+      "Formula": "(1+FHX_002(240,[FDZ_004]/240))*(1+FHX_015(360,[FDZ_006],0,[FDZ_009]))-1",
       "FormulaParam": [
-        "DZ_005",
-        "FZJ_009"
+        "FDZ_004",
+        "FDZ_006",
+        "FDZ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_006"
+            "FHX_015",
+            "FHX_002"
           ]
         }
       ],
@@ -5735,23 +5990,24 @@
     },
     {
       "Code": "RF_XZ_016",
-      "Name": "狞爪撕风",
+      "Name": "崩摧撼岳",
       "BelongResultCode": null,
-      "Formula": "FHX_015(100,[DZ_006],0,[DZ_009])",
+      "Formula": "(1+FHX_004(500,[FDZ_001]/500))*(1+FHX_006(300,[FDZ_005]/300))-1",
       "FormulaParam": [
-        "DZ_006",
-        "DZ_009"
+        "FDZ_001",
+        "FDZ_005"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_015"
+            "FHX_004",
+            "FHX_006"
           ]
         }
       ],
       "NotComplete": false,
-      "Level": 6,
+      "Level": 7,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -5760,23 +6016,24 @@
     },
     {
       "Code": "RF_XZ_017",
-      "Name": "狞爪撕风",
+      "Name": "崩摧撼岳",
       "BelongResultCode": null,
-      "Formula": "FHX_015(200,[DZ_006],0.05,[DZ_009])",
+      "Formula": "(1+FHX_004(750,[FDZ_001]/750))*(1+FHX_006(450,[FDZ_005]/450))-1",
       "FormulaParam": [
-        "DZ_006",
-        "DZ_009"
+        "FDZ_001",
+        "FDZ_005"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_015"
+            "FHX_004",
+            "FHX_006"
           ]
         }
       ],
       "NotComplete": false,
-      "Level": 6,
+      "Level": 7,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -5785,23 +6042,24 @@
     },
     {
       "Code": "RF_XZ_018",
-      "Name": "狞爪撕风",
+      "Name": "崩摧撼岳",
       "BelongResultCode": null,
-      "Formula": "FHX_015(300,[DZ_006],0.1,[DZ_009])",
+      "Formula": "(1+FHX_004(1000,[FDZ_001]/1000))*(1+FHX_006(600,[FDZ_005]/600))-1",
       "FormulaParam": [
-        "DZ_006",
-        "DZ_009"
+        "FDZ_001",
+        "FDZ_005"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_015"
+            "FHX_004",
+            "FHX_006"
           ]
         }
       ],
       "NotComplete": false,
-      "Level": 6,
+      "Level": 7,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -5810,19 +6068,20 @@
     },
     {
       "Code": "RF_XZ_019",
-      "Name": "踏霄驭鹏",
+      "Name": "蹈武在庭",
       "BelongResultCode": null,
-      "Formula": "(1+FHX_007(180,[DZ_007]/180))*(1+FHX_003(90,[DZ_003]/90))-1",
+      "Formula": "(1+FHX_007(240,[FDZ_007]/240))*(1+FHX_015(0,[FDZ_006],0.02,[FDZ_009]))-1",
       "FormulaParam": [
-        "DZ_007",
-        "DZ_003"
+        "FDZ_007",
+        "FDZ_006",
+        "FDZ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_007",
-            "FHX_003"
+            "FHX_015",
+            "FHX_007"
           ]
         }
       ],
@@ -5836,19 +6095,20 @@
     },
     {
       "Code": "RF_XZ_020",
-      "Name": "踏霄驭鹏",
+      "Name": "蹈武在庭",
       "BelongResultCode": null,
-      "Formula": "(1+FHX_007(240,[DZ_007]/240))*(1+FHX_003(120,[DZ_003]/120))-1",
+      "Formula": "(1+FHX_007(360,[FDZ_007]/360))*(1+FHX_015(0,[FDZ_006],0.04,[FDZ_009]))-1",
       "FormulaParam": [
-        "DZ_007",
-        "DZ_003"
+        "FDZ_007",
+        "FDZ_006",
+        "FDZ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_007",
-            "FHX_003"
+            "FHX_015",
+            "FHX_007"
           ]
         }
       ],
@@ -5862,19 +6122,20 @@
     },
     {
       "Code": "RF_XZ_021",
-      "Name": "踏霄驭鹏",
+      "Name": "蹈武在庭",
       "BelongResultCode": null,
-      "Formula": "(1+FHX_007(300,[DZ_007]/300))*(1+FHX_003(150,[DZ_003]/150))-1",
+      "Formula": "(1+FHX_007(480,[FDZ_007]/480))*(1+FHX_015(0,[FDZ_006],0.06,[FDZ_009]))-1",
       "FormulaParam": [
-        "DZ_007",
-        "DZ_003"
+        "FDZ_007",
+        "FDZ_006",
+        "FDZ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_007",
-            "FHX_003"
+            "FHX_015",
+            "FHX_007"
           ]
         }
       ],
@@ -5888,21 +6149,18 @@
     },
     {
       "Code": "RF_XZ_022",
-      "Name": "万械无竭",
+      "Name": "回崖踏嶂",
       "BelongResultCode": null,
-      "Formula": "(1+[SH_005]*FHX_006(200,[DZ_005]/200))*(1+FHX_015(200,[DZ_006],0,[DZ_009]))-1",
+      "Formula": "(1+FHX_003(150,[FDZ_003]/150))*(1+0.02/[FZJ_009])-1",
       "FormulaParam": [
-        "SH_005",
-        "DZ_005",
-        "DZ_006",
-        "DZ_009"
+        "FDZ_003",
+        "FZJ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_015",
-            "FHX_006"
+            "FHX_003"
           ]
         }
       ],
@@ -5916,21 +6174,18 @@
     },
     {
       "Code": "RF_XZ_023",
-      "Name": "万械无竭",
+      "Name": "回崖踏嶂",
       "BelongResultCode": null,
-      "Formula": "(1+[SH_005]*FHX_006(400,[DZ_005]/400))*(1+FHX_015(300,[DZ_006],0,[DZ_009]))-1",
+      "Formula": "(1+FHX_003(225,[FDZ_003]/225))*(1+0.03/[FZJ_009])-1",
       "FormulaParam": [
-        "SH_005",
-        "DZ_005",
-        "DZ_006",
-        "DZ_009"
+        "FDZ_003",
+        "FZJ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_015",
-            "FHX_006"
+            "FHX_003"
           ]
         }
       ],
@@ -5944,21 +6199,18 @@
     },
     {
       "Code": "RF_XZ_024",
-      "Name": "万械无竭",
+      "Name": "回崖踏嶂",
       "BelongResultCode": null,
-      "Formula": "(1+[SH_005]*FHX_006(600,[DZ_005]/600))*(1+FHX_015(400,[DZ_006],0,[DZ_009]))-1",
+      "Formula": "(1+FHX_003(300,[FDZ_003]/300))*(1+0.04/[FZJ_009])-1",
       "FormulaParam": [
-        "SH_005",
-        "DZ_005",
-        "DZ_006",
-        "DZ_009"
+        "FDZ_003",
+        "FZJ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_015",
-            "FHX_006"
+            "FHX_003"
           ]
         }
       ],
@@ -5972,25 +6224,25 @@
     },
     {
       "Code": "RF_XZ_025",
-      "Name": "烈辉平野",
+      "Name": "千载锋鸣",
       "BelongResultCode": null,
-      "Formula": "(1+FHX_002(120,[DZ_004]/120))*(1+FHX_015(180,[DZ_006],0,[DZ_009]))-1",
+      "Formula": "(1+FHX_004(400,[FDZ_001]/400))*(1+FHX_015(0,[FDZ_006],0.04,[FDZ_009]))-1",
       "FormulaParam": [
-        "DZ_004",
-        "DZ_006",
-        "DZ_009"
+        "FDZ_001",
+        "FDZ_006",
+        "FDZ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
             "FHX_015",
-            "FHX_002"
+            "FHX_004"
           ]
         }
       ],
       "NotComplete": false,
-      "Level": 6,
+      "Level": 7,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -5999,25 +6251,25 @@
     },
     {
       "Code": "RF_XZ_026",
-      "Name": "烈辉平野",
+      "Name": "千载锋鸣",
       "BelongResultCode": null,
-      "Formula": "(1+FHX_002(180,[DZ_004]/180))*(1+FHX_015(270,[DZ_006],0,[DZ_009]))-1",
+      "Formula": "(1+FHX_004(600,[FDZ_001]/600))*(1+FHX_015(0,[FDZ_006],0.06,[FDZ_009]))-1",
       "FormulaParam": [
-        "DZ_004",
-        "DZ_006",
-        "DZ_009"
+        "FDZ_001",
+        "FDZ_006",
+        "FDZ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
             "FHX_015",
-            "FHX_002"
+            "FHX_004"
           ]
         }
       ],
       "NotComplete": false,
-      "Level": 6,
+      "Level": 7,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -6026,25 +6278,25 @@
     },
     {
       "Code": "RF_XZ_027",
-      "Name": "烈辉平野",
+      "Name": "千载锋鸣",
       "BelongResultCode": null,
-      "Formula": "(1+FHX_002(240,[DZ_004]/240))*(1+FHX_015(360,[DZ_006],0,[DZ_009]))-1",
+      "Formula": "(1+FHX_004(800,[FDZ_001]/800))*(1+FHX_015(0,[FDZ_006],0.08,[FDZ_009]))-1",
       "FormulaParam": [
-        "DZ_004",
-        "DZ_006",
-        "DZ_009"
+        "FDZ_001",
+        "FDZ_006",
+        "FDZ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
             "FHX_015",
-            "FHX_002"
+            "FHX_004"
           ]
         }
       ],
       "NotComplete": false,
-      "Level": 6,
+      "Level": 7,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -6053,18 +6305,18 @@
     },
     {
       "Code": "RF_XZ_028",
-      "Name": "崩摧撼岳",
+      "Name": "水鉴英锋",
       "BelongResultCode": null,
-      "Formula": "(1+FHX_004(500,[DZ_001]/500))*(1+FHX_006(300,[DZ_005]/300))-1",
+      "Formula": "(1+[SH_005]*FHX_006(400,[FDZ_005]/400))*(1+0.01/[FZJ_009])-1",
       "FormulaParam": [
-        "DZ_001",
-        "DZ_005"
+        "SH_005",
+        "FDZ_005",
+        "FZJ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_004",
             "FHX_006"
           ]
         }
@@ -6079,18 +6331,18 @@
     },
     {
       "Code": "RF_XZ_029",
-      "Name": "崩摧撼岳",
+      "Name": "水鉴英锋",
       "BelongResultCode": null,
-      "Formula": "(1+FHX_004(750,[DZ_001]/750))*(1+FHX_006(450,[DZ_005]/450))-1",
+      "Formula": "(1+[SH_005]*FHX_006(600,[FDZ_005]/600))*(1+0.02/[FZJ_009])-1",
       "FormulaParam": [
-        "DZ_001",
-        "DZ_005"
+        "SH_005",
+        "FDZ_005",
+        "FZJ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_004",
             "FHX_006"
           ]
         }
@@ -6105,18 +6357,18 @@
     },
     {
       "Code": "RF_XZ_030",
-      "Name": "崩摧撼岳",
+      "Name": "水鉴英锋",
       "BelongResultCode": null,
-      "Formula": "(1+FHX_004(1000,[DZ_001]/1000))*(1+FHX_006(600,[DZ_005]/600))-1",
+      "Formula": "(1+[SH_005]*FHX_006(800,[FDZ_005]/800))*(1+0.03/[FZJ_009])-1",
       "FormulaParam": [
-        "DZ_001",
-        "DZ_005"
+        "SH_005",
+        "FDZ_005",
+        "FZJ_009"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_004",
             "FHX_006"
           ]
         }
@@ -6131,19 +6383,18 @@
     },
     {
       "Code": "RF_XZ_031",
-      "Name": "蹈武在庭",
+      "Name": "祀天悟法",
       "BelongResultCode": null,
-      "Formula": "(1+FHX_007(240,[DZ_007]/240))*(1+FHX_015(0,[DZ_006],0.02,[DZ_009]))-1",
+      "Formula": "FHX_007(260,[FDZ_007]/260)+0.01/([FZJ_010]-[FDZ_016])",
       "FormulaParam": [
-        "DZ_007",
-        "DZ_006",
-        "DZ_009"
+        "FDZ_007",
+        "FZJ_010",
+        "FDZ_016"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_015",
             "FHX_007"
           ]
         }
@@ -6158,19 +6409,18 @@
     },
     {
       "Code": "RF_XZ_032",
-      "Name": "蹈武在庭",
+      "Name": "祀天悟法",
       "BelongResultCode": null,
-      "Formula": "(1+FHX_007(360,[DZ_007]/360))*(1+FHX_015(0,[DZ_006],0.04,[DZ_009]))-1",
+      "Formula": "FHX_007(390,[FDZ_007]/390)+0.02/([FZJ_010]-[FDZ_016])",
       "FormulaParam": [
-        "DZ_007",
-        "DZ_006",
-        "DZ_009"
+        "FDZ_007",
+        "FZJ_010",
+        "FDZ_016"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_015",
             "FHX_007"
           ]
         }
@@ -6185,254 +6435,19 @@
     },
     {
       "Code": "RF_XZ_033",
-      "Name": "蹈武在庭",
+      "Name": "祀天悟法",
       "BelongResultCode": null,
-      "Formula": "(1+FHX_007(480,[DZ_007]/480))*(1+FHX_015(0,[DZ_006],0.06,[DZ_009]))-1",
+      "Formula": "FHX_007(520,[FDZ_007]/520)+0.03/([FZJ_010]-[FDZ_016])",
       "FormulaParam": [
-        "DZ_007",
-        "DZ_006",
-        "DZ_009"
+        "FDZ_007",
+        "FZJ_010",
+        "FDZ_016"
       ],
       "Rule": [
         {
           "Mode": 3,
           "LambdaParam": [
-            "FHX_015",
             "FHX_007"
-          ]
-        }
-      ],
-      "NotComplete": false,
-      "Level": 7,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
-      "Code": "RF_XZ_034",
-      "Name": "回崖踏嶂",
-      "BelongResultCode": null,
-      "Formula": "(1+FHX_003(150,[DZ_003]/150))*(1+0.02/[FZJ_009])-1",
-      "FormulaParam": [
-        "DZ_003",
-        "FZJ_009"
-      ],
-      "Rule": [
-        {
-          "Mode": 3,
-          "LambdaParam": [
-            "FHX_003"
-          ]
-        }
-      ],
-      "NotComplete": false,
-      "Level": 7,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
-      "Code": "RF_XZ_035",
-      "Name": "回崖踏嶂",
-      "BelongResultCode": null,
-      "Formula": "(1+FHX_003(225,[DZ_003]/225))*(1+0.03/[FZJ_009])-1",
-      "FormulaParam": [
-        "DZ_003",
-        "FZJ_009"
-      ],
-      "Rule": [
-        {
-          "Mode": 3,
-          "LambdaParam": [
-            "FHX_003"
-          ]
-        }
-      ],
-      "NotComplete": false,
-      "Level": 7,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
-      "Code": "RF_XZ_036",
-      "Name": "回崖踏嶂",
-      "BelongResultCode": null,
-      "Formula": "(1+FHX_003(300,[DZ_003]/300))*(1+0.04/[FZJ_009])-1",
-      "FormulaParam": [
-        "DZ_003",
-        "FZJ_009"
-      ],
-      "Rule": [
-        {
-          "Mode": 3,
-          "LambdaParam": [
-            "FHX_003"
-          ]
-        }
-      ],
-      "NotComplete": false,
-      "Level": 7,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
-      "Code": "RF_XZ_037",
-      "Name": "千载锋鸣",
-      "BelongResultCode": null,
-      "Formula": "(1+FHX_004(400,[DZ_001]/400))*(1+FHX_015(0,[DZ_006],0.04,[DZ_009]))-1",
-      "FormulaParam": [
-        "DZ_001",
-        "DZ_006",
-        "DZ_009"
-      ],
-      "Rule": [
-        {
-          "Mode": 3,
-          "LambdaParam": [
-            "FHX_015",
-            "FHX_004"
-          ]
-        }
-      ],
-      "NotComplete": false,
-      "Level": 7,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
-      "Code": "RF_XZ_038",
-      "Name": "千载锋鸣",
-      "BelongResultCode": null,
-      "Formula": "(1+FHX_004(600,[DZ_001]/600))*(1+FHX_015(0,[DZ_006],0.06,[DZ_009]))-1",
-      "FormulaParam": [
-        "DZ_001",
-        "DZ_006",
-        "DZ_009"
-      ],
-      "Rule": [
-        {
-          "Mode": 3,
-          "LambdaParam": [
-            "FHX_015",
-            "FHX_004"
-          ]
-        }
-      ],
-      "NotComplete": false,
-      "Level": 7,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
-      "Code": "RF_XZ_039",
-      "Name": "千载锋鸣",
-      "BelongResultCode": null,
-      "Formula": "(1+FHX_004(800,[DZ_001]/800))*(1+FHX_015(0,[DZ_006],0.08,[DZ_009]))-1",
-      "FormulaParam": [
-        "DZ_001",
-        "DZ_006",
-        "DZ_009"
-      ],
-      "Rule": [
-        {
-          "Mode": 3,
-          "LambdaParam": [
-            "FHX_015",
-            "FHX_004"
-          ]
-        }
-      ],
-      "NotComplete": false,
-      "Level": 7,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
-      "Code": "RF_XZ_040",
-      "Name": "水鉴英锋",
-      "BelongResultCode": null,
-      "Formula": "(1+[SH_005]*FHX_006(400,[DZ_005]/400))*(1+0.01/[FZJ_009])-1",
-      "FormulaParam": [
-        "SH_005",
-        "DZ_005",
-        "FZJ_009"
-      ],
-      "Rule": [
-        {
-          "Mode": 3,
-          "LambdaParam": [
-            "FHX_006"
-          ]
-        }
-      ],
-      "NotComplete": false,
-      "Level": 7,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
-      "Code": "RF_XZ_041",
-      "Name": "水鉴英锋",
-      "BelongResultCode": null,
-      "Formula": "(1+[SH_005]*FHX_006(600,[DZ_005]/600))*(1+0.02/[FZJ_009])-1",
-      "FormulaParam": [
-        "SH_005",
-        "DZ_005",
-        "FZJ_009"
-      ],
-      "Rule": [
-        {
-          "Mode": 3,
-          "LambdaParam": [
-            "FHX_006"
-          ]
-        }
-      ],
-      "NotComplete": false,
-      "Level": 7,
-      "GroupName": null,
-      "ResultCellAddress": null,
-      "TextCellAddress": null,
-      "Remark": null,
-      "DynamicalText": null
-    },
-    {
-      "Code": "RF_XZ_042",
-      "Name": "水鉴英锋",
-      "BelongResultCode": null,
-      "Formula": "(1+[SH_005]*FHX_006(800,[DZ_005]/800))*(1+0.03/[FZJ_009])-1",
-      "FormulaParam": [
-        "SH_005",
-        "DZ_005",
-        "FZJ_009"
-      ],
-      "Rule": [
-        {
-          "Mode": 3,
-          "LambdaParam": [
-            "FHX_006"
           ]
         }
       ],
@@ -6448,14 +6463,14 @@
       "Code": "RF_WQ_001",
       "Name": "冽雷疾风",
       "BelongResultCode": null,
-      "Formula": "((1-[FBL_04])*0.5+[FBL_04]*(1+([FBL_03]+Min(1-[FBL_03],0.2)*[SH_003])*([ST_009]+[FZJ_003]-1)))/((1-[FBL_04])*0.5+[FBL_04]*(1+[FBL_03]*([ST_009]+[FZJ_003]-1)))*(1+FHX_001(100,Max([DZ_011]-0.1,0)*10))-1",
+      "Formula": "((1-[FBL_04])*0.5+[FBL_04]*(1+([FBL_03]+MIN(1-[FBL_03],0.2)*[SH_003])*([ST_009]+[FZJ_003]-1)))/((1-[FBL_04])*0.5+[FBL_04]*(1+[FBL_03]*([ST_009]+[FZJ_003]-1)))*(1+FHX_001(100,MAX([FDZ_011]-0.1,0)*10))-1",
       "FormulaParam": [
         "FBL_04",
         "FBL_03",
         "SH_003",
         "ST_009",
         "FZJ_003",
-        "DZ_011"
+        "FDZ_011"
       ],
       "Rule": [
         {
@@ -6477,14 +6492,14 @@
       "Code": "RF_WQ_002",
       "Name": "冽雷疾风",
       "BelongResultCode": null,
-      "Formula": "((1-[FBL_04])*0.5+[FBL_04]*(1+([FBL_03]+Min(1-[FBL_03],0.25)*[SH_003])*([ST_009]+[FZJ_003]-1)))/((1-[FBL_04])*0.5+[FBL_04]*(1+[FBL_03]*([ST_009]+[FZJ_003]-1)))*(1+FHX_001(150,Max([DZ_011]-0.1,0)*20/3))-1",
+      "Formula": "((1-[FBL_04])*0.5+[FBL_04]*(1+([FBL_03]+MIN(1-[FBL_03],0.25)*[SH_003])*([ST_009]+[FZJ_003]-1)))/((1-[FBL_04])*0.5+[FBL_04]*(1+[FBL_03]*([ST_009]+[FZJ_003]-1)))*(1+FHX_001(150,MAX([FDZ_011]-0.1,0)*20/3))-1",
       "FormulaParam": [
         "FBL_04",
         "FBL_03",
         "SH_003",
         "ST_009",
         "FZJ_003",
-        "DZ_011"
+        "FDZ_011"
       ],
       "Rule": [
         {
@@ -6506,14 +6521,14 @@
       "Code": "RF_WQ_003",
       "Name": "冽雷疾风",
       "BelongResultCode": null,
-      "Formula": "((1-[FBL_04])*0.5+[FBL_04]*(1+([FBL_03]+Min(1-[FBL_03],0.3)*[SH_003])*([ST_009]+[FZJ_003]-1)))/((1-[FBL_04])*0.5+[FBL_04]*(1+[FBL_03]*([ST_009]+[FZJ_003]-1)))*(1+FHX_001(200,Max([DZ_011]-0.1,0)*5))-1",
+      "Formula": "((1-[FBL_04])*0.5+[FBL_04]*(1+([FBL_03]+MIN(1-[FBL_03],0.3)*[SH_003])*([ST_009]+[FZJ_003]-1)))/((1-[FBL_04])*0.5+[FBL_04]*(1+[FBL_03]*([ST_009]+[FZJ_003]-1)))*(1+FHX_001(200,MAX([FDZ_011]-0.1,0)*5))-1",
       "FormulaParam": [
         "FBL_04",
         "FBL_03",
         "SH_003",
         "ST_009",
         "FZJ_003",
-        "DZ_011"
+        "FDZ_011"
       ],
       "Rule": [
         {
@@ -6888,8 +6903,155 @@
       "DynamicalText": null
     },
     {
+      "Code": "RF_WQ_019",
+      "Name": "临战决峰",
+      "BelongResultCode": null,
+      "Formula": "FHX_005(300,0)+FHX_007(240,0)+FHX_006(300,0)",
+      "FormulaParam": [],
+      "Rule": [
+        {
+          "Mode": 3,
+          "LambdaParam": [
+            "FHX_005",
+            "FHX_007",
+            "FHX_006"
+          ]
+        }
+      ],
+      "NotComplete": false,
+      "Level": 7,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "RF_WQ_020",
+      "Name": "临战决峰",
+      "BelongResultCode": null,
+      "Formula": "FHX_005(450,0)+FHX_007(360,0)+FHX_006(450,0)",
+      "FormulaParam": [],
+      "Rule": [
+        {
+          "Mode": 3,
+          "LambdaParam": [
+            "FHX_005",
+            "FHX_007",
+            "FHX_006"
+          ]
+        }
+      ],
+      "NotComplete": false,
+      "Level": 7,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "RF_WQ_021",
+      "Name": "临战决峰",
+      "BelongResultCode": null,
+      "Formula": "FHX_005(600,0)+FHX_007(480,0)+FHX_006(600,0)",
+      "FormulaParam": [],
+      "Rule": [
+        {
+          "Mode": 3,
+          "LambdaParam": [
+            "FHX_005",
+            "FHX_007",
+            "FHX_006"
+          ]
+        }
+      ],
+      "NotComplete": false,
+      "Level": 7,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "RF_WQ_022",
+      "Name": "意斩绝天",
+      "BelongResultCode": null,
+      "Formula": "FHX_005(300,0)+FHX_006([SH_001]*500*2/3,0)",
+      "FormulaParam": [
+        "SH_001"
+      ],
+      "Rule": [
+        {
+          "Mode": 3,
+          "LambdaParam": [
+            "FHX_005",
+            "FHX_006"
+          ]
+        }
+      ],
+      "NotComplete": false,
+      "Level": 7,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "RF_WQ_023",
+      "Name": "意斩绝天",
+      "BelongResultCode": null,
+      "Formula": "FHX_005(450,0)+FHX_006([SH_001]*750*2/3,0)",
+      "FormulaParam": [
+        "SH_001"
+      ],
+      "Rule": [
+        {
+          "Mode": 3,
+          "LambdaParam": [
+            "FHX_005",
+            "FHX_006"
+          ]
+        }
+      ],
+      "NotComplete": false,
+      "Level": 7,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "RF_WQ_024",
+      "Name": "意斩绝天",
+      "BelongResultCode": null,
+      "Formula": "FHX_005(600,0)+FHX_006([SH_001]*1000*2/3,0)",
+      "FormulaParam": [
+        "SH_001"
+      ],
+      "Rule": [
+        {
+          "Mode": 3,
+          "LambdaParam": [
+            "FHX_005",
+            "FHX_006"
+          ]
+        }
+      ],
+      "NotComplete": false,
+      "Level": 7,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
       "Code": "RF_JN_001",
-      "Name": "芳心妙愈",
+      "Name": "芳心妙愈满阶",
       "BelongResultCode": null,
       "Formula": "FHX_006((140+[KG_005])*31/35*2,0)+FHX_007((140+[KG_005])*31/35,0)",
       "FormulaParam": [
@@ -6914,7 +7076,7 @@
     },
     {
       "Code": "RF_JN_002",
-      "Name": "凤成天锦",
+      "Name": "凤成天锦满阶",
       "BelongResultCode": null,
       "Formula": "FHX_006((300+3*[KG_005])*1.1,0)+FHX_001((160+[KG_005])*1.1,0)",
       "FormulaParam": [
@@ -6953,7 +7115,7 @@
         }
       ],
       "NotComplete": false,
-      "Level": 6,
+      "Level": 7,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -7005,7 +7167,7 @@
     },
     {
       "Code": "RF_JN_006",
-      "Name": "姬蜜儿（满）",
+      "Name": "姬蜜儿满阶",
       "BelongResultCode": null,
       "Formula": "FHX_006(195+12*[KG_005],0)+0.04/[FZJ_009]",
       "FormulaParam": [
@@ -7233,7 +7395,7 @@
         }
       ],
       "NotComplete": false,
-      "Level": 6,
+      "Level": 7,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -7296,11 +7458,63 @@
     },
     {
       "Code": "RF_JCSZ_009",
+      "Name": "根骨",
+      "BelongResultCode": null,
+      "Formula": "(1+[FZY_029]*FHX_005(1.65*[P_SZ_09],0))*(1+FHX_004([FTZ_018]*2*[P_SZ_09],0))-1",
+      "FormulaParam": [
+        "FZY_029",
+        "P_SZ_09",
+        "FTZ_018"
+      ],
+      "Rule": [
+        {
+          "Mode": 3,
+          "LambdaParam": [
+            "FHX_005",
+            "FHX_004"
+          ]
+        }
+      ],
+      "NotComplete": false,
+      "Level": 7,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "RF_JCSZ_010",
+      "Name": "耐力",
+      "BelongResultCode": null,
+      "Formula": "[FTZ_019]*FHX_005(1.65*[P_SZ_10],0)",
+      "FormulaParam": [
+        "FTZ_019",
+        "P_SZ_10"
+      ],
+      "Rule": [
+        {
+          "Mode": 3,
+          "LambdaParam": [
+            "FHX_005"
+          ]
+        }
+      ],
+      "NotComplete": false,
+      "Level": 7,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
+    },
+    {
+      "Code": "RF_JCSZ_011",
       "Name": "忽视抗",
       "BelongResultCode": null,
-      "Formula": "FHX_003([P_SZ_09],0)",
+      "Formula": "FHX_003([P_SZ_11],0)",
       "FormulaParam": [
-        "P_SZ_09"
+        "P_SZ_11"
       ],
       "Rule": [
         {
@@ -7319,12 +7533,12 @@
       "DynamicalText": null
     },
     {
-      "Code": "RF_JCSZ_010",
+      "Code": "RF_JCSZ_012",
       "Name": "会心伤害",
       "BelongResultCode": null,
-      "Formula": "FHX_009([P_SZ_10],0)",
+      "Formula": "FHX_009([P_SZ_12],0)",
       "FormulaParam": [
-        "P_SZ_10"
+        "P_SZ_12"
       ],
       "Rule": [
         {
@@ -7335,7 +7549,7 @@
         }
       ],
       "NotComplete": false,
-      "Level": 6,
+      "Level": 7,
       "GroupName": null,
       "ResultCellAddress": null,
       "TextCellAddress": null,
@@ -7343,12 +7557,12 @@
       "DynamicalText": null
     },
     {
-      "Code": "RF_JCSZ_011",
+      "Code": "RF_JCSZ_013",
       "Name": "首克%",
       "BelongResultCode": null,
-      "Formula": "[P_SZ_11]/[FZJ_009]",
+      "Formula": "[P_SZ_13]/[FZJ_009]",
       "FormulaParam": [
-        "P_SZ_11",
+        "P_SZ_13",
         "FZJ_009"
       ],
       "Rule": [],
@@ -7361,12 +7575,12 @@
       "DynamicalText": null
     },
     {
-      "Code": "RF_JCSZ_012",
+      "Code": "RF_JCSZ_014",
       "Name": "攻击%",
       "BelongResultCode": null,
-      "Formula": "FHX_008([P_SZ_12],0)",
+      "Formula": "FHX_008([P_SZ_14],0)",
       "FormulaParam": [
-        "P_SZ_12"
+        "P_SZ_14"
       ],
       "Rule": [
         {
@@ -7383,6 +7597,24 @@
       "TextCellAddress": null,
       "Remark": null,
       "DynamicalText": null
+    },
+    {
+      "Code": "RF_JCSZ_015",
+      "Name": "技强%",
+      "BelongResultCode": null,
+      "Formula": "[P_SZ_15]/[FZJ_010]",
+      "FormulaParam": [
+        "P_SZ_15",
+        "FZJ_010"
+      ],
+      "Rule": [],
+      "NotComplete": false,
+      "Level": 3,
+      "GroupName": null,
+      "ResultCellAddress": null,
+      "TextCellAddress": null,
+      "Remark": null,
+      "DynamicalText": null
     }
   ],
   "CategoryArray": [
@@ -7390,9 +7622,10 @@
     "开关设置",
     "副本buff",
     "伤害占比",
-    "覆盖率"
+    "覆盖率",
+    "灵气"
   ],
-  "FrontParamInfoArray": [
+  "FrontParamInfoArray":[
     {
       "Code": "BO_01",
       "Name": "防御",
@@ -7951,12 +8184,7 @@
         "2层",
         "3层"
       ],
-      "Values": [
-        0,
-        1,
-        2,
-        3
-      ],
+      "Values": [0,1,2,3],
       "GroupName": "副本增益",
       "CategoryName": "副本buff",
       "Remark": null,
@@ -8121,7 +8349,8 @@
       "Mode": 3,
       "Options": [
         "2.2团本",
-        "2.2英雄团本"
+        "2.2英雄外林",
+        "2.2英雄深林"
       ],
       "Values": null,
       "GroupName": "基础",
@@ -8134,7 +8363,8 @@
         "CustomDic": {
           "codes": "[\"BO_01\",\"BO_02\",\"BO_03\",\"BO_04\",\"BO_05\",\"BO_06\",\"BO_07\",\"BO_08\",\"BO_09\",\"BO_10\"]",
           "2.2团本": "[19935,19500,3868,3848,3869,17732,4420,9990,2435,2520]",
-          "2.2英雄团本": "[21410,21000,4163,4163,4163,19030,4760,10718,-165,2739]"
+          "2.2英雄外林": "[21410,21000,4163,4163,4163,19030,4760,10718,-165,2739]",
+          "2.2英雄深林": "[22990,22500,4469,4469,4694,20443,5105,11500,0,2936]"
         }
       },
       "CustomDic": null
@@ -8207,7 +8437,9 @@
         "狞兽驰鹜",
         "越海斫蛟",
         "锋越凌苍",
-        "含仞重霄"
+        "含仞重霄",
+        "临战决峰",
+        "意斩绝天"
       ],
       "Values": null,
       "GroupName": "特质/打造",
@@ -8219,7 +8451,7 @@
         "Mode": 3,
         "CustomDic": {
           "relateMode": "True",
-          "groupCode": "1766093506",
+          "groupCode": "866040869",
           "emptyStr": "",
           "masterMode": "True"
         }
@@ -8245,7 +8477,7 @@
         "Mode": 3,
         "CustomDic": {
           "relateMode": "True",
-          "groupCode": "1766093506",
+          "groupCode": "866040869",
           "emptyStr": "",
           "masterMode": "False"
         }
@@ -8257,10 +8489,6 @@
       "Name": "鞋子打造名称",
       "Mode": 3,
       "Options": [
-        "迅霆裂月",
-        "踏空蹴蛟",
-        "悸魂绝魄",
-        "白虹贯日",
         "灼翼雀心",
         "狞爪撕风",
         "踏霄驭鹏",
@@ -8282,7 +8510,7 @@
         "Mode": 3,
         "CustomDic": {
           "relateMode": "True",
-          "groupCode": "66483264",
+          "groupCode": "-1337602850",
           "emptyStr": "",
           "masterMode": "True"
         }
@@ -8308,7 +8536,7 @@
         "Mode": 3,
         "CustomDic": {
           "relateMode": "True",
-          "groupCode": "66483264",
+          "groupCode": "-1337602850",
           "emptyStr": "",
           "masterMode": "False"
         }
@@ -8381,12 +8609,12 @@
       "CategoryName": "开关设置",
       "Remark": null,
       "Rule": {
-        "FrontParamCode": "KG_013",
+        "FrontParamCode": null,
         "RelatedParamCode": null,
         "Mode": 3,
         "CustomDic": {
           "relateMode": "False",
-          "groupCode": "424588288",
+          "groupCode": "-1614514528",
           "emptyStr": "",
           "masterMode": "False"
         }
@@ -8414,12 +8642,12 @@
       "CategoryName": "开关设置",
       "Remark": null,
       "Rule": {
-        "FrontParamCode": "KG_012",
+        "FrontParamCode": null,
         "RelatedParamCode": null,
         "Mode": 3,
         "CustomDic": {
           "relateMode": "False",
-          "groupCode": "424588288",
+          "groupCode": "-1614514528",
           "emptyStr": "",
           "masterMode": "False"
         }
@@ -8447,12 +8675,12 @@
       "CategoryName": "开关设置",
       "Remark": null,
       "Rule": {
-        "FrontParamCode": "KG_015",
+        "FrontParamCode": null,
         "RelatedParamCode": null,
         "Mode": 3,
         "CustomDic": {
           "relateMode": "False",
-          "groupCode": "424588288",
+          "groupCode": "-1614514528",
           "emptyStr": "",
           "masterMode": "False"
         }
@@ -8480,12 +8708,12 @@
       "CategoryName": "开关设置",
       "Remark": null,
       "Rule": {
-        "FrontParamCode": "KG_014",
+        "FrontParamCode": null,
         "RelatedParamCode": null,
         "Mode": 3,
         "CustomDic": {
           "relateMode": "False",
-          "groupCode": "424588288",
+          "groupCode": "-1614514528",
           "emptyStr": "",
           "masterMode": "False"
         }
@@ -8513,12 +8741,12 @@
       "CategoryName": "开关设置",
       "Remark": null,
       "Rule": {
-        "FrontParamCode": "KG_017",
+        "FrontParamCode": null,
         "RelatedParamCode": null,
         "Mode": 3,
         "CustomDic": {
           "relateMode": "False",
-          "groupCode": "424588288",
+          "groupCode": "-1614514528",
           "emptyStr": "",
           "masterMode": "False"
         }
@@ -8546,12 +8774,12 @@
       "CategoryName": "开关设置",
       "Remark": null,
       "Rule": {
-        "FrontParamCode": "KG_016",
+        "FrontParamCode": null,
         "RelatedParamCode": null,
         "Mode": 3,
         "CustomDic": {
           "relateMode": "False",
-          "groupCode": "424588288",
+          "groupCode": "-1614514528",
           "emptyStr": "",
           "masterMode": "False"
         }
@@ -8605,13 +8833,14 @@
         "销干戈",
         "凛风绝刃",
         "破重云",
+        "通微",
+        "揽狂风",
         "明佑",
         "望惊川",
         "昆吾断玉",
         "日月两仪",
         "燎野",
-        "淬锋镝",
-        "通微"
+        "淬锋镝"
       ],
       "Values": null,
       "GroupName": "内功",
@@ -8623,7 +8852,7 @@
         "Mode": 3,
         "CustomDic": {
           "relateMode": "True",
-          "groupCode": "-75958428",
+          "groupCode": "-1675382371",
           "emptyStr": "",
           "masterMode": "True"
         }
@@ -8648,7 +8877,7 @@
         "Mode": 3,
         "CustomDic": {
           "relateMode": "True",
-          "groupCode": "-75958428",
+          "groupCode": "-1675382371",
           "emptyStr": "",
           "masterMode": "False"
         }
@@ -8670,13 +8899,14 @@
         "销干戈",
         "凛风绝刃",
         "破重云",
+        "通微",
+        "揽狂风",
         "明佑",
         "望惊川",
         "昆吾断玉",
         "日月两仪",
         "燎野",
-        "淬锋镝",
-        "通微"
+        "淬锋镝"
       ],
       "Values": null,
       "GroupName": "内功",
@@ -8688,7 +8918,7 @@
         "Mode": 3,
         "CustomDic": {
           "relateMode": "True",
-          "groupCode": "-75958428",
+          "groupCode": "-1675382371",
           "emptyStr": "",
           "masterMode": "True"
         }
@@ -8713,7 +8943,7 @@
         "Mode": 3,
         "CustomDic": {
           "relateMode": "True",
-          "groupCode": "-75958428",
+          "groupCode": "-1675382371",
           "emptyStr": "",
           "masterMode": "False"
         }
@@ -8735,13 +8965,14 @@
         "销干戈",
         "凛风绝刃",
         "破重云",
+        "通微",
+        "揽狂风",
         "明佑",
         "望惊川",
         "昆吾断玉",
         "日月两仪",
         "燎野",
-        "淬锋镝",
-        "通微"
+        "淬锋镝"
       ],
       "Values": null,
       "GroupName": "内功",
@@ -8753,7 +8984,7 @@
         "Mode": 3,
         "CustomDic": {
           "relateMode": "True",
-          "groupCode": "-75958428",
+          "groupCode": "-1675382371",
           "emptyStr": "",
           "masterMode": "True"
         }
@@ -8778,7 +9009,7 @@
         "Mode": 3,
         "CustomDic": {
           "relateMode": "True",
-          "groupCode": "-75958428",
+          "groupCode": "-1675382371",
           "emptyStr": "",
           "masterMode": "False"
         }
@@ -8800,13 +9031,14 @@
         "销干戈",
         "凛风绝刃",
         "破重云",
+        "通微",
+        "揽狂风",
         "明佑",
         "望惊川",
         "昆吾断玉",
         "日月两仪",
         "燎野",
-        "淬锋镝",
-        "通微"
+        "淬锋镝"
       ],
       "Values": null,
       "GroupName": "内功",
@@ -8818,7 +9050,7 @@
         "Mode": 3,
         "CustomDic": {
           "relateMode": "True",
-          "groupCode": "-75958428",
+          "groupCode": "-1675382371",
           "emptyStr": "",
           "masterMode": "True"
         }
@@ -8843,7 +9075,7 @@
         "Mode": 3,
         "CustomDic": {
           "relateMode": "True",
-          "groupCode": "-75958428",
+          "groupCode": "-1675382371",
           "emptyStr": "",
           "masterMode": "False"
         }
@@ -8865,13 +9097,14 @@
         "销干戈",
         "凛风绝刃",
         "破重云",
+        "通微",
+        "揽狂风",
         "明佑",
         "望惊川",
         "昆吾断玉",
         "日月两仪",
         "燎野",
-        "淬锋镝",
-        "通微"
+        "淬锋镝"
       ],
       "Values": null,
       "GroupName": "内功",
@@ -8883,7 +9116,7 @@
         "Mode": 3,
         "CustomDic": {
           "relateMode": "True",
-          "groupCode": "-75958428",
+          "groupCode": "-1675382371",
           "emptyStr": "",
           "masterMode": "True"
         }
@@ -8908,7 +9141,7 @@
         "Mode": 3,
         "CustomDic": {
           "relateMode": "True",
-          "groupCode": "-75958428",
+          "groupCode": "-1675382371",
           "emptyStr": "",
           "masterMode": "False"
         }
@@ -8930,13 +9163,14 @@
         "销干戈",
         "凛风绝刃",
         "破重云",
+        "通微",
+        "揽狂风",
         "明佑",
         "望惊川",
         "昆吾断玉",
         "日月两仪",
         "燎野",
-        "淬锋镝",
-        "通微"
+        "淬锋镝"
       ],
       "Values": null,
       "GroupName": "内功",
@@ -8948,7 +9182,7 @@
         "Mode": 3,
         "CustomDic": {
           "relateMode": "True",
-          "groupCode": "-75958428",
+          "groupCode": "-1675382371",
           "emptyStr": "",
           "masterMode": "True"
         }
@@ -8973,7 +9207,7 @@
         "Mode": 3,
         "CustomDic": {
           "relateMode": "True",
-          "groupCode": "-75958428",
+          "groupCode": "-1675382371",
           "emptyStr": "",
           "masterMode": "False"
         }
@@ -8991,7 +9225,8 @@
         "孤刀斩影",
         "剑荡云心",
         "蜜语含香",
-        "兵锋现世"
+        "兵锋现世",
+        "贯破连城"
       ],
       "Values": null,
       "GroupName": "技能/神器",
@@ -9003,7 +9238,7 @@
         "Mode": 3,
         "CustomDic": {
           "relateMode": "True",
-          "groupCode": "821685840",
+          "groupCode": "278636512",
           "emptyStr": "",
           "masterMode": "True"
         }
@@ -9032,7 +9267,7 @@
         "Mode": 3,
         "CustomDic": {
           "relateMode": "True",
-          "groupCode": "821685840",
+          "groupCode": "278636512",
           "emptyStr": "",
           "masterMode": "False"
         }
@@ -9046,7 +9281,8 @@
       "Options": [
         "其他绝技",
         "万想鹰扬",
-        "终焉裁决"
+        "终焉裁决",
+        "剑霄飞流"
       ],
       "Values": null,
       "GroupName": "技能/神器",
@@ -9058,7 +9294,7 @@
         "Mode": 3,
         "CustomDic": {
           "relateMode": "True",
-          "groupCode": "79938239",
+          "groupCode": "-287709988",
           "emptyStr": "",
           "masterMode": "True"
         }
@@ -9087,7 +9323,7 @@
         "Mode": 3,
         "CustomDic": {
           "relateMode": "True",
-          "groupCode": "79938239",
+          "groupCode": "-287709988",
           "emptyStr": "",
           "masterMode": "False"
         }
@@ -9101,7 +9337,7 @@
       "Options": null,
       "Values": null,
       "GroupName": "技能/神器",
-      "CategoryName": "",
+      "CategoryName": "开关设置",
       "Remark": null,
       "Rule": null,
       "CustomDic": null
@@ -9137,7 +9373,7 @@
       "Options": null,
       "Values": null,
       "GroupName": "技能/神器",
-      "CategoryName": "",
+      "CategoryName": "开关设置",
       "Remark": null,
       "Rule": null,
       "CustomDic": null
@@ -9227,17 +9463,7 @@
       "GroupName": "属性药品",
       "CategoryName": "开关设置",
       "Remark": "擂台药为上品",
-      "Rule": {
-        "FrontParamCode": "KG_044",
-        "RelatedParamCode": null,
-        "Mode": 3,
-        "CustomDic": {
-          "relateMode": "True",
-          "groupCode": "958128834",
-          "emptyStr": "",
-          "masterMode": "False"
-        }
-      },
+      "Rule": null,
       "CustomDic": null
     },
     {
@@ -9253,17 +9479,7 @@
       "GroupName": "属性药品",
       "CategoryName": "开关设置",
       "Remark": "擂台药为上品",
-      "Rule": {
-        "FrontParamCode": "KG_043",
-        "RelatedParamCode": null,
-        "Mode": 3,
-        "CustomDic": {
-          "relateMode": "True",
-          "groupCode": "958128834",
-          "emptyStr": "",
-          "masterMode": "False"
-        }
-      },
+      "Rule": null,
       "CustomDic": null
     },
     {
@@ -9273,6 +9489,39 @@
       "Options": null,
       "Values": null,
       "GroupName": "技能/神器",
+      "CategoryName": "开关设置",
+      "Remark": null,
+      "Rule": null,
+      "CustomDic": null
+    },
+    {
+      "Code": "KG_046",
+      "Name": "面板为野利随机",
+      "Mode": 3,
+      "Options": [
+        "会心",
+        "命中",
+        "不随机",
+        "不带野利"
+      ],
+      "Values": null,
+      "GroupName": "",
+      "CategoryName": "开关设置",
+      "Remark": null,
+      "Rule": null,
+      "CustomDic": null
+    },
+    {
+      "Code": "KG_047",
+      "Name": "幽烛侍者·凋疫戒",
+      "Mode": 3,
+      "Options": [
+        "无",
+        "普通",
+        "英雄"
+      ],
+      "Values": null,
+      "GroupName": "",
       "CategoryName": "开关设置",
       "Remark": null,
       "Rule": null,
@@ -9316,240 +9565,65 @@
     },
     {
       "Code": "LQ_004",
-      "Name": "上身独珍1",
+      "Name": "灵气规则",
       "Mode": 3,
       "Options": [
-        "姜却·君授银鍪",
-        "姜却·君授银鍪·英雄",
-        "雀隐·朽墨臂甲",
-        "叶雪青·雪融青山袖",
-        "三青鸟·青鸾困镣",
-        "三青鸟·青鸾困镣·英雄",
-        "圣巫·蒙尘旧涤",
-        "圣巫·蒙尘旧涤·英雄",
-        "陆仇·飞燕绸衣",
-        "墨不逆·销雪铸麟甲",
-        "墨不逆·委蜕尘雪裳",
-        "墨不逆·弥坚暴鳞甲"
+        "正常",
+        "唯一最多必定相同",
+        "多灵气必定不同"
       ],
       "Values": null,
       "GroupName": "",
       "CategoryName": "灵气",
       "Remark": null,
-      "Rule": {
-        "FrontParamCode": null,
-        "RelatedParamCode": null,
-        "Mode": 3,
-        "CustomDic": {
-          "relateMode": "True",
-          "groupCode": "EQSS",
-          "emptyStr": "",
-          "masterMode": "False"
-        }
-      },
+      "Rule": null,
+      "CustomDic": null
+    },
+    {
+      "Code": "LQ_005",
+      "Name": "野利数珠等级",
+      "Mode": 3,
+      "Options": [
+        "普通",
+        "英雄"
+      ],
+      "Values": null,
+      "GroupName": "",
+      "CategoryName": "灵气",
+      "Remark": null,
+      "Rule": null,
       "CustomDic": null
     },
     {
       "Code": "LQ_006",
-      "Name": "上身独珍2",
+      "Name": "野利数珠灵气1",
       "Mode": 3,
       "Options": [
-        "姜却·君授银鍪",
-        "姜却·君授银鍪·英雄",
-        "雀隐·朽墨臂甲",
-        "叶雪青·雪融青山袖",
-        "三青鸟·青鸾困镣",
-        "三青鸟·青鸾困镣·英雄",
-        "圣巫·蒙尘旧涤",
-        "圣巫·蒙尘旧涤·英雄",
-        "陆仇·飞燕绸衣",
-        "墨不逆·销雪铸麟甲",
-        "墨不逆·委蜕尘雪裳",
-        "墨不逆·弥坚暴鳞甲"
+        "惊雷",
+        "坚冰",
+        "衍木"
       ],
       "Values": null,
       "GroupName": "",
       "CategoryName": "灵气",
       "Remark": null,
-      "Rule": {
-        "FrontParamCode": null,
-        "RelatedParamCode": null,
-        "Mode": 3,
-        "CustomDic": {
-          "relateMode": "True",
-          "groupCode": "EQSS",
-          "emptyStr": "",
-          "masterMode": "False"
-        }
-      },
+      "Rule": null,
       "CustomDic": null
     },
     {
-      "Code": "LQ_008",
-      "Name": "下身独珍1",
+      "Code": "LQ_007",
+      "Name": "野利数珠灵气2",
       "Mode": 3,
       "Options": [
-        "野利白妙凝霜数珠",
-        "琅影·秋水鸣琅",
-        "琅影·秋水鸣琅·英雄",
-        "司烬·火纹焱云",
-        "司烬·火纹焱云·英雄",
-        "木怜青·青蕊佩羽",
-        "木怜青·青蕊佩羽·英雄",
-        "龟何年·坤灵妙转",
-        "龟何年·坤灵妙转·英雄",
-        "幽烛侍者·凋疫戒",
-        "渡寒林·吟风鸾羽"
+        "惊雷",
+        "坚冰",
+        "衍木"
       ],
       "Values": null,
       "GroupName": "",
       "CategoryName": "灵气",
-      "Remark": null,
-      "Rule": {
-        "FrontParamCode": null,
-        "RelatedParamCode": null,
-        "Mode": 3,
-        "CustomDic": {
-          "relateMode": "True",
-          "groupCode": "EQXS",
-          "emptyStr": "",
-          "masterMode": "False"
-        }
-      },
-      "CustomDic": null
-    },
-    {
-      "Code": "LQ_010",
-      "Name": "下身独珍2",
-      "Mode": 3,
-      "Options": [
-        "野利白妙凝霜数珠",
-        "琅影·秋水鸣琅",
-        "琅影·秋水鸣琅·英雄",
-        "司烬·火纹焱云",
-        "司烬·火纹焱云·英雄",
-        "木怜青·青蕊佩羽",
-        "木怜青·青蕊佩羽·英雄",
-        "龟何年·坤灵妙转",
-        "龟何年·坤灵妙转·英雄",
-        "幽烛侍者·凋疫戒",
-        "渡寒林·吟风鸾羽"
-      ],
-      "Values": null,
-      "GroupName": "",
-      "CategoryName": "灵气",
-      "Remark": null,
-      "Rule": {
-        "FrontParamCode": null,
-        "RelatedParamCode": null,
-        "Mode": 3,
-        "CustomDic": {
-          "relateMode": "True",
-          "groupCode": "EQXS",
-          "emptyStr": "",
-          "masterMode": "False"
-        }
-      },
-      "CustomDic": null
-    },
-    {
-      "Code": "LQ_013",
-      "Name": "姜却头盔-名称",
-      "Mode": 4,
-      "Options": null,
-      "Values": null,
-      "GroupName": "",
-      "CategoryName": "灵气",
-      "Remark": null,
-      "Rule": {
-        "FrontParamCode": null,
-        "RelatedParamCode": null,
-        "Mode": 6,
-        "CustomDic": {
-          "frontCodeArray": "[[\"LQ_004\"],[\"LQ_006\"]]",
-          "optionArray": "[[\"姜却·君授银鍪\",\"姜却·君授银鍪·英雄\"],[\"姜却·君授银鍪\",\"姜却·君授银鍪·英雄\"]]"
-        }
-      },
-      "CustomDic": null
-    },
-    {
-      "Code": "LQ_014",
-      "Name": "圣巫腰带-名称",
-      "Mode": 4,
-      "Options": null,
-      "Values": null,
-      "GroupName": "",
-      "CategoryName": "灵气",
-      "Remark": null,
-      "Rule": {
-        "FrontParamCode": null,
-        "RelatedParamCode": null,
-        "Mode": 6,
-        "CustomDic": {
-          "frontCodeArray": "[[\"LQ_004\"],[\"LQ_006\"]]",
-          "optionArray": "[[\"姜却·君授银鍪\",\"姜却·君授银鍪·英雄\"],[\"姜却·君授银鍪\",\"姜却·君授银鍪·英雄\"]]"
-        }
-      },
-      "CustomDic": null
-    },
-    {
-      "Code": "LQ_015",
-      "Name": "姜却头盔-独珍效果",
-      "Mode": 4,
-      "Options": null,
-      "Values": null,
-      "GroupName": "",
-      "CategoryName": "灵气",
-      "Remark": null,
-      "Rule": {
-        "FrontParamCode": null,
-        "RelatedParamCode": null,
-        "Mode": 6,
-        "CustomDic": {
-          "frontCodeArray": "[[\"LQ_004\",\"LQ_005\"],[\"LQ_006\",\"LQ_007\"]]",
-          "optionArray": "[[\"姜却·君授银鍪\",\"姜却·君授银鍪·英雄\"],[\"姜却·君授银鍪\",\"姜却·君授银鍪·英雄\"]]"
-        }
-      },
-      "CustomDic": null
-    },
-    {
-      "Code": "LQ_016",
-      "Name": "圣巫腰带-独珍效果",
-      "Mode": 4,
-      "Options": null,
-      "Values": null,
-      "GroupName": "",
-      "CategoryName": "灵气",
-      "Remark": null,
-      "Rule": {
-        "FrontParamCode": null,
-        "RelatedParamCode": null,
-        "Mode": 6,
-        "CustomDic": {
-          "frontCodeArray": "[[\"LQ_004\",\"LQ_005\"],[\"LQ_006\",\"LQ_007\"]]",
-          "optionArray": "[[\"圣巫·蒙尘旧涤\",\"圣巫·蒙尘旧涤·英雄\"],[\"圣巫·蒙尘旧涤\",\"圣巫·蒙尘旧涤·英雄\"]]"
-        }
-      },
-      "CustomDic": null
-    },
-    {
-      "Code": "LQ_017",
-      "Name": "野利白妙珠-独珍效果",
-      "Mode": 4,
-      "Options": null,
-      "Values": null,
-      "GroupName": "",
-      "CategoryName": "灵气",
-      "Remark": null,
-      "Rule": {
-        "FrontParamCode": null,
-        "RelatedParamCode": null,
-        "Mode": 6,
-        "CustomDic": {
-          "frontCodeArray": "[[\"LQ_008\",\"LQ_009\"],[\"LQ_010\",\"LQ_011\"]]",
-          "optionArray": "[[\"野利白妙凝霜数珠\"],[\"野利白妙凝霜数珠\"]]"
-        }
-      },
+      "Remark": "如果选择的是普通，请保持和灵气1一致",
+      "Rule": null,
       "CustomDic": null
     },
     {
@@ -9650,7 +9724,7 @@
     },
     {
       "Code": "P_SZ_09",
-      "Name": "忽视抗",
+      "Name": "根骨",
       "Mode": 1,
       "Options": null,
       "Values": null,
@@ -9662,6 +9736,30 @@
     },
     {
       "Code": "P_SZ_10",
+      "Name": "耐力",
+      "Mode": 1,
+      "Options": null,
+      "Values": null,
+      "GroupName": "",
+      "CategoryName": "自定义数值计算",
+      "Remark": null,
+      "Rule": null,
+      "CustomDic": null
+    },
+    {
+      "Code": "P_SZ_11",
+      "Name": "忽视抗",
+      "Mode": 1,
+      "Options": null,
+      "Values": null,
+      "GroupName": "",
+      "CategoryName": "自定义数值计算",
+      "Remark": null,
+      "Rule": null,
+      "CustomDic": null
+    },
+    {
+      "Code": "P_SZ_12",
       "Name": "会心伤害",
       "Mode": 2,
       "Options": null,
@@ -9673,7 +9771,7 @@
       "CustomDic": null
     },
     {
-      "Code": "P_SZ_11",
+      "Code": "P_SZ_13",
       "Name": "首克%",
       "Mode": 2,
       "Options": null,
@@ -9685,8 +9783,20 @@
       "CustomDic": null
     },
     {
-      "Code": "P_SZ_12",
+      "Code": "P_SZ_14",
       "Name": "攻击%",
+      "Mode": 2,
+      "Options": null,
+      "Values": null,
+      "GroupName": "",
+      "CategoryName": "自定义数值计算",
+      "Remark": null,
+      "Rule": null,
+      "CustomDic": null
+    },
+    {
+      "Code": "P_SZ_15",
+      "Name": "技强%",
       "Mode": 2,
       "Options": null,
       "Values": null,
@@ -9819,6 +9929,18 @@
     {
       "Code": "SH_012",
       "Name": "通微",
+      "Mode": 2,
+      "Options": null,
+      "Values": null,
+      "GroupName": "内功",
+      "CategoryName": "伤害占比",
+      "Remark": null,
+      "Rule": null,
+      "CustomDic": null
+    },
+    {
+      "Code": "SH_013",
+      "Name": "揽狂风",
       "Mode": 2,
       "Options": null,
       "Values": null,
@@ -9995,6 +10117,257 @@
       "Remark": null,
       "Rule": null,
       "CustomDic": null
+    }
+  ],
+  "ResultGroups":[
+    {
+      "GroupName": "常用内功收益",
+      "ResultLines": [
+        {
+          "ResultItems": [
+            {
+              "Code": "RF_NG_001",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_003",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_005",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_007",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": {
+                "Title": "标签占比内功",
+                "RefParamCode": "KG_004",
+                "OptionDic": {
+                  "持续": "点明炉",
+                  "爆发": "断金戈",
+                  "群体": "灭阵",
+                  "单体": "冲虚"
+                }
+              }
+            },
+            {
+              "Code": "RF_NG_009",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_011",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_013",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_015",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_017",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_019",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_021",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_023",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_025",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_027",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_029",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_031",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_033",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_035",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            }
+          ],
+          "LineName": "普通"
+        },
+        {
+          "ResultItems": [
+            {
+              "Code": "RF_NG_002",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_004",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_006",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_008",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": {
+                "Title": "标签占比内功",
+                "RefParamCode": "KG_004",
+                "OptionDic": {
+                  "持续": "点明炉",
+                  "爆发": "断金戈",
+                  "群体": "灭阵",
+                  "单体": "冲虚"
+                }
+              }
+            },
+            {
+              "Code": "RF_NG_010",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_012",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_014",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_016",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_018",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_020",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_022",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_024",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_026",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_028",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_030",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_032",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_034",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            },
+            {
+              "Code": "RF_NG_036",
+              "Value": 0,
+              "Title": null,
+              "SpecialPointTitle": null
+            }
+          ],
+          "LineName": "灵韵"
+        }
+      ]
     }
   ],
   "InternalVersion": 20241219001

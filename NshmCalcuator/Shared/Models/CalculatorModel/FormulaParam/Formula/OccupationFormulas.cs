@@ -1,5 +1,5 @@
 ﻿// ReSharper disable ClassNeverInstantiated.Global
-namespace NshmCalculator.Shared.Models.CalculatorModel;
+namespace NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Formula;
 
 /// <summary>
 /// 身份商品收益公式

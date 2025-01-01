@@ -1,0 +1,51 @@
+﻿@using LiveChartsCore
+@using LiveChartsCore.Kernel.Sketches
+@using LiveChartsCore.SkiaSharpView
+@using MudBlazor.Charts
+@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Result
+@using NshmCalculator.Shared.Models.PageModel
+
+<MudGrid>
+    <MudItem sm="12">
+        <ApexChart TItem="ResultItem"
+                   Title="Order Net Value">
+            @foreach (var singleLine in Item.ResultLines)
+            {
+                <ApexPointSeries TItem="ResultItem"
+                                 Items="singleLine.ResultItems"
+                                 Name="@singleLine.LineName"
+                                 XValue="@(e => e.Title)"
+                                 YValue="@(e => e.Value)"
+                                 SeriesType="SeriesType.Bar"/>
+            }
+        </ApexChart>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter] public ResultGroup Item { get; set; }
+
+    private ISeries[] Series { get; set; }
+
+    private ICartesianAxis[] XAxis { get; set; }
+
+    protected override void OnParametersSet()
+    {
+    }
+
+    private void InitSeries()
+    {
+        if (Item != null)
+        {
+            List<ISeries> seriesList = new List<ISeries>();
+            foreach (var itemResultLine in Item.ResultLines)
+            {
+                seriesList.Add(new ColumnSeries<double>
+                {
+                    Name = itemResultLine.LineName
+                });
+            }
+        }
+    }
+
+}
