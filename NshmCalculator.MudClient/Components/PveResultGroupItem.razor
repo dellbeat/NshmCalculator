@@ -1,16 +1,18 @@
-﻿@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Result
+﻿@using System.Collections.ObjectModel
+@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Result
+
 <MudGrid>
-    <MudItem sm="12">
+    <MudItem xs="12" Class="align-center justify-center">
         <ApexChart TItem="ResultItem"
-                   Title="Order Net Value">
-            @foreach (var singleLine in Item.ResultLines)
+                   Title="@_chartTitle" @ref="chart" Options="options" Width="@("100%")">
+            @foreach (var singleLine in _linesCol)
             {
                 <ApexPointSeries TItem="ResultItem"
                                  Items="singleLine.ResultItems"
                                  Name="@singleLine.LineName"
                                  XValue="@(e => e.Title)"
-                                 YValue="@(e => e.Value)"
-                                 SeriesType="SeriesType.Bar"/>
+                                 YValue="@(e => Convert.ToDecimal(e.Value))"
+                                 SeriesType="SeriesType.Line"/>
             }
         </ApexChart>
     </MudItem>
@@ -19,8 +21,95 @@
 @code {
     [Parameter] public ResultGroup Item { get; set; }
 
-    protected override void OnParametersSet()
+    private ApexChart<ResultItem> chart;
+    private ApexChartOptions<ResultItem> options;
+    private string _styleStr { get; set; }
+    private string _chartTitle { get; set; }
+    private ObservableCollection<ResultLine> _linesCol { get; set; }
+
+    protected override void OnInitialized()
     {
+        _linesCol = new ObservableCollection<ResultLine>();
+        chart = new ApexChart<ResultItem>();
+        string exportFileName = "导出结果";
+        var customLocale = new ChartLocale()
+        {
+            Name = "cn",
+            Options = new LocaleOptions()
+            {
+                Toolbar = new LocaleToolbar
+                {
+                    Menu = "菜单",
+                    Pan = "拖拽模式",
+                    Reset = "恢复",
+                    Selection = "选区",
+                    SelectionZoom = "缩放模式",
+                    ZoomIn = "放大",
+                    ZoomOut = "缩小",
+                    ExportToCSV = "导出为Csv表格",
+                    ExportToPNG = "导出为Png图片",
+                    ExportToSVG = "导出为svg(不推荐)"
+                }
+            }
+        };
+        options = new ApexChartOptions<ResultItem>
+        {
+            Chart = new Chart
+            {
+                Toolbar = new Toolbar()
+                {
+                    Show = true,
+                    Export = new ExportOptions()
+                    {
+                        Csv = new ExportCSV
+                        {
+                            Filename = exportFileName
+                        },
+                        Png = new ExportPng
+                        {
+                            Filename = exportFileName
+                        }
+                    },
+                    AutoSelected = AutoSelected.Pan,
+                    Tools = new Tools()
+                    {
+                        Zoom = "", Pan = "<svg fill=\"#000000\" height=\"0\" viewBox=\"0 0 0 0\" width=\"0\" xmlns=\"http://www.w3.org/2000/svg\"></svg>"
+                    }
+                },
+                Locales =
+                [
+                    customLocale
+                ],
+                DefaultLocale = "cn"
+            },
+            Yaxis =
+            [
+                new YAxis
+                {
+                    Labels = new YAxisLabels
+                    {
+                        Formatter = @"function (value) {return (Number(value) * 100).toFixed(2) + '%';}"
+                    }
+                }
+            ],
+            Stroke = new Stroke { Curve = Curve.Straight, Width = 2 },
+            Markers = new Markers { Shape = ShapeEnum.Circle, Size = 4, FillOpacity = new Opacity(0.8d) }
+        };
+        base.OnInitialized();
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        _chartTitle = Item.GroupName;
+        _linesCol.Clear();
+        foreach (var itemResultLine in Item.ResultLines)
+        {
+            _linesCol.Add(itemResultLine);
+        }
+
+        chart.UpdateSeriesAsync(true);
+
+        return Task.CompletedTask;
     }
 
 }

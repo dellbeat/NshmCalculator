@@ -4,7 +4,6 @@
 @using NshmCalculator.MudClient.Components
 @using NshmCalculator.MudClient.Utilities
 @using NshmCalculator.Shared
-@using NshmCalculator.Shared.Models.CalculatorModel
 @using NshmCalculator.Shared.Models.CalculatorModel.CalculatorConfig
 @using NshmCalculator.Shared.Models.CalculatorModel.Enums
 @using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params
@@ -13,7 +12,6 @@
 @using Color = MudBlazor.Color
 @inject ISyncLocalStorageService LocalStorage
 @inject ISnackbar Snackbar
-@inject IDialogService Dialog
 @inject HttpClient Client
 <PageTitle>PVE计算器</PageTitle>
 
@@ -130,7 +128,7 @@
         <MudItem xs="12">
             <MudPaper Class="pa-4 mt-4">
                 <MudSkeleton/>
-                <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Rectangle" Height="300px"/>
+                <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Rectangle" Height="200px"/>
                 <MudSkeleton/>
             </MudPaper>
         </MudItem>
@@ -159,11 +157,13 @@
     {
         await LoadData();
         InitParameters();
+        FirstCalculateAsync();
         await base.OnInitializedAsync();
     }
 
     private async Task<bool> LoadData()
     {
+        Console.WriteLine(DateTime.Now.ToString("O"));
         try
         {
             _pvePageModel = LocalStorage.GetItem<PvePageModel>(nameof(_pvePageModel)) ?? new();
@@ -198,12 +198,15 @@
             }
         }
 
+        Console.WriteLine(DateTime.Now.ToString("O"));
         return result.Item2;
     }
 
     private void InitParameters()
     {
+        Console.WriteLine(DateTime.Now.ToString("O"));
         _paramDic = new Dictionary<string, FrontParamInfo>();
+        _pvePageModel.ParamValuesDictionary ??= _currentConfig.DefaultParamValues;//TODO:实现数据同步逻辑
         bool hasUpdate = false;
 
         foreach (var frontParamInfo in _currentConfig.FrontParamInfoArray)
@@ -212,7 +215,7 @@
             if (_pvePageModel.ParamValuesDictionary.TryGetValue(frontParamInfo.Code, out var param))
             {
                 frontParamInfo.StringValue = param.StringValue;
-                frontParamInfo.NumberValue = param.NumberValue;
+                frontParamInfo.NumberValue = frontParamInfo.Mode == ParamMode.Number ? param.NumberValue : param.NumberValue * 100;
             }
             else
             {
@@ -226,18 +229,22 @@
                 hasUpdate = true;
             }
         }
-
+        
         StateHasChanged();
-
-        Console.WriteLine(DateTime.Now.ToString());
+        Console.WriteLine(DateTime.Now.ToString("O"));
         PveUtility.InitUtilityFromConfig(_currentConfig);
-        Console.WriteLine(DateTime.Now.ToString());
-
+        Console.WriteLine(DateTime.Now.ToString("O"));
         if (hasUpdate)
         {
             Snackbar.Add($"更新/初始化配置成功", Severity.Success);
             SaveInfo();
         }
+    }
+
+    private async Task FirstCalculateAsync()
+    {
+        await Task.Delay(1);
+        CalculateResult();
     }
 
     private void OnCalculate()
@@ -253,13 +260,13 @@
 
         SaveInfo();
         DateTime startTime = DateTime.Now;
-        var list = PveUtility.Calculate(_currentConfig.ResultFormulas.Select(s => s.Code).ToList(), _pvePageModel.ParamValuesDictionary);
-        CalculateResult(list);
+        CalculateResult();
         Snackbar.Add((DateTime.Now - startTime).TotalSeconds.ToString());
     }
 
-    private void CalculateResult(Dictionary<string, double?> dic)
+    private void CalculateResult()
     {
+        var dic = PveUtility.Calculate(_currentConfig.ResultFormulas.Select(s => s.Code).ToList(), _pvePageModel.ParamValuesDictionary);
         foreach (var singleGroup in _currentConfig.ResultGroups)
         {
             foreach (var singleLine in singleGroup.ResultLines)
@@ -268,7 +275,7 @@
                 {
                     if (dic.TryGetValue(singleItem.Code, out double? value) && value is not null)
                     {
-                        singleItem.Value = Convert.ToDecimal(value.Value);
+                        singleItem.Value = value.Value;
                     }
 
                     if (_currentConfig.ResultFormulas.FirstOrDefault(s => s.Code == singleItem.Code) is { } formula)

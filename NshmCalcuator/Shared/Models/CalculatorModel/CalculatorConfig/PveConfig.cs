@@ -32,6 +32,11 @@ public class PveConfig: IGameConfig
     /// </summary>
     public ResultGroup[] ResultGroups { get; set; }
     
+    /// <summary>
+    /// 默认值
+    /// </summary>
+    public Dictionary<string,ParamValue> DefaultParamValues { get; set; }
+    
     public long InternalVersion { get; set; } = -99999;
     
     public string HelperText { get; set; }

@@ -39,6 +39,7 @@ public class PveUtility
         ParamCodeList.Clear();
         FormulaLevelDic.Clear();
         InternalFormulaExpressionDic.Clear();
+        ResultFormulaExpressionDic.Clear();
         SpecialFormulaRuleDic.Clear();
         ParamCodeList.AddRange(config.FrontParamInfoArray.Select(s => s.Code));
         InitInternalFormulaDic(config.InternalFormulas);
@@ -177,26 +178,32 @@ public class PveUtility
         {
             foreach (string code in list)
             {
+                List<string> paramList = new List<string>();
                 try
                 {
                     if (InternalFormulaExpressionDic.TryGetValue(code, out var codeExp))
                     {
                         if (!SpecialFormulaRuleDic.ContainsKey(code))
                         {
+                            paramList.Add("no special");
                             foreach (string? paramCode in codeExp.Parameters.Keys)
                             {
                                 codeExp.Parameters[paramCode] = internalValueDic[paramCode];
+                                paramList.Add($"{paramCode}:{internalValueDic[paramCode]}");
                             }
 
                             internalValueDic.Add(code, codeExp.Evaluate());
+                            paramList.Add($"finalValue:{internalValueDic[code]}");
                         }
                         else
                         {
+                            paramList.Add("special");
                             foreach ((string? paramCode, object? _) in codeExp.Parameters)
                             {
                                 if (internalValueDic.TryGetValue(paramCode, out object? paramValue))
                                 {
                                     codeExp.Parameters[paramCode] = paramValue;
+                                    paramList.Add($"{paramCode}:{paramValue}");
                                 }
                             }
                         }
@@ -207,11 +214,14 @@ public class PveUtility
                     Console.WriteLine(code);
                     throw;
                 }
+
+                // Console.WriteLine($"internal code {code} - {string.Join(",", paramList)}");
             }
         }
 
         foreach (string code in codeList)
         {
+            List<string> paramList = new List<string>();
             if (ResultFormulaExpressionDic.TryGetValue(code, out var formulaExp))
             {
                 foreach ((string? key, object? _) in formulaExp.Parameters)
@@ -219,6 +229,7 @@ public class PveUtility
                     if (internalValueDic.TryGetValue(key, out object? internalValue))
                     {
                         formulaExp.Parameters[key] = internalValue;
+                        paramList.Add($"{key}:{internalValue}");
                     }
                 }
 
@@ -227,7 +238,7 @@ public class PveUtility
                     if (double.TryParse(formulaExp.Evaluate().ToString(), out double value))
                     {
                         result.Add(code, value);
-                        //paramList.Add($"finalValue:{value}");
+                        paramList.Add($"finalValue:{value}");
                     }
                     else
                     {
@@ -239,6 +250,8 @@ public class PveUtility
                     Console.WriteLine(code);
                     throw;
                 }
+
+                // Console.WriteLine($"Code {code} - {string.Join(",", paramList)}");
             }
         }
 

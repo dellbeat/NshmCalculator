@@ -15,7 +15,7 @@ public class ResultItem
     /// <summary>
     /// 引用的结果值
     /// </summary>
-    public decimal Value { get; set; }
+    public double Value { get; set; }
     
     /// <summary>
     /// 标题名称
