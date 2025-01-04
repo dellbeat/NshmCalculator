@@ -1,0 +1,38 @@
+﻿@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params
+
+<MudDialog>
+    <DialogContent>
+        <MudContainer Style="max-height: 500px; overflow-y: scroll">
+            <MudGrid>
+                <MudItem xs="12">
+                    <PveFrontParamItem ItemSource="ParamInfos"/>
+                </MudItem>
+                
+            </MudGrid>
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">取消</MudButton>
+        <MudButton Color="MudBlazor.Color.Primary" OnClick="Submit">修改</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
+    
+    [Inject] private IDialogService DialogService { get; set; }
+    
+    [Parameter] public FrontParamInfo[] ParamInfos { get; set; }
+    
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+    
+    private async Task Submit()
+    {
+        
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}

@@ -1,31 +1,61 @@
 ﻿@using System.Collections.ObjectModel
+@using NshmCalculator.Shared.Models.CalculatorModel.Enums
+@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params
 @using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Result
+@using Color = MudBlazor.Color
+@inject IDialogService Dialog
 
 <MudGrid>
     <MudItem xs="12" Class="align-center justify-center">
-        <ApexChart TItem="ResultItem"
-                   Title="@_chartTitle" @ref="chart" Options="options" Width="@("100%")">
-            @foreach (var singleLine in _linesCol)
-            {
-                <ApexPointSeries TItem="ResultItem"
-                                 Items="singleLine.ResultItems"
-                                 Name="@singleLine.LineName"
-                                 XValue="@(e => e.Title)"
-                                 YValue="@(e => Convert.ToDecimal(e.Value))"
-                                 SeriesType="SeriesType.Line"/>
-            }
-        </ApexChart>
+        @if (_renderComplete)
+        {
+            <ApexChart TItem="ResultItem"
+                       Title="@_chartTitle" @ref="chart" Options="options" Width="@("100%")" OnRendered="OnChartRendered">
+                <ChildContent>
+                    @foreach (var singleLine in _linesCol)
+                    {
+                        <ApexPointSeries TItem="ResultItem"
+                                         Items="singleLine.ResultItems"
+                                         Name="@singleLine.LineName"
+                                         XValue="@(e => e.Title)"
+                                         YValue="@(e => Convert.ToDecimal(e.Value))"
+                                         SeriesType="SeriesType.Line"/>
+                    }
+                </ChildContent>
+            </ApexChart>
+        }
+        else
+        {
+            <MudPaper Class="pa-4 mt-4">
+                <MudSkeleton/>
+                <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Rectangle" Height="300px"/>
+                <MudSkeleton/>
+            </MudPaper>
+        }
     </MudItem>
+    @if (_renderComplete && Item.GroupMode == ResultGroupEnum.WithData)
+    {
+        <MudItem xs="12" Class="d-flex align-center justify-center">
+            <MudStack Row="true" Spacing="4">
+                <MudButton Variant="Variant.Filled" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Button" OnClick="OnParamSetting">参数设置</MudButton>
+            </MudStack>
+        </MudItem>
+    }
 </MudGrid>
 
 @code {
     [Parameter] public ResultGroup Item { get; set; }
+    [Parameter] public List<FrontParamInfo> FrontParamInfos { get; set; }
+    [Parameter] public Dictionary<string, ParamValue> ParamValueDic { get; set; }
 
     private ApexChart<ResultItem> chart;
     private ApexChartOptions<ResultItem> options;
     private string _styleStr { get; set; }
     private string _chartTitle { get; set; }
     private ObservableCollection<ResultLine> _linesCol { get; set; }
+    private string _lastRenderGuid { get; set; }
+    private bool _renderComplete = false;
+    private readonly DialogParameters<ParamSettingDialog> _paramSettingParam = new();
 
     protected override void OnInitialized()
     {
@@ -51,7 +81,7 @@
                     ExportToSVG = "导出为svg(不推荐)"
                 }
             }
-        };
+        }; //TODO：尝试自定义TOOLTIP
         options = new ApexChartOptions<ResultItem>
         {
             Chart = new Chart
@@ -95,11 +125,14 @@
             Stroke = new Stroke { Curve = Curve.Straight, Width = 2 },
             Markers = new Markers { Shape = ShapeEnum.Circle, Size = 4, FillOpacity = new Opacity(0.8d) }
         };
+        _paramSettingParam.Add("ParamInfos", null);
+
         base.OnInitialized();
     }
 
     protected override Task OnParametersSetAsync()
     {
+        _renderComplete = false;
         _chartTitle = Item.GroupName;
         _linesCol.Clear();
         foreach (var itemResultLine in Item.ResultLines)
@@ -107,9 +140,34 @@
             _linesCol.Add(itemResultLine);
         }
 
-        chart.UpdateSeriesAsync(true);
+        if (Item.RenderGuid != _lastRenderGuid)
+        {
+            chart.UpdateSeriesAsync(true);
+        }
+
+        _renderComplete = true;
+
+        _lastRenderGuid = Item.RenderGuid;
 
         return Task.CompletedTask;
+    }
+
+    private void OnChartRendered()
+    {
+        _renderComplete = true;
+        StateHasChanged();
+    }
+
+    private async Task OnParamSetting()
+    {
+        var settingParam = FrontParamInfos.ToArray();
+        _paramSettingParam["ParamInfos"] = settingParam;
+        var dialog = await Dialog.ShowAsync<ParamSettingDialog>("参数数值设置", _paramSettingParam, null);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            Console.WriteLine(settingParam.Length);
+        }
     }
 
 }

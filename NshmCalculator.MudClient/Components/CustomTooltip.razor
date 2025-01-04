@@ -1,0 +1,30 @@
+﻿@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Result
+<div class="p-1">
+    <div class="apexcharts-tooltip-title">@ResultItem.DataPoint.X</div>
+    <Row class="mb-2">
+        <RowCol Auto>
+            <Badge style="@($"background-color:{ResultItem.DataPoint.FillColor}")">收益率:</Badge>
+        </RowCol>
+        <RowCol Auto>
+            <span class="strong">
+                @ResultItem.DataPoint.Items.First(s => s.Title == ResultItem.DataPoint.X).Value
+            </span>
+        </RowCol>
+    </Row>
+    <Row class="mb-2">
+        <RowCol Auto>
+            <Badge style="@($"background-color:{ResultItem.DataPoint.FillColor}")">属性:</Badge>
+        </RowCol>
+        <RowCol Auto>
+            <span class="strong">
+                @ResultItem.DataPoint.Items.First(s => s.Title == ResultItem.DataPoint.X).Remark
+            </span>
+        </RowCol>
+    </Row>
+</div>
+
+
+@code {
+    [Parameter]
+    public HoverData<ResultItem> ResultItem { get; set; }
+}

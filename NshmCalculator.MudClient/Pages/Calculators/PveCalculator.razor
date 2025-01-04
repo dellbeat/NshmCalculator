@@ -16,7 +16,7 @@
 <PageTitle>PVE计算器</PageTitle>
 
 <MudGrid>
-    @if (!renderNotComplete)
+    @if (!mainRenderNotComplete)
     {
         <MudItem xs="12">
             <MudPaper Class="d-flex align-center justify-center py-8">
@@ -55,7 +55,7 @@
         </MudItem>
 
         <MudItem xs="12">
-            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true" KeepPanelsAlive="true">
+            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" Centered="true" KeepPanelsAlive="true">
                 <MudPaper Class="pa-4 mt-4">
                     @foreach (string category in _currentConfig.CategoryArray.Skip(1))
                     {
@@ -87,12 +87,28 @@
         </MudItem>
 
         <MudItem xs="12">
-            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true" KeepPanelsAlive="true">
-                <MudPaper Class="pa-4 mt-4">
+            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" Centered="true" KeepPanelsAlive="true">
+                <MudPaper Class="pa-4 mt-4" MinHeight="300">
                     @foreach (var singleGroup in _currentConfig.ResultGroups)
                     {
                         <MudTabPanel Text="@singleGroup.GroupName">
-                            <PveResultGroupItem Item="@singleGroup"/>
+                            @if (singleGroup.GroupMode != ResultGroupEnum.WithData)
+                            {
+                                <PveResultGroupItem Item="@singleGroup"/>
+                            }
+                            else
+                            {
+                                List<FrontParamInfo> paramList = new List<FrontParamInfo>();
+                                foreach (string code in singleGroup.RefCodeList)
+                                {
+                                    if (_paramDic.TryGetValue(code, out var param))
+                                    {
+                                        paramList.Add(param);
+                                    }
+                                }
+                                
+                                <PveResultGroupItem Item="@singleGroup" ParamValueDic="@_pvePageModel.ParamValuesDictionary" FrontParamInfos="paramList"/>
+                            }
                         </MudTabPanel>
                     }
                 </MudPaper>
@@ -135,10 +151,11 @@
     }
     <MudItem xs="12" Class="d-flex align-center justify-center">
         <MudStack Row="true" Spacing="4">
-            <MudButton Variant="Variant.Filled" Disabled="@renderNotComplete" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Button"
+            <MudButton Variant="Variant.Filled" Disabled="@mainRenderNotComplete" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Button"
                        OnClick="OnCalculate">计算
             </MudButton>
-            <MudButton Variant="Variant.Filled" Disabled="@renderNotComplete" Color="Color.Default" Class="d-flex" ButtonType="ButtonType.Button">帮助说明
+            <MudButton Variant="Variant.Filled" Disabled="@mainRenderNotComplete" Color="Color.Default" Class="d-flex" ButtonType="ButtonType.Button">
+                帮助说明
             </MudButton>
         </MudStack>
     </MudItem>
@@ -151,7 +168,7 @@
     private PvePageModel _pvePageModel;
     private Dictionary<string, FrontParamInfo> _paramDic; //需要加载所有前端参数备查
     private PveConfig _currentConfig;
-    private bool renderNotComplete = true;
+    private bool mainRenderNotComplete = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -189,7 +206,7 @@
                     Snackbar.Add("配置数据更新，已加载完成", Severity.Success);
                 }
 
-                renderNotComplete = false;
+                mainRenderNotComplete = false;
             }
             catch (Exception e)
             {
@@ -206,7 +223,7 @@
     {
         Console.WriteLine(DateTime.Now.ToString("O"));
         _paramDic = new Dictionary<string, FrontParamInfo>();
-        _pvePageModel.ParamValuesDictionary ??= _currentConfig.DefaultParamValues;//TODO:实现数据同步逻辑
+        _pvePageModel.ParamValuesDictionary ??= _currentConfig.DefaultParamValues; //TODO:实现数据同步逻辑
         bool hasUpdate = false;
 
         foreach (var frontParamInfo in _currentConfig.FrontParamInfoArray)
@@ -229,7 +246,7 @@
                 hasUpdate = true;
             }
         }
-        
+
         StateHasChanged();
         Console.WriteLine(DateTime.Now.ToString("O"));
         PveUtility.InitUtilityFromConfig(_currentConfig);
@@ -254,7 +271,7 @@
             if (_pvePageModel.ParamValuesDictionary.TryGetValue(code, out var paramValue))
             {
                 paramValue.StringValue = param.StringValue;
-                paramValue.NumberValue = param.Mode == ParamMode.Number ? param.NumberValue : param.NumberValue * 1.0 / 100;
+                paramValue.NumberValue = param.Mode == ParamMode.Number ? param.NumberValue : param.NumberValue / 100;
             }
         }
 
@@ -291,6 +308,8 @@
                     }
                 }
             }
+
+            singleGroup.RenderGuid = Guid.NewGuid().ToString();
         }
 
         StateHasChanged();

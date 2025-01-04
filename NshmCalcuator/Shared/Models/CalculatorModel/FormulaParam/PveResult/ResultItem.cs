@@ -30,6 +30,5 @@ public class ResultItem
     /// <summary>
     /// 备注（待定）
     /// </summary>
-    [JsonIgnore]
     public string Remark { get; set; }
 }

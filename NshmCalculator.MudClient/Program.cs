@@ -1,3 +1,4 @@
+using ApexCharts;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -30,6 +31,13 @@ builder.Services.AddMudServices(config =>
 });
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddSingleton<IStateContainer, StateContainer>();
+builder.Services.AddApexCharts(option =>
+{
+    option.GlobalOptions = new ApexChartBaseOptions()
+    {
+        
+    };
+});
 
 #region InitConfig
 
