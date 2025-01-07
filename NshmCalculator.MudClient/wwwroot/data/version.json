@@ -3,7 +3,7 @@
     "sf": 20241202001,
     "syTreat": 20241202001,
     "update":20241202001,
-    "pve":20241231018
+    "pve":20250107001
   },
   "ConfigPathInfo": {
     "sf": "../data/config_sf.json",
@@ -11,5 +11,5 @@
     "update": "../data/config_update.json",
     "pve": "../data/config_pve.json"
   },
-  "UpdateTime": "2024-12-12 12:58:54"
+  "UpdateTime": "2025-01-07 10:44:06"
 }

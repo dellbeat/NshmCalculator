@@ -85,7 +85,6 @@
         SC.NotifyPublisher += FindPublisher;
         SC.NotifyUpdate += OnUpdate;
         base.OnInitialized();
-        Console.WriteLine("初始化完成");
     }
 
     private void SelectValueChanged(string code)
@@ -128,7 +127,6 @@
     private (bool, List<string?>) GetRenderOptions(FrontParamInfo frontParamInfo)
     {
         bool renderAble = frontParamInfo.Rule == null;
-        // Console.WriteLine(frontParamInfo.Name);
         List<string?> renderOptions = frontParamInfo.Options == null ? null : frontParamInfo.Options.ToList();
         if (!renderAble)
         {
@@ -142,7 +140,7 @@
                         _subscribeDic.TryAdd(relateParam.Code, relateParam);
                         SetPublisher(relateParam.Code);
 
-                        RefDic.TryGetValue(rule.RelatedParamCode, out var changeParam);
+                        RefDic.TryGetValue(rule.RelatedParamCode??String.Empty, out var changeParam);
 
                         if (rule.CustomDic.TryGetValue(relateParam.StringValue, out var labelValue))
                         {
@@ -274,7 +272,6 @@
                         if (multMode && rule.CustomDic.TryGetValue("multConditionArray", out string multConditionStr) && rule.CustomDic.TryGetValue("multOptionArray", out string multOptionStr))
                         {
                             List<string[]> conditionList = JsonSerializer.Deserialize<List<string[]>>(multConditionStr);
-                            List<string[]> optionList = JsonSerializer.Deserialize<List<string[]>>(multOptionStr);
                             int index = 0;
 
                             for (; index < conditionList.Count; index++)
@@ -285,19 +282,24 @@
                                 }
                             }
 
+                            List<string[]> optionList = JsonSerializer.Deserialize<List<string[]>>(multOptionStr);
                             if (index < conditionList.Count)
                             {
-                                renderOptions = optionList[index].ToList();
                                 renderAble = true;
+                                if (optionList[index].Length > 0)
+                                {
+                                    renderOptions = optionList[index].ToList();
+                                }
                             }
                         }
                         else if (!multMode && rule.CustomDic.TryGetValue("conditionArray", out string conditionStr) && rule.CustomDic.TryGetValue("optionArray", out string optionStr))
                         {
                             string[] conditionArray = JsonSerializer.Deserialize<string[]>(conditionStr);
-                            string[] optionArray = JsonSerializer.Deserialize<string[]>(optionStr);
 
                             renderAble = Array.IndexOf(conditionArray, frontInfo.StringValue) > -1;
-                            if (renderAble)
+
+                            string[] optionArray = JsonSerializer.Deserialize<string[]>(optionStr);
+                            if (renderAble && optionArray.Length > 0)
                             {
                                 renderOptions = optionArray.ToList();
                             }

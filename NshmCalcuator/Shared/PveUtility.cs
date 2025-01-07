@@ -34,6 +34,11 @@ public class PveUtility
     /// </summary>
     private static readonly List<string> ParamCodeList = new();
 
+    /// <summary>
+    /// 在计算过程中共享的键值对
+    /// </summary>
+    private static readonly Dictionary<string, object> InternalValueDic = new();
+
     public static void InitUtilityFromConfig(PveConfig config)
     {
         ParamCodeList.Clear();
@@ -54,7 +59,7 @@ public class PveUtility
     {
         foreach (var formula in array)
         {
-            Expression exp = new Expression(formula.Formula, ExpressionOptions.StrictTypeMatching | ExpressionOptions.IgnoreCaseAtBuiltInFunctions);
+            Expression exp = new Expression(formula.Formula, ExpressionOptions.IgnoreCaseAtBuiltInFunctions);
             foreach (string param in formula.FormulaParam)
             {
                 if (InternalFormulaExpressionDic.ContainsKey(param))
@@ -73,18 +78,25 @@ public class PveUtility
                 {
                     if (!exp.Functions.ContainsKey(functionName))
                     {
-                        exp.Functions.Add(functionName, args =>
+                        if (functionName.ToLower() == "count")
                         {
-                            var fun = InternalFormulaExpressionDic[functionName];
-                            var rule = SpecialFormulaRuleDic[functionName];
-                            int index = 0;
-                            foreach (var expression in args)
+                            exp.Functions.Add(functionName, args => Count(args[0].Evaluate().ToString(), args[1].Evaluate().ToString()));
+                        }
+                        else
+                        {
+                            exp.Functions.Add(functionName, args =>
                             {
-                                fun.Parameters[rule.LambdaParam[index++]] = expression;
-                            }
+                                var fun = InternalFormulaExpressionDic[functionName];
+                                var rule = SpecialFormulaRuleDic[functionName];
+                                int index = 0;
+                                foreach (var expression in args)
+                                {
+                                    fun.Parameters[rule.LambdaParam[index++]] = expression.Evaluate();
+                                }
 
-                            return fun.Evaluate();
-                        });
+                                return fun.Evaluate();
+                            });
+                        }
                     }
                 }
             }
@@ -101,7 +113,7 @@ public class PveUtility
         var lambdaFormulas = array.Where(s => s.Rule != null && s.Rule.Any(y => y.Mode == FormulaMode.Lambda)).ToArray();
         foreach (var formula in lambdaFormulas)
         {
-            Expression exp = new Expression(formula.Formula, ExpressionOptions.StrictTypeMatching | ExpressionOptions.IgnoreCaseAtBuiltInFunctions);
+            Expression exp = new Expression(formula.Formula, ExpressionOptions.IgnoreCaseAtBuiltInFunctions);
             InternalFormulaExpressionDic.Add(formula.Code, exp);
             SpecialFormulaRuleDic.Add(formula.Code, formula.Rule.First(y => y.Mode == FormulaMode.Lambda));
         }
@@ -116,7 +128,7 @@ public class PveUtility
             {
                 Expression exp = InternalFormulaExpressionDic.TryGetValue(singleFormula.Code, out var relateExp)
                     ? relateExp
-                    : new Expression(singleFormula.Formula, ExpressionOptions.StrictTypeMatching | ExpressionOptions.IgnoreCaseAtBuiltInFunctions);
+                    : new Expression(singleFormula.Formula, ExpressionOptions.IgnoreCaseAtBuiltInFunctions);
                 foreach (string singleParam in singleFormula.FormulaParam)
                 {
                     if (InternalFormulaExpressionDic.TryGetValue(singleParam, out var formulaExp))
@@ -137,18 +149,25 @@ public class PveUtility
                         {
                             if (!exp.Functions.ContainsKey(functionName))
                             {
-                                exp.Functions.Add(functionName, args =>
+                                if (functionName.ToLower() == "count")
                                 {
-                                    var fun = InternalFormulaExpressionDic[functionName];
-                                    var rule = SpecialFormulaRuleDic[functionName];
-                                    int index = 0;
-                                    foreach (var expression in args)
+                                    exp.Functions.Add(functionName, args => Count(args[0].Evaluate().ToString(), args[1].Evaluate().ToString()));
+                                }
+                                else
+                                {
+                                    exp.Functions.Add(functionName, args =>
                                     {
-                                        fun.Parameters[rule.LambdaParam[index++]] = expression;
-                                    }
+                                        var fun = InternalFormulaExpressionDic[functionName];
+                                        var rule = SpecialFormulaRuleDic[functionName];
+                                        int index = 0;
+                                        foreach (var expression in args)
+                                        {
+                                            fun.Parameters[rule.LambdaParam[index++]] = expression;
+                                        }
 
-                                    return fun.Evaluate();
-                                });
+                                        return fun.Evaluate();
+                                    });
+                                }
                             }
                         }
                     }
@@ -168,42 +187,36 @@ public class PveUtility
     {
         Dictionary<string, double?> result = new Dictionary<string, double?>();
 
-        Dictionary<string, object> internalValueDic = new Dictionary<string, object>();
+        InternalValueDic.Clear();
         foreach ((string? key, var value) in valueDic)
         {
-            internalValueDic.Add(key, value.NumberMode ? value.NumberValue : value.StringValue);
+            InternalValueDic.Add(key, value.NumberMode ? value.NumberValue : value.StringValue);
         }
 
         foreach ((int _, var list) in FormulaLevelDic)
         {
             foreach (string code in list)
             {
-                List<string> paramList = new List<string>();
                 try
                 {
                     if (InternalFormulaExpressionDic.TryGetValue(code, out var codeExp))
                     {
                         if (!SpecialFormulaRuleDic.ContainsKey(code))
                         {
-                            paramList.Add("no special");
                             foreach (string? paramCode in codeExp.Parameters.Keys)
                             {
-                                codeExp.Parameters[paramCode] = internalValueDic[paramCode];
-                                paramList.Add($"{paramCode}:{internalValueDic[paramCode]}");
+                                codeExp.Parameters[paramCode] = InternalValueDic[paramCode]; 
                             }
 
-                            internalValueDic.Add(code, codeExp.Evaluate());
-                            paramList.Add($"finalValue:{internalValueDic[code]}");
+                            InternalValueDic.Add(code, codeExp.Evaluate());
                         }
                         else
                         {
-                            paramList.Add("special");
                             foreach ((string? paramCode, object? _) in codeExp.Parameters)
                             {
-                                if (internalValueDic.TryGetValue(paramCode, out object? paramValue))
+                                if (InternalValueDic.TryGetValue(paramCode, out object? paramValue))
                                 {
                                     codeExp.Parameters[paramCode] = paramValue;
-                                    paramList.Add($"{paramCode}:{paramValue}");
                                 }
                             }
                         }
@@ -214,22 +227,22 @@ public class PveUtility
                     Console.WriteLine(code);
                     throw;
                 }
-
-                // Console.WriteLine($"internal code {code} - {string.Join(",", paramList)}");
             }
         }
 
         foreach (string code in codeList)
         {
-            List<string> paramList = new List<string>();
-            if (ResultFormulaExpressionDic.TryGetValue(code, out var formulaExp))
+            if (InternalValueDic.TryGetValue(code, out object? resultValue)) //适配需要引用中间量的情况
+            {
+                result.Add(code, Convert.ToDouble(resultValue));
+            }
+            else if (ResultFormulaExpressionDic.TryGetValue(code, out var formulaExp))
             {
                 foreach ((string? key, object? _) in formulaExp.Parameters)
                 {
-                    if (internalValueDic.TryGetValue(key, out object? internalValue))
+                    if (InternalValueDic.TryGetValue(key, out object? internalValue))
                     {
-                        formulaExp.Parameters[key] = internalValue;
-                        paramList.Add($"{key}:{internalValue}");
+                        formulaExp.Parameters[key] = internalValue; 
                     }
                 }
 
@@ -238,7 +251,6 @@ public class PveUtility
                     if (double.TryParse(formulaExp.Evaluate().ToString(), out double value))
                     {
                         result.Add(code, value);
-                        paramList.Add($"finalValue:{value}");
                     }
                     else
                     {
@@ -250,11 +262,36 @@ public class PveUtility
                     Console.WriteLine(code);
                     throw;
                 }
-
-                // Console.WriteLine($"Code {code} - {string.Join(",", paramList)}");
             }
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// 为Countif编写的方法
+    /// </summary>
+    /// <param name="codeStr"></param>
+    /// <param name="cmpStr"></param>
+    /// <returns></returns>
+    private static int Count(string codeStr, string cmpStr)
+    {
+        int count = 0;
+
+        string[] codeArray = codeStr.Split('`');
+
+        bool matchMode = cmpStr.Contains("*"); //如果有星号则代表为通配模式
+
+        foreach (string code in codeArray)
+        {
+            if (InternalValueDic.TryGetValue(code.Replace("[", "").Replace("]", ""), out object? internalValue))
+            {
+                string strValue = internalValue.ToString();
+
+                count += matchMode && strValue.Contains(cmpStr.Replace("*", "")) || !matchMode && strValue == cmpStr ? 1 : 0;
+            }
+        }
+
+        return count;
     }
 }

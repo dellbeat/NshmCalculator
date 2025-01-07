@@ -39,7 +39,6 @@ public static class ConfigHelper
     {
         if (_info == null)
         {
-            Console.WriteLine("无可用版本配置，正在初始化中");
             InitAppVersion(client);
         }
 
@@ -63,8 +62,6 @@ public static class ConfigHelper
         {
             service.SetItem($"config_{code}", _info.ConfigVersionInfo[code]);
         }
-
-        Console.WriteLine($"获取配置完成-{code}");
 
         return (configJson, needUpdate);
     }

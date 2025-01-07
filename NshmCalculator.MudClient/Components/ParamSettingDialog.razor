@@ -2,18 +2,22 @@
 
 <MudDialog>
     <DialogContent>
-        <MudContainer Style="max-height: 500px; overflow-y: scroll">
-            <MudGrid>
-                <MudItem xs="12">
+        <MudGrid>
+            <MudItem xs="12">
+                <MudContainer Style="max-height: 300px; overflow-y: scroll">
                     <PveFrontParamItem ItemSource="ParamInfos"/>
-                </MudItem>
-                
-            </MudGrid>
-        </MudContainer>
+                </MudContainer>
+            </MudItem>
+            <MudItem xs="12">
+                <MudAlert Severity="Severity.Info">
+                    修改后点击保存即可生效，再次计算即可得到最新结果。
+                </MudAlert>
+            </MudItem>
+        </MudGrid>
+
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">取消</MudButton>
-        <MudButton Color="MudBlazor.Color.Primary" OnClick="Submit">修改</MudButton>
+        <MudButton Color="MudBlazor.Color.Primary" OnClick="Submit">保存</MudButton>
     </DialogActions>
 </MudDialog>
 

@@ -24,7 +24,7 @@
                     <MudText Typo="Typo.h4">PVE收益计算器</MudText>
                     <MudText Typo="Typo.h6" Align="Align.Center">
                         <MudChip Icon="@Icons.Material.Filled.Person" Color="Color.Tertiary">B站：-风何往-</MudChip>
-                        <MudChip Color="Color.Info">源文件版本:3.4.1</MudChip>
+                        <MudChip Color="Color.Info">源文件版本:@_currentConfig.Version</MudChip>
                     </MudText>
                 </MudStack>
             </MudPaper>
@@ -106,7 +106,7 @@
                                         paramList.Add(param);
                                     }
                                 }
-                                
+
                                 <PveResultGroupItem Item="@singleGroup" ParamValueDic="@_pvePageModel.ParamValuesDictionary" FrontParamInfos="paramList"/>
                             }
                         </MudTabPanel>
@@ -169,6 +169,7 @@
     private Dictionary<string, FrontParamInfo> _paramDic; //需要加载所有前端参数备查
     private PveConfig _currentConfig;
     private bool mainRenderNotComplete = true;
+    private List<string> _resultCodeList = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -180,7 +181,6 @@
 
     private async Task<bool> LoadData()
     {
-        Console.WriteLine(DateTime.Now.ToString("O"));
         try
         {
             _pvePageModel = LocalStorage.GetItem<PvePageModel>(nameof(_pvePageModel)) ?? new();
@@ -203,6 +203,7 @@
                 _currentConfig = JsonSerializer.Deserialize<PveConfig>(result.Item1);
                 if (result.Item2)
                 {
+                    UpdatePageModel();
                     Snackbar.Add("配置数据更新，已加载完成", Severity.Success);
                 }
 
@@ -214,16 +215,35 @@
                 Snackbar.Add("解析配置时出现异常，请检查网络");
             }
         }
-
-        Console.WriteLine(DateTime.Now.ToString("O"));
+        
         return result.Item2;
+    }
+
+    private void UpdatePageModel()
+    {
+        var newConfig = _currentConfig.DefaultParamValues;
+        var oldConfig = _pvePageModel.ParamValuesDictionary;
+
+        if (oldConfig != null)
+        {
+            foreach (string key in _currentConfig.DefaultParamValues.Keys)
+            {
+                if (oldConfig.TryGetValue(key, out var value))
+                {
+                    newConfig[key].NumberValue = value.NumberValue;
+                    newConfig[key].StringValue = value.StringValue;
+                }
+            }
+        }
+
+        _pvePageModel.ParamValuesDictionary = newConfig;
+        _pvePageModel.CurrentVersion = _currentConfig.InternalVersion;
     }
 
     private void InitParameters()
     {
-        Console.WriteLine(DateTime.Now.ToString("O"));
         _paramDic = new Dictionary<string, FrontParamInfo>();
-        _pvePageModel.ParamValuesDictionary ??= _currentConfig.DefaultParamValues; //TODO:实现数据同步逻辑
+        _pvePageModel.ParamValuesDictionary ??= _currentConfig.DefaultParamValues;
         bool hasUpdate = false;
 
         foreach (var frontParamInfo in _currentConfig.FrontParamInfoArray)
@@ -232,7 +252,7 @@
             if (_pvePageModel.ParamValuesDictionary.TryGetValue(frontParamInfo.Code, out var param))
             {
                 frontParamInfo.StringValue = param.StringValue;
-                frontParamInfo.NumberValue = frontParamInfo.Mode == ParamMode.Number ? param.NumberValue : param.NumberValue * 100;
+                frontParamInfo.NumberValue = frontParamInfo.Mode == ParamMode.Percent ? param.NumberValue * 100 : param.NumberValue;
             }
             else
             {
@@ -248,9 +268,9 @@
         }
 
         StateHasChanged();
-        Console.WriteLine(DateTime.Now.ToString("O"));
+        _tipsDialogParameters.Add(nameof(TipsDialog.ContentText), new MarkupString(_currentConfig.HelperText));
+        _tipsDialogOptions.CloseButton = true;
         PveUtility.InitUtilityFromConfig(_currentConfig);
-        Console.WriteLine(DateTime.Now.ToString("O"));
         if (hasUpdate)
         {
             Snackbar.Add($"更新/初始化配置成功", Severity.Success);
@@ -271,7 +291,7 @@
             if (_pvePageModel.ParamValuesDictionary.TryGetValue(code, out var paramValue))
             {
                 paramValue.StringValue = param.StringValue;
-                paramValue.NumberValue = param.Mode == ParamMode.Number ? param.NumberValue : param.NumberValue / 100;
+                paramValue.NumberValue = param.Mode == ParamMode.Percent ? param.NumberValue / 100.0 : param.NumberValue;
             }
         }
 
@@ -283,7 +303,18 @@
 
     private void CalculateResult()
     {
-        var dic = PveUtility.Calculate(_currentConfig.ResultFormulas.Select(s => s.Code).ToList(), _pvePageModel.ParamValuesDictionary);
+        if (_resultCodeList.Count == 0)
+        {
+            foreach (var singleGroup in _currentConfig.ResultGroups)
+            {
+                foreach (var singleLine in singleGroup.ResultLines)
+                {
+                    _resultCodeList.AddRange(singleLine.ResultItems.Select(s => s.Code));
+                }
+            }
+        }
+
+        var dic = PveUtility.Calculate(_resultCodeList, _pvePageModel.ParamValuesDictionary);
         foreach (var singleGroup in _currentConfig.ResultGroups)
         {
             foreach (var singleLine in singleGroup.ResultLines)
@@ -299,7 +330,7 @@
                     {
                         if (singleItem.SpecialPointTitle != null && _paramDic.TryGetValue(singleItem.SpecialPointTitle.RefParamCode, out var refPara))
                         {
-                            singleItem.Title = singleItem.SpecialPointTitle.OptionDic.TryGetValue(refPara.StringValue, out var title) ? title : formula.Name;
+                            singleItem.Title = singleItem.SpecialPointTitle.OptionDic.TryGetValue(refPara.StringValue, out var title) ? title : singleItem.SpecialPointTitle.Title;
                         }
                         else
                         {

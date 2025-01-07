@@ -54,7 +54,6 @@ while (errorCount < 3)
 
 if (errorCount == 3)
 {
-    Console.WriteLine("获取基础配置失败，请检查网络");
     throw new Exception("获取基础配置失败，请检查网络");
 }
 

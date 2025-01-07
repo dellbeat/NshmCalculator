@@ -37,6 +37,11 @@ public class PveConfig: IGameConfig
     /// </summary>
     public Dictionary<string,ParamValue> DefaultParamValues { get; set; }
     
+    /// <summary>
+    /// 引用的源文件版本
+    /// </summary>
+    public string Version { get; set; }
+    
     public long InternalVersion { get; set; } = -99999;
     
     public string HelperText { get; set; }

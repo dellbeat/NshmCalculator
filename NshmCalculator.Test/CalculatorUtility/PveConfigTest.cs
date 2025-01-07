@@ -101,8 +101,7 @@ public class PveConfigTest
                     break;
                 case ParamRuleMode.CompareOptions:
                     Assert.That(rule.CustomDic is { Count: > 0 }, Is.True, $"{param.Code}-比对选项模式-没有需要对比的内容");
-                    Assert.That(_config.FrontParamInfoArray.Any(s => s.Code == rule.FrontParamCode) &&
-                                _config.FrontParamInfoArray.Any(s => s.Code == rule.RelatedParamCode), Is.True,
+                    Assert.That(_config.FrontParamInfoArray.Any(s => s.Code == rule.FrontParamCode), Is.True,
                         $"{param.Code}-比对选项模式-未指定前置选项代码或需要修改选项的代码");
                     break;
                 case ParamRuleMode.RemoveSameOptions:
@@ -153,5 +152,19 @@ public class PveConfigTest
 
             Assert.Pass($"{param.Code}-特殊规则校验成功");
         }
+    }
+
+    /// <summary>
+    /// 校验默认值和前端值数量/代号是否匹配
+    /// </summary>
+    [Test]
+    public void DefaultDictionaryCheckTest()
+    {
+        string[] frontCodeArray = _config.FrontParamInfoArray.Select(s => s.Code).ToArray();
+        string[] defaultDicCodeArray = _config.DefaultParamValues.Keys.ToArray();
+
+        Assert.That(frontCodeArray.OrderBy(x => x).SequenceEqual(defaultDicCodeArray.OrderBy(x => x)), Is.True, "前端选项与默认值代号有差异");
+        
+        Assert.Pass("前端选项-默认值匹配校验成功");
     }
 }

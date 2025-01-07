@@ -5,43 +5,64 @@
 @using Color = MudBlazor.Color
 @inject IDialogService Dialog
 
-<MudGrid>
-    <MudItem xs="12" Class="align-center justify-center">
+<MudContainer Style="max-height: 600px;">
+    <MudGrid Class="justify-center">
         @if (_renderComplete)
         {
-            <ApexChart TItem="ResultItem"
-                       Title="@_chartTitle" @ref="chart" Options="options" Width="@("100%")" OnRendered="OnChartRendered">
-                <ChildContent>
-                    @foreach (var singleLine in _linesCol)
+            if (Item.GroupMode != ResultGroupEnum.ShowData)
+            {
+                <MudItem xs="12" Style="max-width: 800px">
+                    <ApexChart TItem="ResultItem"
+                               Title="@_chartTitle" @ref="chart" Options="options" Width="@("100%")" OnRendered="OnChartRendered">
+                        <ChildContent>
+                            @foreach (var singleLine in _linesCol)
+                            {
+                                <ApexPointSeries TItem="ResultItem"
+                                                 Items="singleLine.ResultItems"
+                                                 Name="@singleLine.LineName"
+                                                 XValue="@(e => e.Title)"
+                                                 YValue="@(e => e.Value == null || double.IsNaN(e.Value) ? 0 : Convert.ToDecimal(e.Value))"
+                                                 SeriesType="SeriesType.Line"/>
+                            }
+                        </ChildContent>
+                    </ApexChart>
+                </MudItem>
+            }
+            else
+            {
+                @foreach (var line in _linesCol)
+                {
+                    foreach (var singleItem in line.ResultItems)
                     {
-                        <ApexPointSeries TItem="ResultItem"
-                                         Items="singleLine.ResultItems"
-                                         Name="@singleLine.LineName"
-                                         XValue="@(e => e.Title)"
-                                         YValue="@(e => Convert.ToDecimal(e.Value))"
-                                         SeriesType="SeriesType.Line"/>
+                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
+                            <MudChip
+                                Color="Color.Info">@($"{singleItem.Title}:{(singleItem.Value <= 1 ? singleItem.Value.ToString("P2") : Math.Round(singleItem.Value, MidpointRounding.AwayFromZero))}")</MudChip>
+                        </MudItem>
                     }
-                </ChildContent>
-            </ApexChart>
+                }
+            }
         }
         else
         {
-            <MudPaper Class="pa-4 mt-4">
+            <MudItem xs="12">
                 <MudSkeleton/>
                 <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Rectangle" Height="300px"/>
                 <MudSkeleton/>
-            </MudPaper>
+            </MudItem>
         }
-    </MudItem>
-    @if (_renderComplete && Item.GroupMode == ResultGroupEnum.WithData)
-    {
-        <MudItem xs="12" Class="d-flex align-center justify-center">
-            <MudStack Row="true" Spacing="4">
-                <MudButton Variant="Variant.Filled" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Button" OnClick="OnParamSetting">参数设置</MudButton>
-            </MudStack>
-        </MudItem>
-    }
-</MudGrid>
+
+        @if (_renderComplete && Item.GroupMode == ResultGroupEnum.WithData)
+        {
+            <MudItem xs="12" Class="d-flex align-center justify-center">
+                <MudStack Row="true" Spacing="4">
+                    <MudButton Variant="Variant.Filled" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Button" OnClick="OnParamSetting">
+                        参数设置
+                    </MudButton>
+                </MudStack>
+            </MudItem>
+        }
+    </MudGrid>
+</MudContainer>
 
 @code {
     [Parameter] public ResultGroup Item { get; set; }
@@ -59,6 +80,7 @@
 
     protected override void OnInitialized()
     {
+        _renderComplete = false;
         _linesCol = new ObservableCollection<ResultLine>();
         chart = new ApexChart<ResultItem>();
         string exportFileName = "导出结果";
@@ -79,7 +101,7 @@
                     ExportToCSV = "导出为Csv表格",
                     ExportToPNG = "导出为Png图片",
                     ExportToSVG = "导出为svg(不推荐)"
-                }
+                },
             }
         }; //TODO：尝试自定义TOOLTIP
         options = new ApexChartOptions<ResultItem>
@@ -123,33 +145,44 @@
                 }
             ],
             Stroke = new Stroke { Curve = Curve.Straight, Width = 2 },
-            Markers = new Markers { Shape = ShapeEnum.Circle, Size = 4, FillOpacity = new Opacity(0.8d) }
+            Markers = new Markers { Shape = ShapeEnum.Circle, Size = 4, FillOpacity = new Opacity(0.8d) },
+            NoData = new NoData { Text = "等待数据中..." },
         };
         _paramSettingParam.Add("ParamInfos", null);
 
         base.OnInitialized();
     }
 
-    protected override Task OnParametersSetAsync()
+    protected override async Task OnParametersSetAsync()
     {
-        _renderComplete = false;
         _chartTitle = Item.GroupName;
         _linesCol.Clear();
+        if (Item.GroupMode != ResultGroupEnum.ShowData)
+        {
+            options.Yaxis.First().Labels = new YAxisLabels
+            {
+                Formatter = @"function (value) {return (Number(value) * 100).toFixed(" + (Item.DecimalPlace == 0 ? 2 : Item.DecimalPlace) + ") + '%';}"
+            };
+        }
+
         foreach (var itemResultLine in Item.ResultLines)
         {
-            _linesCol.Add(itemResultLine);
+            ResultLine newLine = new ResultLine()
+            {
+                LineName = itemResultLine.LineName,
+                ResultItems = itemResultLine.ResultItems.Where(s => !string.IsNullOrEmpty(s.Title)).ToArray()
+            };
+            _linesCol.Add(newLine);
         }
 
         if (Item.RenderGuid != _lastRenderGuid)
         {
-            chart.UpdateSeriesAsync(true);
+            await chart.UpdateSeriesAsync(true);
+            await Task.Delay(500);
+            _renderComplete = true;
         }
 
-        _renderComplete = true;
-
         _lastRenderGuid = Item.RenderGuid;
-
-        return Task.CompletedTask;
     }
 
     private void OnChartRendered()
@@ -164,10 +197,6 @@
         _paramSettingParam["ParamInfos"] = settingParam;
         var dialog = await Dialog.ShowAsync<ParamSettingDialog>("参数数值设置", _paramSettingParam, null);
         var result = await dialog.Result;
-        if (!result.Canceled)
-        {
-            Console.WriteLine(settingParam.Length);
-        }
     }
 
 }

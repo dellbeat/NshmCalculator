@@ -26,6 +26,11 @@ public class ResultGroup
     public List<string> RefCodeList { get; set; }
     
     /// <summary>
+    /// 图表内的小数位数，目前仅控制图表
+    /// </summary>
+    public int DecimalPlace { get; set; }
+    
+    /// <summary>
     /// 用于传递给组件的标识GUID
     /// </summary>
     [JsonIgnore]
