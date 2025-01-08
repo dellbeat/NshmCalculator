@@ -1,0 +1,203 @@
+﻿@using System.Collections.ObjectModel
+@using NshmCalculator.MudClient.Components.Dialog
+@using NshmCalculator.Shared.Models.CalculatorModel.Enums
+@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params
+@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Result
+@using Color = MudBlazor.Color
+@inject IDialogService Dialog
+
+<MudContainer Style="max-height: 600px;">
+    <MudGrid Class="justify-center">
+        @if (_renderComplete)
+        {
+            if (Item.GroupMode != ResultGroupEnum.ShowData)
+            {
+                <MudItem xs="12" Style="max-width: 800px">
+                    <ApexChart TItem="ResultItem"
+                               Title="@_chartTitle" @ref="chart" Options="options" Width="@("100%")" OnRendered="OnChartRendered">
+                        <ChildContent>
+                            @foreach (var singleLine in _linesCol)
+                            {
+                                <ApexPointSeries TItem="ResultItem"
+                                                 Items="singleLine.ResultItems"
+                                                 Name="@singleLine.LineName"
+                                                 XValue="@(e => e.Title)"
+                                                 YValue="@(e => e.Value == null || double.IsNaN(e.Value) ? 0 : Convert.ToDecimal(e.Value))"
+                                                 SeriesType="SeriesType.Line"/>
+                            }
+                        </ChildContent>
+                    </ApexChart>
+                </MudItem>
+            }
+            else
+            {
+                @foreach (var line in _linesCol)
+                {
+                    foreach (var singleItem in line.ResultItems)
+                    {
+                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
+                            <MudChip
+                                Color="Color.Info">@($"{singleItem.Title}:{(singleItem.Value <= 1 ? singleItem.Value.ToString("P2") : Math.Round(singleItem.Value, MidpointRounding.AwayFromZero))}")</MudChip>
+                        </MudItem>
+                    }
+                }
+            }
+        }
+        else
+        {
+            <MudItem xs="12">
+                <MudSkeleton/>
+                <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Rectangle" Height="300px"/>
+                <MudSkeleton/>
+            </MudItem>
+        }
+
+        @if (_renderComplete && Item.GroupMode == ResultGroupEnum.WithData)
+        {
+            <MudItem xs="12" Class="d-flex align-center justify-center">
+                <MudStack Row="true" Spacing="4">
+                    <MudButton Variant="Variant.Filled" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Button" OnClick="OnParamSetting">
+                        参数设置
+                    </MudButton>
+                </MudStack>
+            </MudItem>
+        }
+    </MudGrid>
+</MudContainer>
+
+@code {
+    [Parameter] public ResultGroup Item { get; set; }
+    [Parameter] public List<FrontParamInfo> FrontParamInfos { get; set; }
+    [Parameter] public Dictionary<string, ParamValue> ParamValueDic { get; set; }
+
+    private ApexChart<ResultItem> chart;
+    private ApexChartOptions<ResultItem> options;
+    private string _styleStr { get; set; }
+    private string _chartTitle { get; set; }
+    private ObservableCollection<ResultLine> _linesCol { get; set; }
+    private string _lastRenderGuid { get; set; }
+    private bool _renderComplete = false;
+    private readonly DialogParameters<ParamSettingDialog> _paramSettingParam = new();
+
+    protected override void OnInitialized()
+    {
+        _renderComplete = false;
+        _linesCol = new ObservableCollection<ResultLine>();
+        chart = new ApexChart<ResultItem>();
+        string exportFileName = "导出结果";
+        var customLocale = new ChartLocale()
+        {
+            Name = "cn",
+            Options = new LocaleOptions()
+            {
+                Toolbar = new LocaleToolbar
+                {
+                    Menu = "菜单",
+                    Pan = "拖拽模式",
+                    Reset = "恢复",
+                    Selection = "选区",
+                    SelectionZoom = "缩放模式",
+                    ZoomIn = "放大",
+                    ZoomOut = "缩小",
+                    ExportToCSV = "导出为Csv表格",
+                    ExportToPNG = "导出为Png图片",
+                    ExportToSVG = "导出为svg(不推荐)"
+                },
+            }
+        }; //TODO：尝试自定义TOOLTIP
+        options = new ApexChartOptions<ResultItem>
+        {
+            Chart = new Chart
+            {
+                Toolbar = new Toolbar()
+                {
+                    Show = true,
+                    Export = new ExportOptions()
+                    {
+                        Csv = new ExportCSV
+                        {
+                            Filename = exportFileName
+                        },
+                        Png = new ExportPng
+                        {
+                            Filename = exportFileName
+                        }
+                    },
+                    AutoSelected = AutoSelected.Pan,
+                    Tools = new Tools()
+                    {
+                        Zoom = "", Pan = "<svg fill=\"#000000\" height=\"0\" viewBox=\"0 0 0 0\" width=\"0\" xmlns=\"http://www.w3.org/2000/svg\"></svg>"
+                    }
+                },
+                Locales =
+                [
+                    customLocale
+                ],
+                DefaultLocale = "cn"
+            },
+            Yaxis =
+            [
+                new YAxis
+                {
+                    Labels = new YAxisLabels
+                    {
+                        Formatter = @"function (value) {return (Number(value) * 100).toFixed(2) + '%';}"
+                    }
+                }
+            ],
+            Stroke = new Stroke { Curve = Curve.Straight, Width = 2 },
+            Markers = new Markers { Shape = ShapeEnum.Circle, Size = 4, FillOpacity = new Opacity(0.8d) },
+            NoData = new NoData { Text = "等待数据中..." },
+        };
+        _paramSettingParam.Add("ParamInfos", null);
+
+        base.OnInitialized();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _chartTitle = Item.GroupName;
+        _linesCol.Clear();
+        if (Item.GroupMode != ResultGroupEnum.ShowData)
+        {
+            options.Yaxis.First().Labels = new YAxisLabels
+            {
+                Formatter = @"function (value) {return (Number(value) * 100).toFixed(" + (Item.DecimalPlace == 0 ? 2 : Item.DecimalPlace) + ") + '%';}"
+            };
+        }
+
+        foreach (var itemResultLine in Item.ResultLines)
+        {
+            ResultLine newLine = new ResultLine()
+            {
+                LineName = itemResultLine.LineName,
+                ResultItems = itemResultLine.ResultItems.Where(s => !string.IsNullOrEmpty(s.Title)).ToArray()
+            };
+            _linesCol.Add(newLine);
+        }
+
+        if (Item.RenderGuid != _lastRenderGuid)
+        {
+            await chart.UpdateSeriesAsync(true);
+            await Task.Delay(500);
+            _renderComplete = true;
+        }
+
+        _lastRenderGuid = Item.RenderGuid;
+    }
+
+    private void OnChartRendered()
+    {
+        _renderComplete = true;
+        StateHasChanged();
+    }
+
+    private async Task OnParamSetting()
+    {
+        var settingParam = FrontParamInfos.ToArray();
+        _paramSettingParam["ParamInfos"] = settingParam;
+        var dialog = await Dialog.ShowAsync<ParamSettingDialog>("参数数值设置", _paramSettingParam, null);
+        var result = await dialog.Result;
+    }
+
+}

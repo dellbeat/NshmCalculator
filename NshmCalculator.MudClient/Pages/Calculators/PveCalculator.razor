@@ -1,0 +1,367 @@
+﻿@page "/pve"
+@using System.Text.Json
+@using Blazored.LocalStorage
+@using NshmCalculator.MudClient.Components
+@using NshmCalculator.MudClient.Components.Dialog
+@using NshmCalculator.MudClient.Utilities
+@using NshmCalculator.Shared
+@using NshmCalculator.Shared.Models.CalculatorModel.CalculatorConfig
+@using NshmCalculator.Shared.Models.CalculatorModel.Enums
+@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params
+@using NshmCalculator.Shared.Models.PageModel
+@using Align = MudBlazor.Align
+@using Color = MudBlazor.Color
+@inject ISyncLocalStorageService LocalStorage
+@inject ISnackbar Snackbar
+@inject HttpClient Client
+@inject IDialogService Dialog
+<PageTitle>PVE计算器</PageTitle>
+
+<MudGrid>
+    @if (!mainRenderNotComplete)
+    {
+        <MudItem xs="12">
+            <MudPaper Class="d-flex align-center justify-center py-8">
+                <MudStack AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.h4">PVE收益计算器</MudText>
+                    <MudText Typo="Typo.h6" Align="Align.Center">
+                        <MudChip Icon="@Icons.Material.Filled.Person" Color="Color.Tertiary">B站：-风何往-</MudChip>
+                        <MudChip Color="Color.Info">源文件版本:@_currentConfig.Version</MudChip>
+                    </MudText>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12">
+            <MudPaper Class="pa-4 mt-4">
+                <MudGrid>
+                    <MudItem xs="12">
+                        <MudText Typo="Typo.subtitle2" Align="Align.Center">玩家基础面板</MudText>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudExpansionPanels MultiExpansion="true">
+                            @if (_currentConfig.FrontParamInfoArray.Where(s => s.CategoryName == _currentConfig.CategoryArray.First()).OrderBy(s => s.Code).ToArray() is { Length: > 0 } baseArray)
+                            {
+                                var group = baseArray.GroupBy(s => s.GroupName);
+                                foreach (var groupItems in group)
+                                {
+                                    <MudExpansionPanel Text=@groupItems.Key>
+                                        <PveFrontParamItem ItemSource="@groupItems.ToArray()" RefDic="@_paramDic"/>
+                                    </MudExpansionPanel>
+                                }
+                            }
+                        </MudExpansionPanels>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12">
+            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" Centered="true" KeepPanelsAlive="true">
+                <MudPaper Class="pa-4 mt-4">
+                    @foreach (string category in _currentConfig.CategoryArray.Skip(1))
+                    {
+                        Console.WriteLine(category);
+                        var currentParams = _currentConfig.FrontParamInfoArray.Where(s => s.CategoryName == category).OrderBy(s => s.Code).ToArray();
+
+                        <MudTabPanel Text="@category">
+                            @if (currentParams.Length > 0)
+                            {
+                                var group = currentParams.GroupBy(s => s.GroupName);
+                                foreach (var groupItems in group)
+                                {
+                                    if (string.IsNullOrEmpty(groupItems.Key))
+                                    {
+                                        <PveFrontParamItem ItemSource="@groupItems.ToArray()" RefDic="@_paramDic"/>
+                                    }
+                                    else
+                                    {
+                                        <MudExpansionPanel Text=@groupItems.Key>
+                                            <PveFrontParamItem ItemSource="@groupItems.ToArray()" RefDic="@_paramDic"/>
+                                        </MudExpansionPanel>
+                                    }
+                                }
+                            }
+                        </MudTabPanel>
+                    }
+                </MudPaper>
+            </MudTabs>
+        </MudItem>
+
+        <MudItem xs="12">
+            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" Centered="true" KeepPanelsAlive="true">
+                <MudPaper Class="pa-4 mt-4" MinHeight="300">
+                    @foreach (var singleGroup in _currentConfig.ResultGroups)
+                    {
+                        <MudTabPanel Text="@singleGroup.GroupName">
+                            @if (singleGroup.GroupMode != ResultGroupEnum.WithData)
+                            {
+                                <PveResultGroupItem Item="@singleGroup"/>
+                            }
+                            else
+                            {
+                                List<FrontParamInfo> paramList = new List<FrontParamInfo>();
+                                foreach (string code in singleGroup.RefCodeList)
+                                {
+                                    if (_paramDic.TryGetValue(code, out var param))
+                                    {
+                                        paramList.Add(param);
+                                    }
+                                }
+
+                                <PveResultGroupItem Item="@singleGroup" ParamValueDic="@_pvePageModel.ParamValuesDictionary"
+                                                    FrontParamInfos="paramList"/>
+                            }
+                        </MudTabPanel>
+                    }
+                </MudPaper>
+            </MudTabs>
+        </MudItem>
+    }
+    else
+    {
+        <MudItem xs="12">
+            <MudPaper Class="pa-4 mt-4">
+                <MudSkeleton/>
+                <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Rectangle" Height="100px"/>
+                <MudSkeleton/>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12">
+            <MudPaper Class="pa-4 mt-4">
+                <MudSkeleton/>
+                <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Rectangle" Height="300px"/>
+                <MudSkeleton/>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12">
+            <MudPaper Class="pa-4 mt-4">
+                <MudSkeleton/>
+                <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Rectangle" Height="300px"/>
+                <MudSkeleton/>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12">
+            <MudPaper Class="pa-4 mt-4">
+                <MudSkeleton/>
+                <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Rectangle" Height="200px"/>
+                <MudSkeleton/>
+            </MudPaper>
+        </MudItem>
+    }
+    <MudItem xs="12" Class="d-flex align-center justify-center">
+        <MudStack Row="true" Spacing="4">
+            <MudButton Variant="Variant.Filled" Disabled="@mainRenderNotComplete" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Button"
+                       OnClick="OnCalculate">计算
+            </MudButton>
+            <MudButton Variant="Variant.Filled" Disabled="@mainRenderNotComplete" Color="Color.Default" Class="d-flex" ButtonType="ButtonType.Button"
+                       OnClick="ShowTips">
+                帮助说明
+            </MudButton>
+        </MudStack>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private readonly DialogParameters<TipsDialog> _tipsDialogParameters = new();
+    private readonly DialogOptions _tipsDialogOptions = new();
+
+    private PvePageModel _pvePageModel;
+    private Dictionary<string, FrontParamInfo> _paramDic; //需要加载所有前端参数备查
+    private PveConfig _currentConfig;
+    private bool mainRenderNotComplete = true;
+    private readonly List<string> _resultCodeList = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        InitParameters();
+        FirstCalculateAsync();
+        await base.OnInitializedAsync();
+        LocalStorage.SetItemAsString(ConstText.LastVisitName, "pve");
+    }
+
+    private async Task<bool> LoadData()
+    {
+        try
+        {
+            _pvePageModel = LocalStorage.GetItem<PvePageModel>(nameof(_pvePageModel)) ?? new();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("PVE收益计算器缓存加载异常" + e);
+            _pvePageModel = new PvePageModel();
+        }
+
+        var result = await ConfigHelper.GetConfigJson(Client, "pve", LocalStorage);
+        if (result.Item1 == ConstText.NotExistText)
+        {
+            Snackbar.Add(result.Item1, Severity.Error);
+        }
+        else
+        {
+            try
+            {
+                _currentConfig = JsonSerializer.Deserialize<PveConfig>(result.Item1);
+                if (result.Item2)
+                {
+                    UpdatePageModel();
+                    Snackbar.Add("配置数据更新，已加载完成", Severity.Success);
+                }
+
+                mainRenderNotComplete = false;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Snackbar.Add("解析配置时出现异常，请检查网络");
+            }
+        }
+
+        return result.Item2;
+    }
+
+    private void UpdatePageModel()
+    {
+        var newConfig = _currentConfig.DefaultParamValues;
+        var oldConfig = _pvePageModel.ParamValuesDictionary;
+
+        if (oldConfig != null)
+        {
+            foreach (string key in _currentConfig.DefaultParamValues.Keys)
+            {
+                if (oldConfig.TryGetValue(key, out var value))
+                {
+                    newConfig[key].NumberValue = value.NumberValue;
+                    newConfig[key].StringValue = value.StringValue;
+                }
+            }
+        }
+
+        _pvePageModel.ParamValuesDictionary = newConfig;
+        _pvePageModel.CurrentVersion = _currentConfig.InternalVersion;
+    }
+
+    private void InitParameters()
+    {
+        _paramDic = new Dictionary<string, FrontParamInfo>();
+        _pvePageModel.ParamValuesDictionary ??= _currentConfig.DefaultParamValues;
+        bool hasUpdate = false;
+
+        foreach (var frontParamInfo in _currentConfig.FrontParamInfoArray)
+        {
+            _paramDic.Add(frontParamInfo.Code, frontParamInfo);
+            if (_pvePageModel.ParamValuesDictionary.TryGetValue(frontParamInfo.Code, out var param))
+            {
+                frontParamInfo.StringValue = param.StringValue;
+                frontParamInfo.NumberValue = frontParamInfo.Mode == ParamMode.Percent ? param.NumberValue * 100 : param.NumberValue;
+            }
+            else
+            {
+                if (frontParamInfo.Mode == ParamMode.Selection && string.IsNullOrEmpty(frontParamInfo.StringValue))
+                {
+                    frontParamInfo.StringValue = frontParamInfo.Options.FirstOrDefault();
+                }
+
+                var newParam = new ParamValue(frontParamInfo);
+                _pvePageModel.ParamValuesDictionary.Add(frontParamInfo.Code, newParam);
+                hasUpdate = true;
+            }
+        }
+
+        StateHasChanged();
+        _tipsDialogParameters.Add(nameof(TipsDialog.ContentText), new MarkupString(_currentConfig.HelperText));
+        _tipsDialogOptions.CloseButton = true;
+        PveUtility.InitUtilityFromConfig(_currentConfig);
+        if (hasUpdate)
+        {
+            Snackbar.Add($"更新/初始化配置成功", Severity.Success);
+            SaveInfo();
+        }
+        else if (_pvePageModel == null || _pvePageModel.ParamValuesDictionary == null)
+        {
+            Snackbar.Add("<ul><li>加载本地存储异常</li></ul>", Severity.Warning);
+        }
+    }
+
+    private async Task FirstCalculateAsync()
+    {
+        await Task.Delay(1);
+        CalculateResult();
+    }
+
+    private void OnCalculate()
+    {
+        foreach ((string? code, var param) in _paramDic)
+        {
+            if (_pvePageModel.ParamValuesDictionary.TryGetValue(code, out var paramValue))
+            {
+                paramValue.StringValue = param.StringValue;
+                paramValue.NumberValue = param.Mode == ParamMode.Percent ? param.NumberValue / 100.0 : param.NumberValue;
+            }
+        }
+
+        SaveInfo();
+        CalculateResult();
+        Snackbar.Add("计算完成", Severity.Success);
+    }
+
+    private void CalculateResult()
+    {
+        if (_resultCodeList.Count == 0)
+        {
+            foreach (var singleGroup in _currentConfig.ResultGroups)
+            {
+                foreach (var singleLine in singleGroup.ResultLines)
+                {
+                    _resultCodeList.AddRange(singleLine.ResultItems.Select(s => s.Code));
+                }
+            }
+        }
+
+        var dic = PveUtility.Calculate(_resultCodeList, _pvePageModel.ParamValuesDictionary);
+        foreach (var singleGroup in _currentConfig.ResultGroups)
+        {
+            foreach (var singleLine in singleGroup.ResultLines)
+            {
+                foreach (var singleItem in singleLine.ResultItems)
+                {
+                    if (dic.TryGetValue(singleItem.Code, out double? value) && value is not null)
+                    {
+                        singleItem.Value = value.Value;
+                    }
+
+                    if (_currentConfig.ResultFormulas.FirstOrDefault(s => s.Code == singleItem.Code) is { } formula)
+                    {
+                        if (singleItem.SpecialPointTitle != null && _paramDic.TryGetValue(singleItem.SpecialPointTitle.RefParamCode, out var refPara))
+                        {
+                            singleItem.Title = singleItem.SpecialPointTitle.OptionDic.TryGetValue(refPara.StringValue, out var title) ? title : singleItem.SpecialPointTitle.Title;
+                        }
+                        else
+                        {
+                            singleItem.Title = formula.Name;
+                        }
+                    }
+                }
+            }
+
+            singleGroup.RenderGuid = Guid.NewGuid().ToString();
+        }
+
+        StateHasChanged();
+    }
+
+    private void SaveInfo()
+    {
+        LocalStorage.SetItem(nameof(_pvePageModel), _pvePageModel);
+    }
+
+    private void ShowTips()
+    {
+        Dialog.Show<TipsDialog>("帮助说明", _tipsDialogParameters, _tipsDialogOptions);
+    }
+
+}

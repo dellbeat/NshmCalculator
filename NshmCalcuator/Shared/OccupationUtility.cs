@@ -1,5 +1,6 @@
 ﻿using NCalc;
 using NshmCalculator.Shared.Models.CalculatorModel;
+using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Formula;
 
 namespace NshmCalculator.Shared;
 

@@ -1,4 +1,4 @@
-using System.Net.Http.Headers;
+using ApexCharts;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -6,6 +6,7 @@ using MudBlazor;
 using MudBlazor.Services;
 using NshmCalculator.MudClient;
 using NshmCalculator.MudClient.Utilities;
+using NshmCalculator.MudClient.Utilities.Interface;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -14,11 +15,6 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 var client = new HttpClient
 {
     BaseAddress = new Uri(builder.HostEnvironment.BaseAddress),
-};
-client.DefaultRequestHeaders.Add("Clear-Site-Data", "cache");
-client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
-{
-    NoCache = true
 };
 builder.Services.AddSingleton(client);
 builder.Services.AddMudServices(config =>
@@ -34,6 +30,14 @@ builder.Services.AddMudServices(config =>
     config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
 });
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddSingleton<IStateContainer, StateContainer>();
+builder.Services.AddApexCharts(option =>
+{
+    option.GlobalOptions = new ApexChartBaseOptions()
+    {
+        
+    };
+});
 
 #region InitConfig
 
@@ -50,8 +54,7 @@ while (errorCount < 3)
 
 if (errorCount == 3)
 {
-    Console.WriteLine("»ñÈ¡»ù´¡ÅäÖÃÊ§°Ü£¬Çë¼ì²éÍøÂç");
-    throw new Exception("»ñÈ¡»ù´¡ÅäÖÃÊ§°Ü£¬Çë¼ì²éÍøÂç");
+    throw new Exception("èŽ·å–åŸºç¡€é…ç½®å¤±è´¥ï¼Œè¯·æ£€æŸ¥ç½‘ç»œ");
 }
 
 #endregion

@@ -18,11 +18,14 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\NshmCalcuator\Shared\NshmCalcuator.Shared.csproj" />
+        <ProjectReference Include="..\NshmCalcuator\Shared\NshmCalcuator.Shared.csproj"/>
     </ItemGroup>
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-      <Exec Command="xcopy &quot;$(SolutionDir)NshmCalculator.MudClient\wwwroot\data\&quot; &quot;$(ProjectDir)$(OutDir)data\&quot; /Y" />
+        <ItemGroup>
+            <SomeFolder Include="$(SolutionDir)NshmCalculator.MudClient\wwwroot\data\**"></SomeFolder>
+        </ItemGroup>
+        <Copy SourceFiles="@(SomeFolder)" DestinationFolder="$(ProjectDir)$(OutDir)data\" SkipUnchangedFiles="True"></Copy>
     </Target>
 
 </Project>

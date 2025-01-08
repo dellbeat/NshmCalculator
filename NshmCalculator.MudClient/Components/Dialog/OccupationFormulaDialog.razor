@@ -1,0 +1,73 @@
+﻿@using NshmCalculator.Shared.Models.CalculatorModel
+@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Formula
+@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params
+@using Color = MudBlazor.Color
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudField Label="身份名称" ReadOnly="true" Variant="Variant.Outlined">@Formulas.GoodsName</MudField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudField Label="收益" Variant="Variant.Outlined" AdornmentIcon="@Icons.Material.Filled.AttachMoney" AdornmentColor="Color.Info">@Formulas.Value.ToString("F2")</MudField>
+            </MudItem>
+            @foreach (var item in GoodsArray)
+            {
+                <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
+                    <MudTextField ShrinkLabel @bind-Value="@item.Price" For="@(() => item.Price)" Label="@item.Name" Variant="Variant.Outlined"/>
+                </MudItem>
+            }
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">取消</MudButton>
+        <MudButton Color="Color.Info" Variant="Variant.Filled" OnClick="Submit">确定</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
+
+    /// <summary>
+    /// 传入的公式
+    /// </summary>
+    [Parameter] public OccupationFormulas Formulas { get; set; }
+    
+    /// <summary>
+    /// 传入的商品数组
+    /// </summary>
+    [Parameter] public OccupationGoods[] GoodsArray { get; set; }
+    
+    [Inject] private IDialogService DialogService { get; set; }
+    
+    private Dictionary<string,int> PriceDictionary { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        PriceDictionary = GoodsArray.ToDictionary(s => s.Code, s => s.Price);
+    }
+
+    private void Submit()
+    {
+        if (GoodsArray.Any(s => s.Price is <= 0 or > 100000))
+        {
+            Snackbar.Add("有价格不在合理范围(1-10万)内", Severity.Warning);
+            return;
+        }
+        
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+    
+    private void Cancel()
+    {
+        foreach (var goods in GoodsArray)
+        {
+            goods.Price = PriceDictionary[goods.Code];
+        }
+
+        MudDialog.Cancel();
+    }
+}

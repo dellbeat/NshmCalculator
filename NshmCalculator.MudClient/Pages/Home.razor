@@ -2,7 +2,7 @@
 @using System.Text.Json
 @using Blazored.LocalStorage
 @using NshmCalculator.MudClient.Utilities
-@using NshmCalculator.Shared.Models
+@using NshmCalculator.Shared.Models.BaseModel
 @inject HttpClient _client
 @inject ISyncLocalStorageService LocalStorage
 @inject ISnackbar Snackbar
@@ -103,15 +103,15 @@
                     内容来源及鸣谢
                 </MudText>
                 <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">
+                    B站<b>@@-风何往-</b>：
+                    <MudLink Href="https://space.bilibili.com/396307349/dynamic" Underline="Underline.Always">-风何往-的个人空间</MudLink>
+                    （PVE收益计算器）
+                </MudText>
+                <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">
                     B站<b>@@逆水寒-夜银</b>：
                     <MudLink Href="https://www.bilibili.com/video/BV1HS411w7MJ" Underline="Underline.Always">对逆水寒手游新赛年赚铜思路的分享
                     </MudLink>
                     （身份收益计算器）
-                </MudText>
-                <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">
-                    B站<b>@@清纯男大阿娟</b>：
-                    <MudLink Href="https://space.bilibili.com/11869478" Underline="Underline.Always">清纯男大阿娟的个人空间</MudLink>
-                    （2.1首领数据参考）
                 </MudText>
                 <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">
                     小红书<b>@@师尹</b>：
@@ -123,6 +123,11 @@
                 <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">
                     <MudLink Href="https://github.com/arkntools/arknights-toolbox" Underline="Underline.Always">arkntools/arknights-toolbox</MudLink>
                     （设计思路参考）
+                </MudText>
+                <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">
+                    B站<b>@@清纯男大阿娟</b>：
+                    <MudLink Href="https://space.bilibili.com/11869478" Underline="Underline.Always">清纯男大阿娟的个人空间</MudLink>
+                    （2.1首领数据参考）
                 </MudText>
                 <MudText Typo="Typo.inherit" Align="MudBlazor.Align.Start">
                     B站<b>@@白宝正不正</b>：

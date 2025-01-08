@@ -13,7 +13,7 @@
 
 <MudLayout>
     <MudAppBar Elevation="1" Color="MudBlazor.Color.Info" Dense="true">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Inherit" Edge="Edge.Start" OnClick="@((_) => DrawerToggle())"/>
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Inherit" Edge="Edge.Start" OnClick="@(_ => DrawerToggle())"/>
         <MudText Typo="Typo.h6">逆水寒手游计算器</MudText>
         <MudSpacer/>
         <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="MudBlazor.Color.Inherit" Edge="Edge.End" OnClick="@OnGithubClick"/>
@@ -36,7 +36,7 @@
                 </YesButton>
             </MudMessageBox>
         </div>
-        <div style="visibility: hidden;">
+        <div style="display:none;">
             <ApexChart TItem="DataPoint" Height="0" Width="0">
                 <ApexPointSeries TItem="DataPoint"
                                  XValue="@(e => e.X)"
@@ -95,7 +95,7 @@
         }
     }
 
-    private async void OnGithubClick()
+    private async Task OnGithubClick()
     {
         await mbox.Show();
     }

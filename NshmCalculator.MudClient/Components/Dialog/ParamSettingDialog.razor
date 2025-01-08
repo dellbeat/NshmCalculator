@@ -1,0 +1,42 @@
+﻿@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params
+
+<MudDialog>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudContainer Style="max-height: 300px; overflow-y: scroll">
+                    <PveFrontParamItem ItemSource="ParamInfos"/>
+                </MudContainer>
+            </MudItem>
+            <MudItem xs="12">
+                <MudAlert Severity="Severity.Info">
+                    修改后点击保存即可生效，再次计算即可得到最新结果。
+                </MudAlert>
+            </MudItem>
+        </MudGrid>
+
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="MudBlazor.Color.Primary" OnClick="Submit">保存</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
+    
+    [Inject] private IDialogService DialogService { get; set; }
+    
+    [Parameter] public FrontParamInfo[] ParamInfos { get; set; }
+    
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+    
+    private async Task Submit()
+    {
+        
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}

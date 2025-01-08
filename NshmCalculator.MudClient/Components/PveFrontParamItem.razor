@@ -1,0 +1,373 @@
+﻿@implements IDisposable
+
+@using System.Text.Json
+@using NshmCalculator.MudClient.Utilities.Interface
+@using NshmCalculator.Shared.Models.CalculatorModel
+@using NshmCalculator.Shared.Models.CalculatorModel.Enums
+@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params
+@inject IStateContainer SC
+
+<MudGrid>
+    @if (ItemSource.Length > 0)
+    {
+        _renderComplete = false;
+        foreach (var frontParamInfo in ItemSource)
+        {
+            @if (frontParamInfo.Mode is ParamMode.Selection or ParamMode.DynamicText)
+            {
+                var renderResult = GetRenderOptions(frontParamInfo);
+
+                if (renderResult.Item1 && frontParamInfo.Mode is ParamMode.Selection)
+                {
+                    <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
+                        <MudSelect T="string?" Label="@frontParamInfo.Name" @bind-Value="frontParamInfo.StringValue"
+                                   HelperText="@(string.IsNullOrEmpty(frontParamInfo.Remark) ? string.Empty : frontParamInfo.Remark)"
+                                   Variant="Variant.Outlined"
+                                   TextChanged="() => { OnFrontParamSelectionTextChanged(frontParamInfo); }">
+                            @foreach (string option in renderResult.Item2) //谨记，需要用@bind-value，不要用错了
+                            {
+                                <MudSelectItem T="string?" Value="option">@option</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                }
+            }
+            else
+            {
+                var renderAble = GetRenderOptions(frontParamInfo).Item1;
+
+                if (renderAble)
+                {
+                    <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
+                        <MudTextField xs="6" sm="4" md="3" lg="2" xl="2" T="double" Label="@frontParamInfo.Name"
+                                      @bind-Value="frontParamInfo.NumberValue"
+                                      Variant="Variant.Outlined"
+                                      Adornment="@(frontParamInfo.Mode == ParamMode.Percent ? Adornment.End : Adornment.None)"
+                                      AdornmentText="%"/>
+                    </MudItem>
+                }
+            }
+        }
+
+        _renderComplete = true;
+    }
+</MudGrid>
+
+
+@code {
+    [Parameter] public FrontParamInfo[] ItemSource { get; set; }
+    [Parameter] public Dictionary<string, FrontParamInfo> RefDic { get; set; }
+
+    /// <summary>
+    /// 需要关注更新的外部值，以确定让内部组件重新渲染
+    /// </summary>
+    private Dictionary<string, FrontParamInfo> _subscribeDic { get; set; }
+
+    /// <summary>
+    /// 需要发出更新事件的内部值，以通知其他组件数据更新
+    /// </summary>
+    private Dictionary<string, FrontParamInfo> _publisherDic { get; set; }
+
+    /// <summary>
+    /// 针对共享选项规则提供的选中值的存储
+    /// </summary>
+    private Dictionary<string, Dictionary<string, string>> _selectedOptionsDic { get; set; }
+
+    private bool _renderComplete = false;
+
+    #region 组件生命周期内相关方法
+
+    protected override void OnInitialized()
+    {
+        _subscribeDic = new Dictionary<string, FrontParamInfo>();
+        _publisherDic = new Dictionary<string, FrontParamInfo>();
+        _selectedOptionsDic = new Dictionary<string, Dictionary<string, string>>();
+        SC.NotifyPublisher += FindPublisher;
+        SC.NotifyUpdate += OnUpdate;
+        base.OnInitialized();
+    }
+
+    private void SelectValueChanged(string code)
+    {
+        SC.NotifyValueUpdated(code);
+    }
+
+    private void SetPublisher(string code)
+    {
+        SC.FindPublisher(code);
+    }
+
+    private void OnUpdate(string code)
+    {
+        string targetCode = code == null ? string.Empty : code;
+        if (_subscribeDic.ContainsKey(targetCode))
+        {
+            StateHasChanged();
+        }
+    }
+
+    private void FindPublisher(string code)
+    {
+        string targetCode = code == null ? string.Empty : code;
+        if (ItemSource.FirstOrDefault(s => s.Code == targetCode) is FrontParamInfo info)
+        {
+            _publisherDic.TryAdd(info.Code, info);
+        }
+    }
+
+    public void Dispose()
+    {
+        SC.NotifyPublisher -= FindPublisher;
+        SC.NotifyUpdate -= OnUpdate;
+        _renderComplete = false;
+    }
+
+    #endregion
+
+    private (bool, List<string?>) GetRenderOptions(FrontParamInfo frontParamInfo)
+    {
+        bool renderAble = frontParamInfo.Rule == null;
+        List<string?> renderOptions = frontParamInfo.Options == null ? null : frontParamInfo.Options.ToList();
+        if (!renderAble)
+        {
+            var rule = frontParamInfo.Rule;
+            switch (rule.Mode)
+            {
+                case ParamRuleMode.CompareOptions:
+                {
+                    if (RefDic.TryGetValue(rule.FrontParamCode, out var relateParam))
+                    {
+                        _subscribeDic.TryAdd(relateParam.Code, relateParam);
+                        SetPublisher(relateParam.Code);
+
+                        RefDic.TryGetValue(rule.RelatedParamCode??String.Empty, out var changeParam);
+
+                        if (rule.CustomDic.TryGetValue(relateParam.StringValue, out var labelValue))
+                        {
+                            renderAble = true;
+                            frontParamInfo.Name = labelValue;
+                        }
+
+                        if (changeParam != null)
+                        {
+                            changeParam.StringValue = labelValue != null ? labelValue : string.Empty;
+                        }
+                    }
+                }
+                    break;
+                case ParamRuleMode.RemoveSameOptions:
+                {
+                    if (RefDic.TryGetValue(rule.FrontParamCode, out var relateParam))
+                    {
+                        _subscribeDic.TryAdd(relateParam.Code, relateParam);
+                        SetPublisher(relateParam.Code);
+                        if (renderOptions.Contains(relateParam.StringValue))
+                        {
+                            renderAble = true;
+                            renderOptions.Remove(relateParam.StringValue);
+                        }
+                        else if (rule.CustomDic.TryGetValue(relateParam.StringValue, out var deleteValue))
+                        {
+                            renderAble = true;
+                            renderOptions.Remove(deleteValue);
+                        }
+
+                        if (!renderOptions.Contains(frontParamInfo.StringValue))
+                        {
+                            frontParamInfo.StringValue = renderOptions.First();
+                        }
+                    }
+                }
+                    break;
+                case ParamRuleMode.ShareOptions:
+                {
+                    if (rule.CustomDic.TryGetValue("relateMode", out string status) && rule.CustomDic.TryGetValue("groupCode", out string groupCode) && rule.CustomDic.TryGetValue("emptyStr", out string emptyStr)) //需要取出选项组代号
+                    {
+                        if (!_selectedOptionsDic.ContainsKey(groupCode))
+                        {
+                            _selectedOptionsDic.Add(groupCode, new Dictionary<string, string>());
+                        }
+
+                        bool relateMode = Convert.ToBoolean(status);
+                        if (!relateMode)
+                        {
+                            renderAble = true; //适用于不需要控制其他选项显示的情况
+                            var deleteItems = _selectedOptionsDic[groupCode].Where(y => y.Key != frontParamInfo.Code).Select(s => s.Value).Where(s => s != null).ToArray();
+                            foreach (string item in deleteItems)
+                            {
+                                if (renderOptions.Contains(item))
+                                {
+                                    renderOptions.Remove(item);
+                                }
+                            }
+
+                            frontParamInfo.StringValue ??= renderOptions.First(); //设计上是不给这个模式emptyStr的
+                        }
+                        else if (rule.CustomDic.TryGetValue("masterMode", out string modeStr))
+                        {
+                            bool masterMode = Convert.ToBoolean(modeStr);
+                            if (masterMode)
+                            {
+                                renderAble = true;
+                                var deleteItems = _selectedOptionsDic[groupCode].Where(y => y.Key != frontParamInfo.Code).Select(s => s.Value).Where(s => s != null && s != emptyStr).ToList();
+                                if (frontParamInfo.StringValue != null && deleteItems.Contains(frontParamInfo.StringValue))
+                                {
+                                    deleteItems.Remove(frontParamInfo.StringValue); //不移除当前已选的内容
+                                }
+
+                                foreach (string item in deleteItems)
+                                {
+                                    if (renderOptions.Contains(item))
+                                    {
+                                        renderOptions.Remove(item);
+                                    }
+                                }
+
+                                renderOptions.Insert(0, emptyStr);
+
+                                if (frontParamInfo.StringValue == null || !renderOptions.Contains(frontParamInfo.StringValue))
+                                {
+                                    frontParamInfo.StringValue = renderOptions.First();
+                                }
+                            }
+                            else
+                            {
+                                if (RefDic.TryGetValue(rule.FrontParamCode, out var relateParam))
+                                {
+                                    renderAble = relateParam?.StringValue != null && relateParam.StringValue != emptyStr; //从选项需要确认主选项值不为规定的无效值
+                                    frontParamInfo.StringValue ??= renderOptions.First();
+                                }
+                            }
+                        }
+                    }
+                }
+                    break;
+                case ParamRuleMode.AssignEnemyData:
+                {
+                    if (rule.CustomDic.TryGetValue("codes", out var codeArrayJson) && rule.CustomDic.TryGetValue(frontParamInfo.StringValue, out var numberArrayJson))
+                    {
+                        string[] codeArray = JsonSerializer.Deserialize<string[]>(codeArrayJson);
+                        double[] numberArray = JsonSerializer.Deserialize<double[]>(numberArrayJson);
+                        for (var i = 0; i < codeArray.Length; i++)
+                        {
+                            if (RefDic.TryGetValue(codeArray[i], out var info))
+                            {
+                                info.NumberValue = numberArray[i];
+                            }
+                        }
+
+                        renderAble = true;
+                    }
+                }
+                    break;
+                case ParamRuleMode.ControlRender:
+                {
+                    //确认前置参数的值
+                    //符合条件则读取对应的选项
+                    //加载
+                    if (rule.CustomDic.TryGetValue("multConditionMode", out string multModeStr) && RefDic.TryGetValue(rule.FrontParamCode, out var frontInfo))
+                    {
+                        //如果有多种判据情况，则需要有mult前缀的各类属性（如前判代号）
+                        bool multMode = Convert.ToBoolean(multModeStr);
+                        if (multMode && rule.CustomDic.TryGetValue("multConditionArray", out string multConditionStr) && rule.CustomDic.TryGetValue("multOptionArray", out string multOptionStr))
+                        {
+                            List<string[]> conditionList = JsonSerializer.Deserialize<List<string[]>>(multConditionStr);
+                            int index = 0;
+
+                            for (; index < conditionList.Count; index++)
+                            {
+                                if (Array.IndexOf(conditionList[index], frontInfo.StringValue) > -1)
+                                {
+                                    break;
+                                }
+                            }
+
+                            List<string[]> optionList = JsonSerializer.Deserialize<List<string[]>>(multOptionStr);
+                            if (index < conditionList.Count)
+                            {
+                                renderAble = true;
+                                if (optionList[index].Length > 0)
+                                {
+                                    renderOptions = optionList[index].ToList();
+                                }
+                            }
+                        }
+                        else if (!multMode && rule.CustomDic.TryGetValue("conditionArray", out string conditionStr) && rule.CustomDic.TryGetValue("optionArray", out string optionStr))
+                        {
+                            string[] conditionArray = JsonSerializer.Deserialize<string[]>(conditionStr);
+
+                            renderAble = Array.IndexOf(conditionArray, frontInfo.StringValue) > -1;
+
+                            string[] optionArray = JsonSerializer.Deserialize<string[]>(optionStr);
+                            if (renderAble && optionArray.Length > 0)
+                            {
+                                renderOptions = optionArray.ToList();
+                            }
+                        }
+                    }
+                }
+                    break;
+                case ParamRuleMode.RelatedAssignment:
+                {
+                    if (rule.CustomDic.TryGetValue("frontCodeArray", out string codeArrayStr) && rule.CustomDic.TryGetValue("optionArray", out string optionStr))
+                    {
+                        List<string[]> codeList = JsonSerializer.Deserialize<List<string[]>>(codeArrayStr); //每个子数组内至多有两个代号，分别为检查/引用参数，如只有一个代号则兼有两种功能
+                        List<string[]> optionList = JsonSerializer.Deserialize<List<string[]>>(optionStr);
+
+                        bool assignFlag = false;
+
+                        for (int arrayIndex = 0; arrayIndex < codeList.Count; arrayIndex++)
+                        {
+                            string[] checkCodeArray = codeList[arrayIndex];
+                            if (RefDic.TryGetValue(checkCodeArray.First(), out var checkParam) && Array.IndexOf(optionList[arrayIndex], checkParam.StringValue) > -1 && RefDic.TryGetValue(checkCodeArray.Last(), out var resultParam))
+                            {
+                                frontParamInfo.StringValue = resultParam.StringValue;
+                                assignFlag = true;
+                                break;
+                            }
+                        }
+
+                        if (!assignFlag)
+                        {
+                            frontParamInfo.StringValue = string.Empty;
+                        }
+                    }
+                }
+                    break;
+            }
+        }
+
+        return (renderAble, renderOptions);
+    }
+
+    private void OnFrontParamSelectionTextChanged(FrontParamInfo param)
+    {
+        if (!_renderComplete)
+        {
+            return;
+        }
+
+        if (param.Rule is { Mode: ParamRuleMode.ShareOptions } && param.Rule.CustomDic.TryGetValue("groupCode", out string groupCode))
+        {
+            if (!_selectedOptionsDic[groupCode].ContainsKey(param.Code)) //需要确认是否渲染后就会触发这个事件
+            {
+                _selectedOptionsDic[groupCode].Add(param.Code, param.StringValue);
+            }
+            else
+            {
+                _selectedOptionsDic[groupCode][param.Code] = param.StringValue;
+            }
+        }
+
+        if (_publisherDic.ContainsKey(param.Code))
+        {
+            SelectValueChanged(param.Code);
+        }
+
+        if (param.Values != null && Array.IndexOf(param.Options, param.StringValue) is int index and > -1)
+        {
+            param.NumberValue = param.Values[index];
+        }
+    }
+
+}
