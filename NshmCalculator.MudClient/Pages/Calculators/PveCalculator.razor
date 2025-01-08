@@ -2,6 +2,7 @@
 @using System.Text.Json
 @using Blazored.LocalStorage
 @using NshmCalculator.MudClient.Components
+@using NshmCalculator.MudClient.Components.Dialog
 @using NshmCalculator.MudClient.Utilities
 @using NshmCalculator.Shared
 @using NshmCalculator.Shared.Models.CalculatorModel.CalculatorConfig
@@ -13,6 +14,7 @@
 @inject ISyncLocalStorageService LocalStorage
 @inject ISnackbar Snackbar
 @inject HttpClient Client
+@inject IDialogService Dialog
 <PageTitle>PVE计算器</PageTitle>
 
 <MudGrid>
@@ -107,7 +109,8 @@
                                     }
                                 }
 
-                                <PveResultGroupItem Item="@singleGroup" ParamValueDic="@_pvePageModel.ParamValuesDictionary" FrontParamInfos="paramList"/>
+                                <PveResultGroupItem Item="@singleGroup" ParamValueDic="@_pvePageModel.ParamValuesDictionary"
+                                                    FrontParamInfos="paramList"/>
                             }
                         </MudTabPanel>
                     }
@@ -154,7 +157,8 @@
             <MudButton Variant="Variant.Filled" Disabled="@mainRenderNotComplete" Color="Color.Info" Class="d-flex" ButtonType="ButtonType.Button"
                        OnClick="OnCalculate">计算
             </MudButton>
-            <MudButton Variant="Variant.Filled" Disabled="@mainRenderNotComplete" Color="Color.Default" Class="d-flex" ButtonType="ButtonType.Button">
+            <MudButton Variant="Variant.Filled" Disabled="@mainRenderNotComplete" Color="Color.Default" Class="d-flex" ButtonType="ButtonType.Button"
+                       OnClick="ShowTips">
                 帮助说明
             </MudButton>
         </MudStack>
@@ -169,7 +173,7 @@
     private Dictionary<string, FrontParamInfo> _paramDic; //需要加载所有前端参数备查
     private PveConfig _currentConfig;
     private bool mainRenderNotComplete = true;
-    private List<string> _resultCodeList = new();
+    private readonly List<string> _resultCodeList = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -177,6 +181,7 @@
         InitParameters();
         FirstCalculateAsync();
         await base.OnInitializedAsync();
+        LocalStorage.SetItemAsString(ConstText.LastVisitName, "pve");
     }
 
     private async Task<bool> LoadData()
@@ -215,7 +220,7 @@
                 Snackbar.Add("解析配置时出现异常，请检查网络");
             }
         }
-        
+
         return result.Item2;
     }
 
@@ -276,6 +281,10 @@
             Snackbar.Add($"更新/初始化配置成功", Severity.Success);
             SaveInfo();
         }
+        else if (_pvePageModel == null || _pvePageModel.ParamValuesDictionary == null)
+        {
+            Snackbar.Add("<ul><li>加载本地存储异常</li></ul>", Severity.Warning);
+        }
     }
 
     private async Task FirstCalculateAsync()
@@ -296,9 +305,8 @@
         }
 
         SaveInfo();
-        DateTime startTime = DateTime.Now;
         CalculateResult();
-        Snackbar.Add((DateTime.Now - startTime).TotalSeconds.ToString());
+        Snackbar.Add("计算完成", Severity.Success);
     }
 
     private void CalculateResult()
@@ -349,6 +357,11 @@
     private void SaveInfo()
     {
         LocalStorage.SetItem(nameof(_pvePageModel), _pvePageModel);
+    }
+
+    private void ShowTips()
+    {
+        Dialog.Show<TipsDialog>("帮助说明", _tipsDialogParameters, _tipsDialogOptions);
     }
 
 }
