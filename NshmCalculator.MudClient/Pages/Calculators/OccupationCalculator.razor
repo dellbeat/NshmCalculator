@@ -48,7 +48,7 @@
                                         {
                                             <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                                                 <MudTextField ShrinkLabel @bind-Value="@item.Price" For="@(() => item.Price)" Label="@item.Name"
-                                                              Variant="Variant.Outlined"/>
+                                                              Variant="Variant.Outlined"  Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                             </MudItem>
                                         }
                                     </MudGrid>
@@ -198,10 +198,12 @@
     private Dictionary<string, OccupationGoods> GoodDic { get; set; }
     private string Keyword { get; set; }
     private bool renderNotComplete { get; set; }
+    private bool _denseMode { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         renderNotComplete = true;
+        _denseMode = LocalStorage.GetItem<bool>(ConstText.DenseModeName);
         await InitParameters();
         await base.OnInitializedAsync();
         LocalStorage.SetItemAsString(ConstText.LastVisitName, "sf");
@@ -387,7 +389,7 @@
         ShowFormula(tableRowClickEventArgs.Item);
     }
 
-    private async void ShowFormula(OccupationFormulas formula)
+    private async Task ShowFormula(OccupationFormulas formula)
     {
         List<OccupationGoods> relatedGoods = new List<OccupationGoods>();
         foreach (string paraName in formula.FormulaParam)
@@ -400,6 +402,7 @@
 
         _sfDialogParameter["Formulas"] = formula;
         _sfDialogParameter["GoodsArray"] = relatedGoods.ToArray();
+        _sfDialogParameter["DenseMode"] = _denseMode;
         var dialog = await Dialog.ShowAsync<OccupationFormulaDialog>("", _sfDialogParameter, _sfDialogOptions);
         var result = await dialog.Result;
         StateHasChanged();

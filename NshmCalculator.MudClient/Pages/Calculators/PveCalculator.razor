@@ -46,7 +46,7 @@
                                 foreach (var groupItems in group)
                                 {
                                     <MudExpansionPanel Text=@groupItems.Key>
-                                        <PveFrontParamItem ItemSource="@groupItems.ToArray()" RefDic="@_paramDic"/>
+                                        <PveFrontParamItem ItemSource="@groupItems.ToArray()" RefDic="@_paramDic" DenseMode="@_denseMode"/>
                                     </MudExpansionPanel>
                                 }
                             }
@@ -72,12 +72,12 @@
                                 {
                                     if (string.IsNullOrEmpty(groupItems.Key))
                                     {
-                                        <PveFrontParamItem ItemSource="@groupItems.ToArray()" RefDic="@_paramDic"/>
+                                        <PveFrontParamItem ItemSource="@groupItems.ToArray()" RefDic="@_paramDic" DenseMode="@_denseMode"/>
                                     }
                                     else
                                     {
                                         <MudExpansionPanel Text=@groupItems.Key>
-                                            <PveFrontParamItem ItemSource="@groupItems.ToArray()" RefDic="@_paramDic"/>
+                                            <PveFrontParamItem ItemSource="@groupItems.ToArray()" RefDic="@_paramDic" DenseMode="@_denseMode"/>
                                         </MudExpansionPanel>
                                     }
                                 }
@@ -110,7 +110,7 @@
                                 }
 
                                 <PveResultGroupItem Item="@singleGroup" ParamValueDic="@_pvePageModel.ParamValuesDictionary"
-                                                    FrontParamInfos="paramList"/>
+                                                    FrontParamInfos="paramList"  DenseMode="_denseMode"/>
                             }
                         </MudTabPanel>
                     }
@@ -173,6 +173,7 @@
     private Dictionary<string, FrontParamInfo> _paramDic; //需要加载所有前端参数备查
     private PveConfig _currentConfig;
     private bool mainRenderNotComplete = true;
+    private bool _denseMode;
     private readonly List<string> _resultCodeList = new();
 
     protected override async Task OnInitializedAsync()
@@ -233,10 +234,20 @@
         {
             foreach (string key in _currentConfig.DefaultParamValues.Keys)
             {
-                if (oldConfig.TryGetValue(key, out var value))
+                if (oldConfig.TryGetValue(key, out var oldValue))
                 {
-                    newConfig[key].NumberValue = value.NumberValue;
-                    newConfig[key].StringValue = value.StringValue;
+                    var newValue = _currentConfig.DefaultParamValues[key];
+                    var param = _currentConfig.FrontParamInfoArray.First(s => s.Code == key);
+                    newConfig[key].NumberValue = oldValue.NumberValue;
+                    newConfig[key].StringValue = oldValue.StringValue;
+                    if (!oldValue.NumberMode && param is { Options: { Length: > 0 }, Values.Length: > 0 }) //目前没有从数字模式转换为字符串模式的选项，暂不适配
+                    {
+                        int oldIndex = Array.IndexOf(param.Options, oldValue.StringValue);
+                        newConfig[key].NumberValue = oldIndex > -1 && oldIndex < param.Options.Length ? param.Values[oldIndex] : param.Values.First();
+                        newConfig[key].StringValue = oldIndex > -1 && oldIndex < param.Options.Length ? param.Options[oldIndex] : param.Options.First();
+                        newConfig[key].NumberMode = true;
+                        Console.WriteLine(param.Name);
+                    }
                 }
             }
         }
@@ -247,6 +258,7 @@
 
     private void InitParameters()
     {
+        _denseMode = LocalStorage.GetItem<bool>(ConstText.DenseModeName);
         _paramDic = new Dictionary<string, FrontParamInfo>();
         _pvePageModel.ParamValuesDictionary ??= _currentConfig.DefaultParamValues;
         bool hasUpdate = false;

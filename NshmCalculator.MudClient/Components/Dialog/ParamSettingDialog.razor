@@ -5,7 +5,7 @@
         <MudGrid>
             <MudItem xs="12">
                 <MudContainer Style="max-height: 300px; overflow-y: scroll">
-                    <PveFrontParamItem ItemSource="ParamInfos"/>
+                    <PveFrontParamItem ItemSource="ParamInfos" DenseMode="DenseMode"/>
                 </MudContainer>
             </MudItem>
             <MudItem xs="12">
@@ -28,6 +28,8 @@
     [Inject] private IDialogService DialogService { get; set; }
     
     [Parameter] public FrontParamInfo[] ParamInfos { get; set; }
+    
+    [Parameter] public bool DenseMode { get; set; }
     
     private void Cancel()
     {

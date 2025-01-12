@@ -8,15 +8,18 @@
     <DialogContent>
         <MudGrid>
             <MudItem xs="12">
-                <MudField Label="身份名称" ReadOnly="true" Variant="Variant.Outlined">@Formulas.GoodsName</MudField>
+                <MudField Label="身份名称" ReadOnly="true" Variant="Variant.Outlined"
+                          Margin="@(DenseMode ? Margin.Dense : Margin.Normal)">@Formulas.GoodsName</MudField>
             </MudItem>
             <MudItem xs="12">
-                <MudField Label="收益" Variant="Variant.Outlined" AdornmentIcon="@Icons.Material.Filled.AttachMoney" AdornmentColor="Color.Info">@Formulas.Value.ToString("F2")</MudField>
+                <MudField Label="收益" Variant="Variant.Outlined" AdornmentIcon="@Icons.Material.Filled.AttachMoney" AdornmentColor="Color.Info"
+                          Margin="@(DenseMode ? Margin.Dense : Margin.Normal)">@Formulas.Value.ToString("F2")</MudField>
             </MudItem>
             @foreach (var item in GoodsArray)
             {
                 <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                    <MudTextField ShrinkLabel @bind-Value="@item.Price" For="@(() => item.Price)" Label="@item.Name" Variant="Variant.Outlined"/>
+                    <MudTextField ShrinkLabel @bind-Value="@item.Price" For="@(() => item.Price)" Label="@item.Name" Variant="Variant.Outlined"
+                                  Margin="@(DenseMode ? Margin.Dense : Margin.Normal)"/>
                 </MudItem>
             }
         </MudGrid>
@@ -33,16 +36,20 @@
     /// <summary>
     /// 传入的公式
     /// </summary>
-    [Parameter] public OccupationFormulas Formulas { get; set; }
-    
+    [Parameter]
+    public OccupationFormulas Formulas { get; set; }
+
     /// <summary>
     /// 传入的商品数组
     /// </summary>
-    [Parameter] public OccupationGoods[] GoodsArray { get; set; }
-    
+    [Parameter]
+    public OccupationGoods[] GoodsArray { get; set; }
+
+    [Parameter] public bool DenseMode { get; set; }
+
     [Inject] private IDialogService DialogService { get; set; }
-    
-    private Dictionary<string,int> PriceDictionary { get; set; }
+
+    private Dictionary<string, int> PriceDictionary { get; set; }
 
     protected override void OnInitialized()
     {
@@ -57,10 +64,10 @@
             Snackbar.Add("有价格不在合理范围(1-10万)内", Severity.Warning);
             return;
         }
-        
+
         MudDialog.Close(DialogResult.Ok(true));
     }
-    
+
     private void Cancel()
     {
         foreach (var goods in GoodsArray)
@@ -70,4 +77,5 @@
 
         MudDialog.Cancel();
     }
+
 }

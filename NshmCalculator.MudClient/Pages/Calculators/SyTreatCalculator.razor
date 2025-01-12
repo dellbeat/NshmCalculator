@@ -58,27 +58,30 @@
                         </MudItem>
                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.BaseTreatInfo.Attack"
-                                          For="@(() => _treatPageModel.BaseTreatInfo.Attack)" Label="攻击" Variant="Variant.Outlined"/>
+                                          For="@(() => _treatPageModel.BaseTreatInfo.Attack)" Label="攻击" Variant="Variant.Outlined"
+                                          Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                         </MudItem>
                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.BaseTreatInfo.TreatIntensity"
-                                          For="@(() => _treatPageModel.BaseTreatInfo.TreatIntensity)" Label="治疗强度" Variant="Variant.Outlined"/>
+                                          For="@(() => _treatPageModel.BaseTreatInfo.TreatIntensity)" Label="治疗强度" Variant="Variant.Outlined"
+                                          Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                         </MudItem>
                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.BaseTreatInfo.CriticalHits"
-                                          For="@(() => _treatPageModel.BaseTreatInfo.CriticalHits)" Label="会心" Variant="Variant.Outlined"/>
+                                          For="@(() => _treatPageModel.BaseTreatInfo.CriticalHits)" Label="会心" Variant="Variant.Outlined"
+                                          Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                         </MudItem>
                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.BaseTreatInfo.CriticalDamageRate"
                                           For="@(() => _treatPageModel.BaseTreatInfo.CriticalDamageRate)" Adornment="Adornment.End" AdornmentText="%"
                                           AdornmentColor="Color.Dark" Label="会伤百分比" HelperText="在详细面板中查看，填入会伤时无需减半"
-                                          Variant="Variant.Outlined"/>
+                                          Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                         </MudItem>
                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.BaseTreatInfo.ZtCriticalHitsRate"
                                           For="@(() => _treatPageModel.BaseTreatInfo.ZtCriticalHitsRate)" Adornment="Adornment.End" AdornmentText="%"
                                           AdornmentColor="Color.Dark" Label="金周天会心率" HelperText="内功元素中1金周天加的会心率"
-                                          Variant="Variant.Outlined"/>
+                                          Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                         </MudItem>
                         <MudItem xs="12" Class="d-flex align-center justify-center">
                             <MudStack Row="true" Spacing="4">
@@ -94,26 +97,30 @@
                                     <MudGrid>
                                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.Attack" For="@(() => _treatPageModel.Attack)"
-                                                          Label="攻击" Variant="Variant.Outlined"/>
+                                                          Label="攻击" Variant="Variant.Outlined"
+                                                          Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                         </MudItem>
                                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.TreatIntensity"
-                                                          For="@(() => _treatPageModel.TreatIntensity)" Label="治疗强度" Variant="Variant.Outlined"/>
+                                                          For="@(() => _treatPageModel.TreatIntensity)" Label="治疗强度" Variant="Variant.Outlined"
+                                                          Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                         </MudItem>
                                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.CriticalDamageRate"
                                                           For="@(() => _treatPageModel.CriticalDamageRate)" Adornment="Adornment.End"
                                                           AdornmentText="%" AdornmentColor="Color.Dark" Label="会伤百分比"
-                                                          Variant="Variant.Outlined"/>
+                                                          Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                         </MudItem>
                                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.CriticalHitsRate"
                                                           For="@(() => _treatPageModel.CriticalHitsRate)" Adornment="Adornment.End" AdornmentText="%"
-                                                          AdornmentColor="Color.Dark" Label="会心率" Variant="Variant.Outlined"/>
+                                                          AdornmentColor="Color.Dark" Label="会心率" Variant="Variant.Outlined"
+                                                          Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                         </MudItem>
                                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.CriticalHits"
-                                                          For="@(() => _treatPageModel.CriticalHits)" Label="会心" Variant="Variant.Outlined"/>
+                                                          For="@(() => _treatPageModel.CriticalHits)" Label="会心" Variant="Variant.Outlined"
+                                                          Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                         </MudItem>
                                         <MudItem xs="12" Class="d-flex align-center justify-center">
                                             <MudStack Row="true" Spacing="4">
@@ -129,29 +136,29 @@
                                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.DifferenceTreatInfo.Attack"
                                                           For="@(() => _treatPageModel.DifferenceTreatInfo.Attack)" Label="攻击"
-                                                          Variant="Variant.Outlined"/>
+                                                          Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                         </MudItem>
                                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.DifferenceTreatInfo.TreatIntensity"
                                                           For="@(() => _treatPageModel.DifferenceTreatInfo.TreatIntensity)" Label="治疗强度"
-                                                          Variant="Variant.Outlined"/>
+                                                          Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                         </MudItem>
                                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.DifferenceTreatInfo.CriticalHits"
                                                           For="@(() => _treatPageModel.DifferenceTreatInfo.CriticalHits)" Label="会心"
-                                                          Variant="Variant.Outlined"/>
+                                                          Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                         </MudItem>
                                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.DifferenceTreatInfo.CriticalDamageRate"
                                                           For="@(() => _treatPageModel.DifferenceTreatInfo.CriticalDamageRate)"
                                                           Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Label="会伤百分比"
-                                                          Variant="Variant.Outlined"/>
+                                                          Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                         </MudItem>
                                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.DifferenceTreatInfo.ZtCriticalHitsRate"
                                                           For="@(() => _treatPageModel.DifferenceTreatInfo.ZtCriticalHitsRate)"
                                                           Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Label="金周天会心率"
-                                                          Variant="Variant.Outlined"/>
+                                                          Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                         </MudItem>
                                         <MudItem xs="12" Class="d-flex align-center justify-center">
                                             <MudStack Row="true" Spacing="4">
@@ -171,7 +178,8 @@
                                             {
                                                 <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                                                     <MudTextField ShrinkLabel @bind-Value="@treatField.Value" For="@(() => @treatField.Value)"
-                                                                  Label="@treatField.Name" Variant="Variant.Outlined"/>
+                                                                  Label="@treatField.Name" Variant="Variant.Outlined"
+                                                                  Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                                 </MudItem>
                                             }
                                         }
@@ -203,7 +211,8 @@
                                                                                       For="@(() => fieldResult.Value)" Label="@fieldResult.Name"
                                                                                       Adornment="@(fieldResult.PercentMode ? Adornment.End : Adornment.None)"
                                                                                       AdornmentText="%" AdornmentColor="Color.Dark"
-                                                                                      Variant="Variant.Outlined"/>
+                                                                                      Variant="Variant.Outlined"
+                                                                                      Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                                                     </MudItem>
                                                                 }
                                                             </MudGrid>
@@ -214,11 +223,12 @@
                                         </MudItem>
                                         <MudItem xs="6">
                                             <MudTextField ShrinkLabel @bind-Value="@_treatPageModel.TreatDefenseRatio"
-                                                          Label="疗承比" HelperText="详情查阅“帮助说明”底部" Variant="Variant.Outlined"/>
+                                                          Label="疗承比" HelperText="详情查阅“帮助说明”底部" Variant="Variant.Outlined"
+                                                          Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                         </MudItem>
                                         <MudItem xs="6">
                                             <MudSelect Label="灵韵内功" Variant="Variant.Outlined" @bind-Value="_selectedKey"
-                                                       TextChanged="OnSelectionChanged">
+                                                       TextChanged="OnSelectionChanged" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)">
                                                 @if (_currentConfig.SpecialScoreDictionary?.Count > 0)
                                                 {
                                                     foreach (var keyValuePair in _currentConfig.SpecialScoreDictionary)
@@ -280,10 +290,12 @@
     private KeyValuePair<string, string> _selectedKey { get; set; }
     private Func<KeyValuePair<string, string>, string> convertFunc = ci => ci.Key;
     private bool renderNotComplete { get; set; }
+    private bool _denseMode { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         renderNotComplete = true;
+        _denseMode = LocalStorage.GetItem<bool>(ConstText.DenseModeName);
         await LoadData();
         await base.OnInitializedAsync();
         InitParameters();

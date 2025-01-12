@@ -14,11 +14,13 @@ public static class ConstText
 
     public const string ConfigNotFoundText = "<ul><li>获取计算器配置时出现异常，请检查网络</li></ul>";
     
-    public const string FooterText = "Version:2.0.0 | Powered by .NET 8.0";
+    public const string FooterText = "Version:2.0.1 | Powered by .NET 8.0";
 
     public const string LastVisitName = "lastVisit";//最近一次访问的计算器路由
 
     public const string AutoRedirectName = "autoRedirect";//是否重定向
+
+    public const string DenseModeName = "denseMode";
     
     public const string VersionPath = "../data/version.json";
 

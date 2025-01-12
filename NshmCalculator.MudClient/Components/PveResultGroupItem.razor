@@ -35,7 +35,7 @@
                 {
                     foreach (var singleItem in line.ResultItems)
                     {
-                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
+                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2" Class="align-content-center">
                             <MudChip
                                 Color="Color.Info">@($"{singleItem.Title}:{(singleItem.Value <= 1 ? singleItem.Value.ToString("P2") : Math.Round(singleItem.Value, MidpointRounding.AwayFromZero))}")</MudChip>
                         </MudItem>
@@ -69,6 +69,7 @@
     [Parameter] public ResultGroup Item { get; set; }
     [Parameter] public List<FrontParamInfo> FrontParamInfos { get; set; }
     [Parameter] public Dictionary<string, ParamValue> ParamValueDic { get; set; }
+    [Parameter] public bool DenseMode { get; set; }
 
     private ApexChart<ResultItem> chart;
     private ApexChartOptions<ResultItem> options;
@@ -150,6 +151,7 @@
             NoData = new NoData { Text = "等待数据中..." },
         };
         _paramSettingParam.Add("ParamInfos", null);
+        _paramSettingParam.Add(nameof(DenseMode), DenseMode);
 
         base.OnInitialized();
     }
@@ -197,7 +199,7 @@
         var settingParam = FrontParamInfos.ToArray();
         _paramSettingParam["ParamInfos"] = settingParam;
         var dialog = await Dialog.ShowAsync<ParamSettingDialog>("参数数值设置", _paramSettingParam, null);
-        var result = await dialog.Result;
+        _ = await dialog.Result;
     }
 
 }

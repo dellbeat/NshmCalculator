@@ -9,11 +9,18 @@
 
 <MudGrid>
     <MudItem xs="12">
-        <MudSwitch T="bool" @bind-Value="@_autoRedirect" CheckedChanged="@OnCheckChanged" Color="MudBlazor.Color.Info"
-                   UnCheckedColor="MudBlazor.Color.Dark" Label="访问首页时跳转到最近一次访问的计算器"/>
+        <MudSwitch T="bool" @bind-Value="@_autoRedirect" CheckedChanged="@OnRedirectCheckChanged" Color="Color.Info"
+                   UnCheckedColor="Color.Dark" Label="访问首页时跳转到最近一次访问的计算器"/>
     </MudItem>
     <MudItem xs="12">
         <MudAlert Severity="Severity.Info">仅通过点击/输入链接跳转至首页时有效，在页面内部切换到首页不受该开关影响</MudAlert>
+    </MudItem>
+    <MudItem xs="12">
+        <MudSwitch T="bool" @bind-Value="@_dense" CheckedChanged="@OnDenseCheckChanged" Color="Color.Info"
+                   UnCheckedColor="Color.Dark" Label="紧凑布局"/>
+    </MudItem>
+    <MudItem xs="12">
+        <MudAlert Severity="Severity.Info">启用此选项后，开启后将减少文本框/下拉菜单的高度，适合需要在同一屏幕中查看更多选项的情形</MudAlert>
     </MudItem>
     <MudItem xs="12">
         <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@OpenDialog">清空本地存储</MudButton>
@@ -47,6 +54,7 @@
 @code {
     private bool _autoRedirect = false;
     private bool _visible;
+    private bool _dense;
     private readonly DialogOptions _dialogOptions = new() { FullWidth = true, DisableBackdropClick = true };
     private IEnumerable<string> options { get; set; } = new HashSet<string>() { };
 
@@ -71,21 +79,31 @@
         {
             _autoRedirect = LocalStorage.GetItem<bool>(ConstText.AutoRedirectName);
         }
-        else
+
+        if (LocalStorage.ContainKey(ConstText.DenseModeName))
         {
-            SaveStatus();
+            _dense = LocalStorage.GetItem<bool>(ConstText.DenseModeName);
         }
+        
+        SaveStatus();
     }
 
     private void SaveStatus()
     {
         LocalStorage.SetItem(ConstText.AutoRedirectName, _autoRedirect);
+        LocalStorage.SetItem(ConstText.DenseModeName, _dense);
     }
 
 
-    private void OnCheckChanged(bool status)
+    private void OnRedirectCheckChanged(bool status)
     {
         _autoRedirect = status;
+        SaveStatus();
+    }
+
+    private void OnDenseCheckChanged(bool status)
+    {
+        _dense = status;
         SaveStatus();
     }
 

@@ -23,7 +23,7 @@
                         <MudSelect T="string?" Label="@frontParamInfo.Name" @bind-Value="frontParamInfo.StringValue"
                                    HelperText="@(string.IsNullOrEmpty(frontParamInfo.Remark) ? string.Empty : frontParamInfo.Remark)"
                                    Variant="Variant.Outlined"
-                                   TextChanged="() => { OnFrontParamSelectionTextChanged(frontParamInfo); }">
+                                   TextChanged="() => { OnFrontParamSelectionTextChanged(frontParamInfo); }" Margin="@(DenseMode ? Margin.Dense : Margin.Normal)">
                             @foreach (string option in renderResult.Item2) //谨记，需要用@bind-value，不要用错了
                             {
                                 <MudSelectItem T="string?" Value="option">@option</MudSelectItem>
@@ -41,7 +41,7 @@
                     <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                         <MudTextField xs="6" sm="4" md="3" lg="2" xl="2" T="double" Label="@frontParamInfo.Name"
                                       @bind-Value="frontParamInfo.NumberValue"
-                                      Variant="Variant.Outlined"
+                                      Variant="Variant.Outlined" Margin="@(DenseMode ? Margin.Dense : Margin.Normal)"
                                       Adornment="@(frontParamInfo.Mode == ParamMode.Percent ? Adornment.End : Adornment.None)"
                                       AdornmentText="%"/>
                     </MudItem>
@@ -57,6 +57,7 @@
 @code {
     [Parameter] public FrontParamInfo[] ItemSource { get; set; }
     [Parameter] public Dictionary<string, FrontParamInfo> RefDic { get; set; }
+    [Parameter] public bool DenseMode { get; set; }
 
     /// <summary>
     /// 需要关注更新的外部值，以确定让内部组件重新渲染
@@ -140,7 +141,7 @@
                         _subscribeDic.TryAdd(relateParam.Code, relateParam);
                         SetPublisher(relateParam.Code);
 
-                        RefDic.TryGetValue(rule.RelatedParamCode??String.Empty, out var changeParam);
+                        RefDic.TryGetValue(rule.RelatedParamCode ?? String.Empty, out var changeParam);
 
                         if (rule.CustomDic.TryGetValue(relateParam.StringValue, out var labelValue))
                         {
