@@ -1,4 +1,5 @@
 using ApexCharts;
+using BlazorDownloadFile;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -30,6 +31,7 @@ builder.Services.AddMudServices(config =>
     config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
 });
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddBlazorDownloadFile();
 builder.Services.AddSingleton<IStateContainer, StateContainer>();
 builder.Services.AddApexCharts(option =>
 {

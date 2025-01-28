@@ -1,9 +1,14 @@
 ﻿@page "/settings"
+@using System.Text
+@using System.Text.Json
+@using BlazorDownloadFile
 @using Blazored.LocalStorage
+@using NshmCalculator.MudClient.Components.Dialog
 @using NshmCalculator.MudClient.Utilities
 @using Color = MudBlazor.Color
 @inject ISyncLocalStorageService LocalStorage
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
 <PageTitle>设置</PageTitle>
 
@@ -27,6 +32,9 @@
     </MudItem>
     <MudItem xs="12">
         <MudAlert Severity="Severity.Warning">如果本地存储出现了问题，可尝试通过该按钮清空本地存储，会丢失选中的数据</MudAlert>
+    </MudItem>
+    <MudItem xs="12">
+        <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@ExportConfig">导出配置</MudButton>
     </MudItem>
 </MudGrid>
 
@@ -57,6 +65,7 @@
     private bool _dense;
     private readonly DialogOptions _dialogOptions = new() { FullWidth = true, DisableBackdropClick = true };
     private IEnumerable<string> options { get; set; } = new HashSet<string>() { };
+    [Inject] IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
 
     private readonly string[] _calculatorNameArray = ["PVE计算器", "身份收益计算器", "素问治疗计算器"];
 
@@ -84,7 +93,7 @@
         {
             _dense = LocalStorage.GetItem<bool>(ConstText.DenseModeName);
         }
-        
+
         SaveStatus();
     }
 
@@ -117,6 +126,8 @@
 
         _visible = true;
         StateHasChanged();
+
+        // DialogService.Show<SelectCalculatorDialog>("", _dialogOptions);
     }
 
     private void OnSubmit()
@@ -148,6 +159,22 @@
         _visible = false;
         options = [];
         StateHasChanged();
+    }
+
+    private void ExportConfig()
+    {
+        Dictionary<string, string> downloadDic = new Dictionary<string, string>();
+        foreach ((string? _, string[]? value) in _dic)
+        {
+            if (LocalStorage.ContainKey(value.Last()))
+            {
+                downloadDic.Add(value.Last(), LocalStorage.GetItemAsString(value.Last()));
+            }
+        }
+
+        string fullText = JsonSerializer.Serialize(downloadDic);
+        Snackbar.Add("开始导出配置文件", Severity.Success);
+        BlazorDownloadFileService.DownloadFileFromText($"导出配置_{DateTime.Now:yyyyMMddHHmmss}.txt", fullText, Encoding.UTF8, "text/plain");
     }
 
 }
