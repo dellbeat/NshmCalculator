@@ -7,8 +7,13 @@
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudAlert Severity="Severity.Warning">选择删除后将丢失对应的本地存储数据，请慎重选择</MudAlert>
-        <MudSelect T="string" Label="请选择需要清除本地存储的计算器" MultiSelection="true" @bind-SelectedValues="options">
+        
+        @if (!string.IsNullOrWhiteSpace(WarningText))
+        {
+            <MudAlert Severity="Severity.Warning">@WarningText</MudAlert>
+        }
+        
+        <MudSelect T="string" Label="@OptionDescribeText" MultiSelection="true" @bind-SelectedValues="options">
             @foreach (var state in NameArray)
             {
                 <MudSelectItem T="string" Value="@state">@state</MudSelectItem>
@@ -27,9 +32,13 @@
 
     [Parameter] public string[] NameArray { set; get; }
     
+    [Parameter] public string WarningText { get; set; }
+    
+    [Parameter] public string OptionDescribeText { get; set; }
+    
     private IEnumerable<string> options { get; set; } = new HashSet<string>() { };
     
-    private void Submit() => MudDialog.Close(DialogResult.Ok(true));
+    private void Submit() => MudDialog.Close(DialogResult.Ok(options.ToArray()));
 
     private void Cancel() => MudDialog.Cancel();
 }

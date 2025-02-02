@@ -28,7 +28,7 @@
         <MudAlert Severity="Severity.Info">启用此选项后，开启后将减少文本框/下拉菜单的高度，适合需要在同一屏幕中查看更多选项的情形</MudAlert>
     </MudItem>
     <MudItem xs="12">
-        <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@OpenDialog">清空本地存储</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@ClearSelectedStorage">清空本地存储</MudButton>
     </MudItem>
     <MudItem xs="12">
         <MudAlert Severity="Severity.Warning">如果本地存储出现了问题，可尝试通过该按钮清空本地存储，会丢失选中的数据</MudAlert>
@@ -64,6 +64,7 @@
     private bool _visible;
     private bool _dense;
     private readonly DialogOptions _dialogOptions = new() { FullWidth = true, DisableBackdropClick = true };
+    private DialogParameters<SelectCalculatorDialog> _selectParameters { get; set; }
     private IEnumerable<string> options { get; set; } = new HashSet<string>() { };
     [Inject] IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
 
@@ -80,6 +81,8 @@
     {
         base.OnInitialized();
         InitStatus();
+        _selectParameters = new DialogParameters<SelectCalculatorDialog>();
+        _selectParameters.Add(nameof(SelectCalculatorDialog.NameArray), new string[] { });
     }
 
     private void InitStatus()
@@ -116,18 +119,54 @@
         SaveStatus();
     }
 
-    private void OpenDialog()
+    private async Task ClearSelectedStorage()
     {
-        if (_visible)
+        _selectParameters[nameof(SelectCalculatorDialog.NameArray)] = _dic.Keys.ToArray();
+        _selectParameters[nameof(SelectCalculatorDialog.OptionDescribeText)] = "请选择需要清除本地存储的计算器";
+        _selectParameters[nameof(SelectCalculatorDialog.WarningText)] = "选择删除后将丢失对应的本地存储数据，请慎重选择";
+
+        var selectOptions = await GetOptions();
+        
+        foreach (string option in selectOptions)
         {
-            _visible = false;
-            StateHasChanged();
+            if (_dic.TryGetValue(option, out string[] value))
+            {
+                foreach (string code in value)
+                {
+                    LocalStorage.RemoveItem(code);
+                }
+            }
+        }
+        
+        if (selectOptions.Length > 0)
+        {
+            Snackbar.Add($"已成功清空{selectOptions.Length}个计算器的本地缓存", Severity.Success);
+        }
+    }
+
+    private async Task ImportConfig()
+    {
+        
+    }
+
+    /// <summary>
+    /// 在设置好参数后调用此方法获取选择的选项
+    /// </summary>
+    /// <returns></returns>
+    private async Task<string[]> GetOptions()
+    {
+        var dialog = await DialogService.ShowAsync<SelectCalculatorDialog>("", _selectParameters, _dialogOptions);
+        using var task = dialog.Result;
+        var result = await task;
+        if (!result.Canceled)
+        {
+            if (result.Data is string[] options)
+            {
+                return options;
+            }
         }
 
-        _visible = true;
-        StateHasChanged();
-
-        // DialogService.Show<SelectCalculatorDialog>("", _dialogOptions);
+        return [];
     }
 
     private void OnSubmit()
