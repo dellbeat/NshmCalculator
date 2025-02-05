@@ -27,8 +27,6 @@ public class SyTreatPageModel
         CriticalDamageRate = 160
     };
 
-    public TreatAttribution TreatAttribution { get; set; } = new();
-
     /// <summary>
     /// 转换治疗计算界面配置,仅在读取时进行赋值
     /// </summary>
@@ -129,4 +127,9 @@ public class SyTreatPageModel
     public double ConvertTreatNum { get; set; }
     
     public double Score { get; set; }
+    
+    /// <summary>
+    /// 配置的内部代号
+    /// </summary>
+    public long InternalVersion { get; set; }
 }
