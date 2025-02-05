@@ -26,7 +26,7 @@
             <SomeFolder Include="$(SolutionDir)NshmCalculator.MudClient\wwwroot\data\**"/>
             <SomeFolder Include="$(SolutionDir)NshmCalculator.MudClient\wwwroot\index.html"/>
         </ItemGroup>
-        <Copy SourceFiles="@(SomeFolder)" DestinationFolder="$(ProjectDir)$(OutDir)data\" SkipUnchangedFiles="True"></Copy>
+        <Copy SourceFiles="@(SomeFolder)" DestinationFolder="$(ProjectDir)$(OutDir)data\" SkipUnchangedFiles="false"></Copy>
     </Target>
 
 </Project>

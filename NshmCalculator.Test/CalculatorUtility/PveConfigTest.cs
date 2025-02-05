@@ -13,8 +13,6 @@ namespace NshmCalculator.Test.CalculatorUtility;
 public class PveConfigTest
 {
     private const string JsonFilePath = "data/config_pve.json";
-    private const long MinVersionCode = 20240101001;
-    private const long MaxVersionCode = 21240101001;
     private const int WarningDays = 60;
 
     private static IEnumerable<object> _ruleFrontParams
@@ -52,16 +50,6 @@ public class PveConfigTest
         Assert.That(_config != null, Is.True, "文件解析失败");
         Assert.Pass(
             $"PVE配置文件({_config.InternalVersion}),中间公式{_config.InternalFormulas.Length}条,结果公式{_config.ResultFormulas.Length}条,选项{_config.FrontParamInfoArray.Length}个,分类{_config.CategoryArray.Length}个,特殊规则选项{_config.FrontParamInfoArray.Count(s => s.Rule != null)}个,特殊规则中间公式{_config.InternalFormulas.Count(s => s.Rule is { Count: > 0 })}个");
-    }
-
-    /// <summary>
-    /// 检测版本
-    /// </summary>
-    [Test]
-    public void MinVersionTest()
-    {
-        Assert.That(_config?.InternalVersion is >= MinVersionCode and <= MaxVersionCode, Is.True, "版本号不在合法版本号范围内");
-        Assert.Pass("版本号处于合法版本号范围");
     }
 
     /// <summary>

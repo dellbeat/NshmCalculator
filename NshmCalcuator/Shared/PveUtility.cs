@@ -222,7 +222,7 @@ public class PveUtility
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception _)
                 {
                     Console.WriteLine(code);
                     throw;
@@ -257,7 +257,7 @@ public class PveUtility
                         result.Add(code, null);
                     }
                 }
-                catch (Exception)
+                catch (Exception _)
                 {
                     Console.WriteLine(code);
                     throw;
