@@ -9,7 +9,7 @@ public class IndexTest
     public void IndexPageCheck()
     {
         string html = File.ReadAllText(IndexPath);
-        Assert.That(html.Contains("<!--    <script defer src=\"js/visitor.js\""), Is.False, "未反注释匿名访客统计代码");
+        Assert.That(html.Contains("data-host-url=\"https://us.umami.is\"></script>-->"), Is.False, "未反注释匿名访客统计代码");
         Assert.Pass("统计代码校验通过");
     }
 }
