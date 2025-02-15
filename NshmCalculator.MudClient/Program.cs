@@ -8,6 +8,7 @@ using MudBlazor.Services;
 using NshmCalculator.MudClient;
 using NshmCalculator.MudClient.Utilities;
 using NshmCalculator.MudClient.Utilities.Interface;
+using Tewr.Blazor.FileReader;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -17,6 +18,7 @@ var client = new HttpClient
 {
     BaseAddress = new Uri(builder.HostEnvironment.BaseAddress),
 };
+builder.Services.AddFileReaderService(options => options.UseWasmSharedBuffer = true);
 builder.Services.AddSingleton(client);
 builder.Services.AddMudServices(config =>
 {

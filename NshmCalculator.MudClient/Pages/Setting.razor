@@ -33,8 +33,11 @@
     <MudItem xs="12">
         <MudAlert Severity="Severity.Warning">如果本地存储出现了问题，可尝试通过该按钮清空本地存储，会丢失选中的数据</MudAlert>
     </MudItem>
-    <MudItem xs="12">
+    <MudItem xs="6">
         <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@ExportConfig">导出配置</MudButton>
+    </MudItem>
+    <MudItem xs="6">
+        <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@ImportConfig">导入配置</MudButton>
     </MudItem>
 </MudGrid>
 
@@ -63,8 +66,9 @@
     private bool _autoRedirect = false;
     private bool _visible;
     private bool _dense;
-    private readonly DialogOptions _dialogOptions = new() { FullWidth = true, DisableBackdropClick = true };
+    private readonly DialogOptions _dialogOptions = new() { FullWidth = true };
     private DialogParameters<SelectCalculatorDialog> _selectParameters { get; set; }
+    private DialogParameters<UploadConfigDialog> _uploadParameters { get; set; }
     private IEnumerable<string> options { get; set; } = new HashSet<string>() { };
     [Inject] IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
 
@@ -82,7 +86,9 @@
         base.OnInitialized();
         InitStatus();
         _selectParameters = new DialogParameters<SelectCalculatorDialog>();
+        _uploadParameters = new DialogParameters<UploadConfigDialog>();
         _selectParameters.Add(nameof(SelectCalculatorDialog.NameArray), new string[] { });
+        _uploadParameters.Add(nameof(UploadConfigDialog.OptionDic), null);
     }
 
     private void InitStatus()
@@ -126,7 +132,7 @@
         _selectParameters[nameof(SelectCalculatorDialog.WarningText)] = "选择删除后将丢失对应的本地存储数据，请慎重选择";
 
         var selectOptions = await GetOptions();
-        
+
         foreach (string option in selectOptions)
         {
             if (_dic.TryGetValue(option, out string[] value))
@@ -137,16 +143,11 @@
                 }
             }
         }
-        
+
         if (selectOptions.Length > 0)
         {
             Snackbar.Add($"已成功清空{selectOptions.Length}个计算器的本地缓存", Severity.Success);
         }
-    }
-
-    private async Task ImportConfig()
-    {
-        
     }
 
     /// <summary>
@@ -214,6 +215,12 @@
         string fullText = JsonSerializer.Serialize(downloadDic);
         Snackbar.Add("开始导出配置文件", Severity.Success);
         BlazorDownloadFileService.DownloadFileFromText($"导出配置_{DateTime.Now:yyyyMMddHHmmss}.txt", fullText, Encoding.UTF8, "text/plain");
+    }
+
+    private async Task ImportConfig()
+    {
+        _uploadParameters[nameof(UploadConfigDialog.OptionDic)] = _dic.ToDictionary(s => s.Value.Last(), y => y.Key);
+        await DialogService.ShowAsync<UploadConfigDialog>("", _uploadParameters, _dialogOptions);//TODO：修复窗体内异常出现滚动条的问题
     }
 
 }
