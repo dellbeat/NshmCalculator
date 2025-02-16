@@ -8,6 +8,7 @@
 @using Color = MudBlazor.Color
 @inject ISyncLocalStorageService LocalStorage
 @inject ISnackbar Snackbar
+@inject HttpClient Client
 @inject IDialogService DialogService
 
 <PageTitle>设置</PageTitle>
@@ -33,11 +34,17 @@
     <MudItem xs="12">
         <MudAlert Severity="Severity.Warning">如果本地存储出现了问题，可尝试通过该按钮清空本地存储，会丢失选中的数据</MudAlert>
     </MudItem>
-    <MudItem xs="6">
+    <MudItem xs="3">
         <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@ExportConfig">导出配置</MudButton>
     </MudItem>
-    <MudItem xs="6">
+    <MudItem xs="3">
         <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@ImportConfig">导入配置</MudButton>
+    </MudItem>
+    <MudItem xs="3">
+        <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@UploadOnlineConfig">上传测试</MudButton>
+    </MudItem>
+    <MudItem xs="3">
+        <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@ReadOnlineConfig">读取测试</MudButton>
     </MudItem>
 </MudGrid>
 
@@ -68,7 +75,7 @@
     private bool _dense;
     private readonly DialogOptions _dialogOptions = new() { FullWidth = true };
     private DialogParameters<SelectCalculatorDialog> _selectParameters { get; set; }
-    private DialogParameters<UploadConfigDialog> _uploadParameters { get; set; }
+    private DialogParameters<ImportConfigDialog> _uploadParameters { get; set; }
     private IEnumerable<string> options { get; set; } = new HashSet<string>() { };
     [Inject] IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
 
@@ -86,9 +93,9 @@
         base.OnInitialized();
         InitStatus();
         _selectParameters = new DialogParameters<SelectCalculatorDialog>();
-        _uploadParameters = new DialogParameters<UploadConfigDialog>();
+        _uploadParameters = new DialogParameters<ImportConfigDialog>();
         _selectParameters.Add(nameof(SelectCalculatorDialog.NameArray), new string[] { });
-        _uploadParameters.Add(nameof(UploadConfigDialog.OptionDic), null);
+        _uploadParameters.Add(nameof(ImportConfigDialog.OptionDic), null);
     }
 
     private void InitStatus()
@@ -111,7 +118,6 @@
         LocalStorage.SetItem(ConstText.AutoRedirectName, _autoRedirect);
         LocalStorage.SetItem(ConstText.DenseModeName, _dense);
     }
-
 
     private void OnRedirectCheckChanged(bool status)
     {
@@ -203,6 +209,17 @@
 
     private void ExportConfig()
     {
+        string fullText = SerializeConfig();
+        Snackbar.Add("开始导出配置文件", Severity.Success);
+        BlazorDownloadFileService.DownloadFileFromText($"导出配置_{DateTime.Now:yyyyMMddHHmmss}.txt", fullText, Encoding.UTF8, "text/plain");
+    }
+
+    /// <summary>
+    /// 序列化配置Json
+    /// </summary>
+    /// <returns></returns>
+    private string SerializeConfig()
+    {
         Dictionary<string, string> downloadDic = new Dictionary<string, string>();
         foreach ((string? _, string[]? value) in _dic)
         {
@@ -212,15 +229,36 @@
             }
         }
 
-        string fullText = JsonSerializer.Serialize(downloadDic);
-        Snackbar.Add("开始导出配置文件", Severity.Success);
-        BlazorDownloadFileService.DownloadFileFromText($"导出配置_{DateTime.Now:yyyyMMddHHmmss}.txt", fullText, Encoding.UTF8, "text/plain");
+        return JsonSerializer.Serialize(downloadDic);
     }
 
     private async Task ImportConfig()
     {
-        _uploadParameters[nameof(UploadConfigDialog.OptionDic)] = _dic.ToDictionary(s => s.Value.Last(), y => y.Key);
-        await DialogService.ShowAsync<UploadConfigDialog>("", _uploadParameters, _dialogOptions);//TODO：修复窗体内异常出现滚动条的问题
+        _uploadParameters[nameof(ImportConfigDialog.OptionDic)] = _dic.ToDictionary(s => s.Value.Last(), y => y.Key);
+        await DialogService.ShowAsync<ImportConfigDialog>("", _uploadParameters, _dialogOptions); //TODO：修复窗体内异常出现滚动条的问题
+    }
+
+    private async Task ReadOnlineConfig()
+    {
+        string tmpCode = ConfigHelper.GenerateTempCode(LocalStorage);
+        string json = await ConfigHelper.LoadOnlineConfig(Client, tmpCode);
+        if (json.Length == 0)
+        {
+            Snackbar.Add("未读取到有效配置信息，请检查代号或稍后再试", Severity.Warning);
+        }
+        else
+        {
+            Snackbar.Add(json.Length.ToString());
+        }
+    }
+
+    private async Task UploadOnlineConfig()
+    {
+        string tmpCode = ConfigHelper.GenerateTempCode(LocalStorage);
+        string configJson = SerializeConfig();
+
+        bool uploadStatus = await ConfigHelper.UpdateConfigOnline(Client, tmpCode, configJson);
+        Snackbar.Add($"上传本地配置{(uploadStatus ? "成功" : "失败")}", Severity.Info);
     }
 
 }

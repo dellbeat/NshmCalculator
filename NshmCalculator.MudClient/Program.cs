@@ -56,6 +56,8 @@ while (errorCount < 3)
     errorCount++;
 }
 
+ConfigHelper.InitClient(client);
+
 if (errorCount == 3)
 {
     throw new Exception("获取基础配置失败，请检查网络");
