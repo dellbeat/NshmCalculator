@@ -16,7 +16,7 @@ public static class ConfigHelper
     private const string UrlPrefix = "https://textdb.online/";
     private const string ApiUrlPrefix = "https://api.textdb.online/";
     private const string TempCodeStr = "tmpCode";
-    private const string CodeTimeStr = "tmpCodeGenerateTimeStamp";
+    public const string CodeTimeStr = "tmpCodeGenerateTimeStamp";
 
     /// <summary>
     /// 获取基础配置文件
@@ -81,7 +81,7 @@ public static class ConfigHelper
     /// <returns></returns>
     public static async Task<string> LoadOnlineConfig(HttpClient client, string code)
     {
-        long timeTicks = DateTime.Now.Ticks;
+        long timeTicks = DateTime.Now.Ticks / 1000;
         string readUrl = $"{UrlPrefix}{code}?t={timeTicks}";
         string resultJson = string.Empty;
 
@@ -134,11 +134,13 @@ public static class ConfigHelper
     /// 根据本地存储获取临时交换代码
     /// </summary>
     /// <param name="service">本地存储服务对象</param>
+    /// <param name="readMode">只读模式，在希望仅获取而不修改状态时传入，默认为<c>false</c></param>
     /// <returns></returns>
-    public static string GenerateTempCode(ISyncLocalStorageService service)
+    public static (string, int) GenerateTempCode(ISyncLocalStorageService service, bool readMode = false)
     {
         DateTime baseTime = new DateTime(1970, 1, 1, 0, 0, 0);
         string randomCode = string.Empty;
+        int totalSeconds = -1;
         if (service.ContainKey(TempCodeStr))
         {
             int timestamp = service.GetItem<int>(CodeTimeStr);
@@ -146,17 +148,18 @@ public static class ConfigHelper
             if (DateTime.Now.Subtract(baseTime.AddSeconds(timestamp)).TotalMinutes <= 30)
             {
                 randomCode = service.GetItemAsString(TempCodeStr);
+                totalSeconds = timestamp;
             }
         }
 
-        if (string.IsNullOrEmpty(randomCode))
+        if (string.IsNullOrEmpty(randomCode) && !readMode)
         {
-            int totalSeconds = Convert.ToInt32(DateTime.Now.Subtract(baseTime).TotalSeconds);
+            totalSeconds = Convert.ToInt32(DateTime.Now.Subtract(baseTime).TotalSeconds);
             randomCode = $"nshmCalculator_{Guid.NewGuid():N}";
             service.SetItemAsString(TempCodeStr, randomCode);
             service.SetItem(CodeTimeStr, totalSeconds);
         }
 
-        return randomCode;
+        return (randomCode, totalSeconds);
     }
 }

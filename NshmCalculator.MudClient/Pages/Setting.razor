@@ -8,7 +8,6 @@
 @using Color = MudBlazor.Color
 @inject ISyncLocalStorageService LocalStorage
 @inject ISnackbar Snackbar
-@inject HttpClient Client
 @inject IDialogService DialogService
 
 <PageTitle>设置</PageTitle>
@@ -41,42 +40,22 @@
         <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@ImportConfig">导入配置</MudButton>
     </MudItem>
     <MudItem xs="3">
-        <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@UploadOnlineConfig">上传测试</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@UploadOnlineConfig">上传配置</MudButton>
     </MudItem>
     <MudItem xs="3">
-        <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@ReadOnlineConfig">读取测试</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@ReadOnlineConfig">同步配置</MudButton>
     </MudItem>
 </MudGrid>
-
-<MudDialog IsVisible="@_visible" Options="_dialogOptions">
-    <TitleContent>
-        <MudText Typo="Typo.h6">
-            清除存储确认
-        </MudText>
-    </TitleContent>
-    <DialogContent>
-        <MudAlert Severity="Severity.Warning">选择删除后将丢失对应的本地存储数据，请慎重选择</MudAlert>
-        <MudSelect T="string" Label="请选择需要清除本地存储的计算器" MultiSelection="true" @bind-SelectedValues="options">
-            @foreach (var state in _calculatorNameArray)
-            {
-                <MudSelectItem T="string" Value="@state">@state</MudSelectItem>
-            }
-        </MudSelect>
-    </DialogContent>
-    <DialogActions>
-        <MudButton Variant="Variant.Filled" Color="Color.Default" OnClick="OnCancel" Class="px-10">取消</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="OnSubmit" Disabled="@(!options.Any())" Class="px-10">删除</MudButton>
-    </DialogActions>
-</MudDialog>
 
 @code {
     private bool _autoRedirect = false;
     private bool _visible;
     private bool _dense;
-    private readonly DialogOptions _dialogOptions = new() { FullWidth = true };
+    private readonly DialogOptions _dialogOptions = new() { DisableBackdropClick = true, FullWidth = true };
     private DialogParameters<SelectCalculatorDialog> _selectParameters { get; set; }
-    private DialogParameters<ImportConfigDialog> _uploadParameters { get; set; }
-    private IEnumerable<string> options { get; set; } = new HashSet<string>() { };
+    private DialogParameters<ImportConfigDialog> _importParameters { get; set; }
+    private DialogParameters<UploadDialog> _uploadParameters { get; set; }
+    private IEnumerable<string> options { get; set; } = new HashSet<string>();
     [Inject] IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
 
     private readonly string[] _calculatorNameArray = ["PVE计算器", "身份收益计算器", "素问治疗计算器"];
@@ -93,9 +72,12 @@
         base.OnInitialized();
         InitStatus();
         _selectParameters = new DialogParameters<SelectCalculatorDialog>();
-        _uploadParameters = new DialogParameters<ImportConfigDialog>();
+        _importParameters = new DialogParameters<ImportConfigDialog>();
+        _uploadParameters = new DialogParameters<UploadDialog>();
         _selectParameters.Add(nameof(SelectCalculatorDialog.NameArray), new string[] { });
-        _uploadParameters.Add(nameof(ImportConfigDialog.OptionDic), null);
+        _importParameters.Add(nameof(ImportConfigDialog.OptionDic), null);
+        _importParameters.Add(nameof(ImportConfigDialog.SyncMode), false);
+        _uploadParameters.Add(nameof(UploadDialog.JsonText), string.Empty);
     }
 
     private void InitStatus()
@@ -176,37 +158,6 @@
         return [];
     }
 
-    private void OnSubmit()
-    {
-        _visible = false;
-        StateHasChanged();
-        int count = 0;
-        foreach (string option in options)
-        {
-            count++;
-            if (_dic.TryGetValue(option, out string[] value))
-            {
-                foreach (string code in value)
-                {
-                    LocalStorage.RemoveItem(code);
-                }
-            }
-        }
-
-        options = [];
-        if (count > 0)
-        {
-            Snackbar.Add($"已成功清空{count}个计算器的本地缓存", Severity.Success);
-        }
-    }
-
-    private void OnCancel()
-    {
-        _visible = false;
-        options = [];
-        StateHasChanged();
-    }
-
     private void ExportConfig()
     {
         string fullText = SerializeConfig();
@@ -232,33 +183,24 @@
         return JsonSerializer.Serialize(downloadDic);
     }
 
-    private async Task ImportConfig()
+    private void ImportConfig()
     {
-        _uploadParameters[nameof(ImportConfigDialog.OptionDic)] = _dic.ToDictionary(s => s.Value.Last(), y => y.Key);
-        await DialogService.ShowAsync<ImportConfigDialog>("", _uploadParameters, _dialogOptions); //TODO：修复窗体内异常出现滚动条的问题
+        _importParameters[nameof(ImportConfigDialog.OptionDic)] = _dic.ToDictionary(s => s.Value.Last(), y => y.Key);
+        _importParameters[nameof(ImportConfigDialog.SyncMode)] = false;
+        DialogService.Show<ImportConfigDialog>("", _importParameters, _dialogOptions);
     }
 
-    private async Task ReadOnlineConfig()
+    private void ReadOnlineConfig()
     {
-        string tmpCode = ConfigHelper.GenerateTempCode(LocalStorage);
-        string json = await ConfigHelper.LoadOnlineConfig(Client, tmpCode);
-        if (json.Length == 0)
-        {
-            Snackbar.Add("未读取到有效配置信息，请检查代号或稍后再试", Severity.Warning);
-        }
-        else
-        {
-            Snackbar.Add(json.Length.ToString());
-        }
+        _importParameters[nameof(ImportConfigDialog.OptionDic)] = _dic.ToDictionary(s => s.Value.Last(), y => y.Key);
+        _importParameters[nameof(ImportConfigDialog.SyncMode)] = true;
+        DialogService.Show<ImportConfigDialog>("", _importParameters, _dialogOptions);
     }
 
-    private async Task UploadOnlineConfig()
+    private void UploadOnlineConfig()
     {
-        string tmpCode = ConfigHelper.GenerateTempCode(LocalStorage);
-        string configJson = SerializeConfig();
-
-        bool uploadStatus = await ConfigHelper.UpdateConfigOnline(Client, tmpCode, configJson);
-        Snackbar.Add($"上传本地配置{(uploadStatus ? "成功" : "失败")}", Severity.Info);
+        _uploadParameters[nameof(UploadDialog.JsonText)] = SerializeConfig();
+        DialogService.Show<UploadDialog>("", _uploadParameters, _dialogOptions);
     }
 
 }
