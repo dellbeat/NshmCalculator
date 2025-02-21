@@ -1,0 +1,43 @@
+﻿@using Color = MudBlazor.Color
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            清除存储确认
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (!string.IsNullOrWhiteSpace(WarningText))
+        {
+            <MudAlert Severity="Severity.Warning">@WarningText</MudAlert>
+        }
+        
+        <MudSelect T="string" Label="@OptionDescribeText" MultiSelection="true" @bind-SelectedValues="options">
+            @foreach (var state in NameArray)
+            {
+                <MudSelectItem T="string" Value="@state">@state</MudSelectItem>
+            }
+        </MudSelect>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Default" OnClick="Cancel" Class="px-10">取消</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="Submit" Disabled="@(!options.Any())" Class="px-10">确定</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public string[] NameArray { set; get; }
+    
+    [Parameter] public string WarningText { get; set; }
+    
+    [Parameter] public string OptionDescribeText { get; set; }
+    
+    private IEnumerable<string> options { get; set; } = new HashSet<string>() { };
+    
+    private void Submit() => MudDialog.Close(DialogResult.Ok(options.ToArray()));
+
+    private void Cancel() => MudDialog.Cancel();
+}

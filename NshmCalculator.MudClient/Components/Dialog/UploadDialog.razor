@@ -1,0 +1,109 @@
+﻿@using Blazored.LocalStorage
+@using NshmCalculator.MudClient.Utilities
+@using Color = MudBlazor.Color
+@using Size = MudBlazor.Size
+@inject ISnackbar Snackbar
+@inject HttpClient Client
+@inject ISyncLocalStorageService LocalStorage
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            上传配置
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="12" Class="d-flex align-content-center">
+                <MudAlert Severity="Severity.Info">
+                    该功能用于需要在不同浏览器之间迁移配置，点击下方按钮并上传成功后，会出现用于迁移的临时代码，记录下并在需要迁移的浏览器上使用同步配置功能即可。
+                </MudAlert>
+            </MudItem>
+            <MudItem xs="12" Class="d-flex align-content-center">
+                <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@UploadOnlineConfig" Class="object-center">上传配置</MudButton>
+            </MudItem>
+            @if (_showCode)
+            {
+                <MudItem xs="12" Class="d-flex align-content-center">
+                    <MudTextField T="string" Label="临时代码" ReadOnly="true" Variant="Variant.Outlined" Text="@_showTmpCodeStr"></MudTextField>
+                </MudItem>
+                <MudItem xs="12" Class="d-flex align-content-center">
+                    <MudAlert Severity="Severity.Info">
+                        @_tipStr
+                    </MudAlert>
+                </MudItem>
+            }
+        </MudGrid>
+        <MudOverlay Visible="_showOverlay" DarkBackground="true" Absolute="true">
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <MudProgressCircular Color="Color.Info" Size="Size.Small" Indeterminate="true"/>
+                <MudElement HtmlTag="a"
+                            Class="ms-1"
+                            Style="color:white;">
+                    上传数据中...
+                </MudElement>
+            </MudStack>
+        </MudOverlay>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Default" OnClick="Cancel" Class="px-10" Disabled="_showOverlay">关闭</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public string JsonText { get; set; }
+
+    private bool _showOverlay { get; set; } = false;
+    private string _showTmpCodeStr { get; set; }
+    private bool _showCode { get; set; } = false;
+    private string _tipStr { get; set; }
+    private readonly DateTime _baseTime = new(1970, 1, 1, 8, 0, 0);
+
+    private void Cancel() => MudDialog.Cancel();
+
+    protected override Task OnInitializedAsync()
+    {
+        var tuple = ConfigHelper.GenerateTempCode(LocalStorage, true);
+        SetShowText(tuple);
+        StateHasChanged();
+        return base.OnInitializedAsync();
+    }
+
+    private async Task UploadOnlineConfig()
+    {
+        _showOverlay = true;
+        var tuple = ConfigHelper.GenerateTempCode(LocalStorage);
+        string tmpCode = tuple.Item1;
+
+        bool uploadStatus = await ConfigHelper.UpdateConfigOnline(Client, tmpCode, JsonText);
+        Snackbar.Add($"上传本地配置{(uploadStatus ? "成功" : "失败")}", Severity.Info);
+        _showOverlay = false;
+        if (uploadStatus)
+        {
+            SetShowText(tuple);
+        }
+
+        StateHasChanged();
+    }
+
+    private void GetLastTime(int totalSecond)
+    {
+        DateTime lastTime = _baseTime.AddSeconds(totalSecond);
+
+        _tipStr = $"{(totalSecond == -1 ? string.Empty : $"最近上传时间:{lastTime:yyyy-MM-dd HH:mm:ss};")}由于三方服务所限，请在临时代码出现后尽快进行迁移操作，如迁移失败可考虑将配置导出至本地并传至需要迁移的浏览器";
+    }
+
+    private void SetShowText((string, int) tuple)
+    {
+        GetLastTime(tuple.Item2);
+        _showCode = tuple.Item2 > 0;
+        if (_showCode)
+        {
+            string[] tmpCodeArray = tuple.Item1.Split('_');
+            _showTmpCodeStr = tmpCodeArray[^1];
+        }
+    }
+
+}

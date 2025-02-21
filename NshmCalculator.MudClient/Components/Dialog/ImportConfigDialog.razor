@@ -1,0 +1,264 @@
+﻿@using System.Text.Json
+@using Blazored.LocalStorage
+@using NshmCalculator.MudClient.Utilities
+@using Tewr.Blazor.FileReader
+@using Size = MudBlazor.Size
+@using Color = MudBlazor.Color
+@inject IFileReaderService fileReaderService
+@inject ISyncLocalStorageService LocalStorage
+@inject ISnackbar Snackbar
+@inject HttpClient Client
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            @(SyncMode ? "同步配置" : "导入配置")
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudGrid>
+            @if (SyncMode)
+            {
+                <MudItem xs="12">
+                    <MudStack AlignItems="AlignItems.Stretch" Row="true">
+                        <MudTextField T="string" Label="临时代码" @bind-Value="_tmpCode" TextChanged="() => StateHasChanged()"/>
+                        <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="SyncOnlineConfig"
+                                   Disabled="@(_tmpCode == null || _tmpCode.Length != 32)">同步配置
+                        </MudButton>
+                    </MudStack>
+                </MudItem>
+            }
+            else
+            {
+                <MudItem xs="12">
+                    <div class="droptarget">
+                        <input type="file"
+                               class="clickable"
+                               @ref=dropTargetInput
+                               @onchange="OnInputChange"
+                               @ondragenter=OnIpDragEnter
+                               @ondragleave=OnIpDragLeave
+                               webkitdirectory="@useWebkit" accept=".txt"/>
+                        将文件拖入至此或点击选择读取的文件
+
+                        @foreach (var fileInfo in IpFileList.Select(x => x.FileInfo))
+                        {
+                            <br/>
+                            if (useWebkit)
+                            {
+                                @fileInfo.NonStandardProperties["webkitRelativePath"]
+                            }
+                            else
+                            {
+                                @fileInfo.Name
+                            }
+                        }
+                    </div>
+                </MudItem>
+            }
+            <MudItem xs="12">
+                <MudSelect T="string" Label="请选择需要导入的计算器配置" MultiSelection="true" @bind-SelectedValues="options"
+                           Disabled="@(availableList.Count == 0)">
+                    @foreach (var state in availableList)
+                    {
+                        <MudSelectItem T="string" Value="@state">@state</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+        </MudGrid>
+        <MudOverlay Visible="_showOverlay" DarkBackground="true" Absolute="true">
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <MudProgressCircular Color="Color.Info" Size="Size.Small" Indeterminate="true"/>
+                <MudElement HtmlTag="a"
+                            Class="ms-1"
+                            Style="color:white;">
+                    读取中...
+                </MudElement>
+            </MudStack>
+        </MudOverlay>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Default" OnClick="Cancel" Class="px-10" Disabled="_showOverlay">取消</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="Submit" Class="px-10" Disabled="_showOverlay">确认导入</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+
+    /// <summary>
+    /// 以代号-对应计算器名称的形式传入
+    /// </summary>
+    [Parameter]
+    public Dictionary<string, string> OptionDic { get; set; }
+
+    [Parameter] public bool SyncMode { get; set; }
+
+    bool useWebkit = false;
+    ElementReference dropTargetInput;
+    IFileReaderRef ipReference;
+    List<string> _ipdropClasses = [dropTargetClass];
+    const string dropTargetDragClass = "droptarget-drag";
+    const string dropTargetClass = "droptarget";
+    List<FileWithStream> IpFileList { get; } = new();
+    bool visible { get; set; } = false;
+    Dictionary<string, string> availableDic { get; set; } = new();
+    List<string> availableList { get; set; } = new();
+    private IEnumerable<string> options { get; set; } = new HashSet<string>() { };
+    private bool _showOverlay { get; set; } = false;
+    private string _tmpCode { get; set; }
+
+    private class FileWithStream
+    {
+        public IFileInfo FileInfo { get; set; }
+        public AsyncDisposableStream Stream { get; set; }
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool isFirstRender)
+    {
+        if (isFirstRender)
+        {
+            ipReference = fileReaderService.CreateReference(dropTargetInput);
+        }
+    }
+
+    private async Task ClearAsync()
+    {
+        foreach (var disposable in IpFileList.Select(x => x.Stream))
+        {
+            await disposable.DisposeAsync();
+        }
+
+        IpFileList.Clear();
+    }
+
+    private void OnIpDragEnter(EventArgs e) => _ipdropClasses.Add(dropTargetDragClass);
+
+    private void OnIpDragLeave(EventArgs e) => _ipdropClasses.Remove(dropTargetDragClass);
+
+    private async Task OnInputChange(EventArgs e)
+    {
+        _ipdropClasses.Remove(dropTargetDragClass);
+        StateHasChanged();
+        await RefreshFileList();
+    }
+
+    private async Task RefreshFileList()
+    {
+        await ClearAsync();
+        availableDic.Clear();
+        availableList.Clear();
+
+        foreach (var file in await ipReference.EnumerateFilesAsync())
+        {
+            var fileInfo = await file.ReadFileInfoAsync();
+            if (fileInfo.Name.Contains(".txt"))
+            {
+                IpFileList.Add(new FileWithStream { FileInfo = fileInfo, Stream = await file.OpenReadAsync() });
+            }
+        }
+
+        if (IpFileList.Count == 1)
+        {
+            await ReadFile(ipReference);
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task ReadClick() => await ReadFile(ipReference);
+
+    private async Task ReadFile(IFileReaderRef list)
+    {
+        _showOverlay = true;
+        _ = InvokeAsync(StateHasChanged);
+
+        foreach (var pair in IpFileList.ToList())
+        {
+            var fileInfo = pair.FileInfo;
+            _ = InvokeAsync(StateHasChanged);
+            fileInfo.PositionInfo.PositionChanged += (s, e) => { _ = InvokeAsync(StateHasChanged); };
+
+            var bufferSize = 20480;
+            string output = string.Empty;
+            CancellationTokenSource readSource = new CancellationTokenSource();
+            try
+            {
+                await using (var fs = pair.Stream)
+                using (StreamReader sr = new StreamReader(fs))
+                {
+                    readSource.CancelAfter(3000);
+                    output = await sr.ReadToEndAsync(readSource.Token);
+                }
+            }
+            catch (Exception)
+            {
+            }
+
+            ParseJson(output);
+
+            _showOverlay = false;
+            _ = InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private void Submit()
+    {
+        if (options == null || !options.Any())
+        {
+            Snackbar.Add("未选中任何有效配置，无法进行导入操作", Severity.Warning);
+            return;
+        }
+
+        foreach (string option in options)
+        {
+            if (OptionDic.First(s => s.Value == option) is KeyValuePair<string, string> keyValuePair)
+            {
+                LocalStorage.SetItemAsString(keyValuePair.Key, availableDic[keyValuePair.Key]);
+            }
+        }
+
+        Snackbar.Add($"已成功导入选中的{options.Count()}个配置", Severity.Success);
+
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private void ParseJson(string jsonStr)
+    {
+        try
+        {
+            foreach ((string? key, string? value) in JsonSerializer.Deserialize<Dictionary<string, string>>(jsonStr))
+            {
+                if (OptionDic.TryGetValue(key, out string? name))
+                {
+                    availableList.Add(name);
+                    availableDic.Add(key, value);
+                }
+            }
+        }
+        catch (Exception)
+        {
+        }
+
+        if (availableList.Count > 0)
+        {
+            Snackbar.Add($"读取到{availableList.Count}个可用配置，可在下方选择", Severity.Info);
+        }
+        else
+        {
+            Snackbar.Add($"未读取到可用配置，请检查文件后再试", Severity.Warning);
+        }
+    }
+
+    private async Task SyncOnlineConfig()
+    {
+        _showOverlay = true;
+        string json = await ConfigHelper.LoadOnlineConfig(Client, $"nshmCalculator_{_tmpCode}");
+        ParseJson(json);
+        _showOverlay = false;
+    }
+
+}

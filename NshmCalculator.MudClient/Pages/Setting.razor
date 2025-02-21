@@ -1,9 +1,14 @@
 ﻿@page "/settings"
+@using System.Text
+@using System.Text.Json
+@using BlazorDownloadFile
 @using Blazored.LocalStorage
+@using NshmCalculator.MudClient.Components.Dialog
 @using NshmCalculator.MudClient.Utilities
 @using Color = MudBlazor.Color
 @inject ISyncLocalStorageService LocalStorage
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
 <PageTitle>设置</PageTitle>
 
@@ -23,40 +28,35 @@
         <MudAlert Severity="Severity.Info">启用此选项后，开启后将减少文本框/下拉菜单的高度，适合需要在同一屏幕中查看更多选项的情形</MudAlert>
     </MudItem>
     <MudItem xs="12">
-        <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@OpenDialog">清空本地存储</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@ClearSelectedStorage">清空本地存储</MudButton>
     </MudItem>
     <MudItem xs="12">
         <MudAlert Severity="Severity.Warning">如果本地存储出现了问题，可尝试通过该按钮清空本地存储，会丢失选中的数据</MudAlert>
     </MudItem>
+    <MudItem xs="3">
+        <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@ExportConfig">导出配置</MudButton>
+    </MudItem>
+    <MudItem xs="3">
+        <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@ImportConfig">导入配置</MudButton>
+    </MudItem>
+    <MudItem xs="3">
+        <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@UploadOnlineConfig">上传配置</MudButton>
+    </MudItem>
+    <MudItem xs="3">
+        <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@ReadOnlineConfig">同步配置</MudButton>
+    </MudItem>
 </MudGrid>
-
-<MudDialog IsVisible="@_visible" Options="_dialogOptions">
-    <TitleContent>
-        <MudText Typo="Typo.h6">
-            清除存储确认
-        </MudText>
-    </TitleContent>
-    <DialogContent>
-        <MudAlert Severity="Severity.Warning">选择删除后将丢失对应的本地存储数据，请慎重选择</MudAlert>
-        <MudSelect T="string" Label="请选择需要清除本地存储的计算器" MultiSelection="true" @bind-SelectedValues="options">
-            @foreach (var state in _calculatorNameArray)
-            {
-                <MudSelectItem T="string" Value="@state">@state</MudSelectItem>
-            }
-        </MudSelect>
-    </DialogContent>
-    <DialogActions>
-        <MudButton Variant="Variant.Filled" Color="Color.Default" OnClick="OnCancel" Class="px-10">取消</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="OnSubmit" Disabled="@(!options.Any())" Class="px-10">删除</MudButton>
-    </DialogActions>
-</MudDialog>
 
 @code {
     private bool _autoRedirect = false;
     private bool _visible;
     private bool _dense;
-    private readonly DialogOptions _dialogOptions = new() { FullWidth = true, DisableBackdropClick = true };
-    private IEnumerable<string> options { get; set; } = new HashSet<string>() { };
+    private readonly DialogOptions _dialogOptions = new() { DisableBackdropClick = true, FullWidth = true };
+    private DialogParameters<SelectCalculatorDialog> _selectParameters { get; set; }
+    private DialogParameters<ImportConfigDialog> _importParameters { get; set; }
+    private DialogParameters<UploadDialog> _uploadParameters { get; set; }
+    private IEnumerable<string> options { get; set; } = new HashSet<string>();
+    [Inject] IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
 
     private readonly string[] _calculatorNameArray = ["PVE计算器", "身份收益计算器", "素问治疗计算器"];
 
@@ -71,6 +71,13 @@
     {
         base.OnInitialized();
         InitStatus();
+        _selectParameters = new DialogParameters<SelectCalculatorDialog>();
+        _importParameters = new DialogParameters<ImportConfigDialog>();
+        _uploadParameters = new DialogParameters<UploadDialog>();
+        _selectParameters.Add(nameof(SelectCalculatorDialog.NameArray), new string[] { });
+        _importParameters.Add(nameof(ImportConfigDialog.OptionDic), null);
+        _importParameters.Add(nameof(ImportConfigDialog.SyncMode), false);
+        _uploadParameters.Add(nameof(UploadDialog.JsonText), string.Empty);
     }
 
     private void InitStatus()
@@ -84,7 +91,7 @@
         {
             _dense = LocalStorage.GetItem<bool>(ConstText.DenseModeName);
         }
-        
+
         SaveStatus();
     }
 
@@ -93,7 +100,6 @@
         LocalStorage.SetItem(ConstText.AutoRedirectName, _autoRedirect);
         LocalStorage.SetItem(ConstText.DenseModeName, _dense);
     }
-
 
     private void OnRedirectCheckChanged(bool status)
     {
@@ -107,26 +113,16 @@
         SaveStatus();
     }
 
-    private void OpenDialog()
+    private async Task ClearSelectedStorage()
     {
-        if (_visible)
-        {
-            _visible = false;
-            StateHasChanged();
-        }
+        _selectParameters[nameof(SelectCalculatorDialog.NameArray)] = _dic.Keys.ToArray();
+        _selectParameters[nameof(SelectCalculatorDialog.OptionDescribeText)] = "请选择需要清除本地存储的计算器";
+        _selectParameters[nameof(SelectCalculatorDialog.WarningText)] = "选择删除后将丢失对应的本地存储数据，请慎重选择";
 
-        _visible = true;
-        StateHasChanged();
-    }
+        var selectOptions = await GetOptions();
 
-    private void OnSubmit()
-    {
-        _visible = false;
-        StateHasChanged();
-        int count = 0;
-        foreach (string option in options)
+        foreach (string option in selectOptions)
         {
-            count++;
             if (_dic.TryGetValue(option, out string[] value))
             {
                 foreach (string code in value)
@@ -136,18 +132,75 @@
             }
         }
 
-        options = [];
-        if (count > 0)
+        if (selectOptions.Length > 0)
         {
-            Snackbar.Add($"已成功清空{count}个计算器的本地缓存", Severity.Success);
+            Snackbar.Add($"已成功清空{selectOptions.Length}个计算器的本地缓存", Severity.Success);
         }
     }
 
-    private void OnCancel()
+    /// <summary>
+    /// 在设置好参数后调用此方法获取选择的选项
+    /// </summary>
+    /// <returns></returns>
+    private async Task<string[]> GetOptions()
     {
-        _visible = false;
-        options = [];
-        StateHasChanged();
+        var dialog = await DialogService.ShowAsync<SelectCalculatorDialog>("", _selectParameters, _dialogOptions);
+        using var task = dialog.Result;
+        var result = await task;
+        if (!result.Canceled)
+        {
+            if (result.Data is string[] options)
+            {
+                return options;
+            }
+        }
+
+        return [];
+    }
+
+    private void ExportConfig()
+    {
+        string fullText = SerializeConfig();
+        Snackbar.Add("开始导出配置文件", Severity.Success);
+        BlazorDownloadFileService.DownloadFileFromText($"导出配置_{DateTime.Now:yyyyMMddHHmmss}.txt", fullText, Encoding.UTF8, "text/plain");
+    }
+
+    /// <summary>
+    /// 序列化配置Json
+    /// </summary>
+    /// <returns></returns>
+    private string SerializeConfig()
+    {
+        Dictionary<string, string> downloadDic = new Dictionary<string, string>();
+        foreach ((string? _, string[]? value) in _dic)
+        {
+            if (LocalStorage.ContainKey(value.Last()))
+            {
+                downloadDic.Add(value.Last(), LocalStorage.GetItemAsString(value.Last()));
+            }
+        }
+
+        return JsonSerializer.Serialize(downloadDic);
+    }
+
+    private void ImportConfig()
+    {
+        _importParameters[nameof(ImportConfigDialog.OptionDic)] = _dic.ToDictionary(s => s.Value.Last(), y => y.Key);
+        _importParameters[nameof(ImportConfigDialog.SyncMode)] = false;
+        DialogService.Show<ImportConfigDialog>("", _importParameters, _dialogOptions);
+    }
+
+    private void ReadOnlineConfig()
+    {
+        _importParameters[nameof(ImportConfigDialog.OptionDic)] = _dic.ToDictionary(s => s.Value.Last(), y => y.Key);
+        _importParameters[nameof(ImportConfigDialog.SyncMode)] = true;
+        DialogService.Show<ImportConfigDialog>("", _importParameters, _dialogOptions);
+    }
+
+    private void UploadOnlineConfig()
+    {
+        _uploadParameters[nameof(UploadDialog.JsonText)] = SerializeConfig();
+        DialogService.Show<UploadDialog>("", _uploadParameters, _dialogOptions);
     }
 
 }

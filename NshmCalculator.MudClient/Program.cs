@@ -1,4 +1,5 @@
 using ApexCharts;
+using BlazorDownloadFile;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -7,6 +8,7 @@ using MudBlazor.Services;
 using NshmCalculator.MudClient;
 using NshmCalculator.MudClient.Utilities;
 using NshmCalculator.MudClient.Utilities.Interface;
+using Tewr.Blazor.FileReader;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -16,6 +18,7 @@ var client = new HttpClient
 {
     BaseAddress = new Uri(builder.HostEnvironment.BaseAddress),
 };
+builder.Services.AddFileReaderService(options => options.UseWasmSharedBuffer = true);
 builder.Services.AddSingleton(client);
 builder.Services.AddMudServices(config =>
 {
@@ -30,6 +33,7 @@ builder.Services.AddMudServices(config =>
     config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
 });
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddBlazorDownloadFile();
 builder.Services.AddSingleton<IStateContainer, StateContainer>();
 builder.Services.AddApexCharts(option =>
 {
@@ -51,6 +55,8 @@ while (errorCount < 3)
     }
     errorCount++;
 }
+
+ConfigHelper.InitClient(client);
 
 if (errorCount == 3)
 {
