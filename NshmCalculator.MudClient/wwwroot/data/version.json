@@ -1,8 +1,8 @@
 ﻿{
   "ConfigVersionInfo": {
     "sf": 20241202001,
-    "syTreat": 20250122001,
-    "update":20250205001,
+    "syTreat": 20250223001,
+    "update":20250223001,
     "pve":20250205001
   },
   "ConfigPathInfo": {
@@ -11,5 +11,5 @@
     "update": "../data/config_update.json",
     "pve": "../data/config_pve.json"
   },
-  "UpdateTime": "2025-02-05 10:27:07"
+  "UpdateTime": "2025-02-23 12:38:07"
 }

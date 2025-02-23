@@ -45,6 +45,9 @@
     <MudItem xs="3">
         <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@ReadOnlineConfig">同步配置</MudButton>
     </MudItem>
+    <MudItem xs="12">
+        <MudAlert Severity="Severity.Info">导出/导入配置：可将计算器配置导出至设备，再通过导入配置导入到其他浏览器上的计算器内；上传/同步配置：可将计算器上传到三方临时服务，并通过同步配置功能同步已上传的配置</MudAlert>
+    </MudItem>
 </MudGrid>
 
 @code {
