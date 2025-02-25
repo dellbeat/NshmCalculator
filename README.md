@@ -4,7 +4,7 @@
 
 ![License](https://img.shields.io/github/license/dellbeat/NshmCalculator)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
-![Version](https://img.shields.io/badge/version-2.0.0-brightgreen)
+![Version](https://img.shields.io/badge/version-2.1.1-brightgreen)
 ![PWA Support](https://img.shields.io/badge/PWA-support-blue)
 
 一款集合了网络上部分计算手游属性数值的在线计算器，方便手机端的小伙伴使用。
@@ -16,9 +16,8 @@
 ## 计算器功能
 
 * 在网页内计算各类数值，如素问治疗量/增伤率/属性收益/内功收益等。 详细功能可参考下方适配情况一节。
-
-
 * 计算数据支持本地存储，包含填写在计算界面的数据、计算结果数据。
+* 计算器配置支持本地导入/导出、在线上传/同步（依赖三方服务，可能存在暂时无法使用的情况）
 
 ## 计算器适配情况
 
