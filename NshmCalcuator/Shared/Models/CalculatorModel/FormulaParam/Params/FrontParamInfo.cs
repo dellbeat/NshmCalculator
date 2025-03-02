@@ -53,6 +53,11 @@ public class FrontParamInfo
     /// 特殊参数规则
     /// </summary>
     public SpecialParamRule Rule { get; set; }
+    
+    /// <summary>
+    /// 展示顺序，升序排序
+    /// </summary>
+    public int ShowIndex { get; set; }
 
     /// <summary>
     /// 用于绑定下拉列表的属性，无需序列化/反序列化

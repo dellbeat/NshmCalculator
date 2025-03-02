@@ -46,7 +46,7 @@
                                 foreach (var groupItems in group)
                                 {
                                     <MudExpansionPanel Text=@groupItems.Key>
-                                        <PveFrontParamItem ItemSource="@groupItems.ToArray()" RefDic="@_paramDic" DenseMode="@_denseMode"/>
+                                        <PveFrontParamItem ItemSource="@groupItems.OrderBy(s=>s.ShowIndex).ToArray()" RefDic="@_paramDic" DenseMode="@_denseMode"/>
                                     </MudExpansionPanel>
                                 }
                             }
@@ -72,12 +72,12 @@
                                 {
                                     if (string.IsNullOrEmpty(groupItems.Key))
                                     {
-                                        <PveFrontParamItem ItemSource="@groupItems.ToArray()" RefDic="@_paramDic" DenseMode="@_denseMode"/>
+                                        <PveFrontParamItem ItemSource="@groupItems.OrderBy(s=>s.ShowIndex).ToArray()" RefDic="@_paramDic" DenseMode="@_denseMode"/>
                                     }
                                     else
                                     {
                                         <MudExpansionPanel Text=@groupItems.Key>
-                                            <PveFrontParamItem ItemSource="@groupItems.ToArray()" RefDic="@_paramDic" DenseMode="@_denseMode"/>
+                                            <PveFrontParamItem ItemSource="@groupItems.OrderBy(s=>s.ShowIndex).ToArray()" RefDic="@_paramDic" DenseMode="@_denseMode"/>
                                         </MudExpansionPanel>
                                     }
                                 }
@@ -237,7 +237,11 @@
                 if (oldConfig.TryGetValue(key, out var oldValue))
                 {
                     var newValue = _currentConfig.DefaultParamValues[key];
-                    var param = _currentConfig.FrontParamInfoArray.First(s => s.Code == key);
+                    var param = _currentConfig.FrontParamInfoArray.FirstOrDefault(s => s.Code == key);
+                    if (param == null)
+                    {
+                        continue;
+                    }
                     newConfig[key].NumberValue = oldValue.NumberValue;
                     newConfig[key].StringValue = oldValue.StringValue;
                     if (!oldValue.NumberMode && param is { Options: { Length: > 0 }, Values.Length: > 0 }) //目前没有从数字模式转换为字符串模式的选项，暂不适配
@@ -350,7 +354,7 @@
                     {
                         if (singleItem.SpecialPointTitle != null && _paramDic.TryGetValue(singleItem.SpecialPointTitle.RefParamCode, out var refPara))
                         {
-                            singleItem.Title = singleItem.SpecialPointTitle.OptionDic.TryGetValue(refPara.StringValue, out var title) ? title : singleItem.SpecialPointTitle.Title;
+                            singleItem.Title = singleItem.SpecialPointTitle.OptionDic.TryGetValue(string.IsNullOrEmpty(refPara.StringValue)?refPara.NumberValue.ToString():refPara.StringValue, out var title) ? title : singleItem.SpecialPointTitle.Title;
                         }
                         else
                         {
