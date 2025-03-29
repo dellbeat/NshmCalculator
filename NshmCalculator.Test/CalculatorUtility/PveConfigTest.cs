@@ -152,7 +152,7 @@ public class PveConfigTest
         string[] defaultDicCodeArray = _config.DefaultParamValues.Keys.ToArray();
 
         Assert.That(frontCodeArray.OrderBy(x => x).SequenceEqual(defaultDicCodeArray.OrderBy(x => x)), Is.True, "前端选项与默认值代号有差异");
-        
+
         Assert.Pass("前端选项-默认值匹配校验成功");
     }
 }
