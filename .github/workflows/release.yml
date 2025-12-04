@@ -1,44 +1,87 @@
-name: Build and Publish Blazor WebAssembly
+name: Build and Deploy to Another Repository
 
 on:
   push:
-    branches:
-      - pve_3.4  # 触发工作流的分支，通常是 main 分支
-  pull_request:
-    branches:
-      - pve_3.4
+    branches: [ main, master, autopublish ]
+    # 可以指定特定目录或文件变更时才触发
+    # paths:
+    #   - 'src/**'
+    #   - '.github/workflows/deploy.yml'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest  # 你也可以选择其他操作系统，例如 windows-latest 或 macos-latest
-
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      # 1. 检出当前仓库代码
+      - name: Checkout Source Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      # 2. 设置.NET环境
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.404'
+      
+      # 3. 恢复NuGet包
+      - name: Restore dependencies
+        run: dotnet restore
+      
+      # 4. 构建项目
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+      
+      # 5. 发布Blazor WebAssembly项目
+      - name: Publish Blazor WASM
+        run: dotnet publish --configuration Release --output publish_output --no-build
+      
+      # 6. 准备部署文件
+      - name: Prepare Deployment Files
+        run: |
+          mkdir -p deploy_dist
+          
+          if [ -d "publish_output/wwwroot" ]; then
+            cp -r publish_output/wwwroot/* deploy_dist/
+          else
+            cp -r publish_output/* deploy_dist/
+          fi
+          
+          echo "Deployment files prepared successfully"
+      
+      # 7. 克隆目标仓库
+      - name: Checkout Target Repository
+        uses: actions/checkout@v4
+        with:
+          repository: dellbeat/nshmCalculator_Release  # 修改为目标仓库
+          token: ${{ secrets.DEPLOY_TOKEN }}  # 使用个人访问令牌
+          path: target_repo
+      
+      # 8. 同步文件到目标仓库
+      - name: Sync Files to Target Repository
+        run: |
+          cd target_repo
+          
+          rm -rf dist/*
 
-    - name: Set up .NET SDK
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '8.0'  # 设置使用的 .NET SDK 版本
+          cp -r ../deploy_dist/* dist/ || true
 
-    - name: Restore dependencies
-      run: dotnet restore
+          git config user.name "GitHub Actions Bot"
+          git config user.email "github-actions@users.noreply.github.com"
+      
+      # 9. 提交并推送到目标仓库
+      - name: Commit and Push to Target Repository
+        run: |
+          cd target_repo
+          
+          if [[ -z $(git status --porcelain) ]]; then
+            echo "No changes to commit"
+            exit 0
+          fi
 
-    - name: Build the project
-      run: dotnet build --configuration Release
+          git add .
 
-    - name: Publish the project
-      run: dotnet publish --configuration Release --output ./publish
+          git commit -m "Deploy Blazor WASM from ${{ github.repository }}@${{ github.sha }}"
 
-    - name: Create Release Artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: blazor-webassembly-release
-        path: ./publish  # 发布文件的路径
-
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: ./publish/**
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}        
+          git push origin main
