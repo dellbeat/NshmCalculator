@@ -11,6 +11,7 @@ public class GlobalConfigTest
     private const string SyTreatCode = "syTreat";
     private const string SfCode = "sf";
     private const string updateCode = "update";
+    private const string KiUpdateCode = "KiUpdate";
     private AppVersionInfo _version;
 
     [SetUp]
@@ -77,6 +78,27 @@ public class GlobalConfigTest
 
         Assert.That(sfConfig.InternalVersion == _version.ConfigVersionInfo[SfCode], Is.True, "身份收益计算器版本号校验不一致");
         Assert.Pass("身份收益计算器版本号校验通过");
+    }
+
+    [Test]
+    public void KiUpdateConfigVersionNumberTest()
+    {
+        KiUpdateConfig kiUpdateConfig = null;
+        string path = _version.ConfigPathInfo[KiUpdateCode].Replace("..", ".");
+        Assert.That(File.Exists(path), Is.True, "无法查找到升级内功词条计算器的配置文件");
+        Assert.That(File.ReadAllLines(path).Length == 1, Is.True, "升级内功词条计算器JSON配置未压缩");
+        try
+        {
+            kiUpdateConfig = JsonSerializer.Deserialize<KiUpdateConfig>(File.ReadAllText(path));
+        }
+        catch (Exception e)
+        {
+            Assert.Fail($"升级内功词条计算器-配置解析出现问题:{e.Message}");
+            return;
+        }
+
+        Assert.That(kiUpdateConfig.InternalVersion == _version.ConfigVersionInfo[KiUpdateCode], Is.True, "升级内功词条计算器版本号校验不一致");
+        Assert.Pass("升级内功词条计算器版本号校验通过");
     }
 
     [Test]
