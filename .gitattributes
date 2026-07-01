@@ -1,1 +1,6 @@
 *.razor linguist-language=C#
+
+# OCR 自托管模型与运行时大文件走 Git LFS（避免仓库膨胀）
+NshmCalculator.MudClient/wwwroot/ocr-models/*.onnx filter=lfs diff=lfs merge=lfs -text
+NshmCalculator.MudClient/wwwroot/ocr-ort/*.wasm.br filter=lfs diff=lfs merge=lfs -text
+NshmCalculator.MudClient/wwwroot/js/ocr/ocr.selfhost.bundle.js filter=lfs diff=lfs merge=lfs -text

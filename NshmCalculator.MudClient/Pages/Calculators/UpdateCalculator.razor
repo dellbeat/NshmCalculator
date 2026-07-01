@@ -1,0 +1,550 @@
+@page "/KiUpdate"
+@using System.Text.Json
+@using System.Text.RegularExpressions
+@using Blazored.LocalStorage
+@using NshmCalculator.MudClient.Components.Dialog
+@using NshmCalculator.MudClient.Utilities
+@using NshmCalculator.Shared.Models.CalculatorModel.CalculatorConfig
+@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params
+@using NshmCalculator.Shared.Models.PageModel
+@using Align = MudBlazor.Align
+@using Color = MudBlazor.Color
+@inject ISyncLocalStorageService LocalStorage
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+@inject HttpClient Client
+
+<PageTitle>升级内功词条计算器</PageTitle>
+
+<MudGrid>
+    @if (!renderNotComplete)
+    {
+        <MudItem xs="12">
+            <MudPaper Class="d-flex align-center justify-center py-8">
+                <MudStack AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.h4">升级内功词条计算器</MudText>
+                    <MudText Typo="Typo.h6" Align="Align.Center">
+                        <MudChip Icon="@Icons.Material.Filled.Person" Color="Color.Tertiary">B站：-风何往-群热心群友</MudChip>
+                        <MudChip Color="Color.Info">源文件版本:@_currentConfig.Version</MudChip>
+                    </MudText>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12">
+            <MudPaper Class="pa-4 mt-4">
+                <MudText Typo="Typo.h6" Class="mb-4">输入区：填写词条数值，上限/下限/收益率可按需修改</MudText>
+                <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
+                    <MudTabPanel Text="填写数值/上限收益率">
+                        <MudTable Items="@_kiUpdatePageModel.AttributeArray" Breakpoint="Breakpoint.None" Striped="true"
+                                  Dense="@_denseMode" Elevation="2">
+                            <HeaderContent>
+                                <MudTh>属性</MudTh>
+                                <MudTh>填写数值</MudTh>
+                                <MudTh>上限收益率</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="属性">@context.Name</MudTd>
+                                <MudTd DataLabel="填写数值">
+                                    <MudTextField ShrinkLabel @bind-Value="@context.InputValue" Variant="Variant.Outlined"
+                                                  Adornment="@(context.Name == "首领克制" ? Adornment.End : Adornment.None)"
+                                                  AdornmentText="@(context.Name == "首领克制" ? "%" : "")"
+                                                  Margin="@(_denseMode ? Margin.Dense : Margin.Normal)" Class="mt-0"/>
+                                </MudTd>
+                                <MudTd DataLabel="上限收益率">
+                                    <MudTextField ShrinkLabel @bind-Value="@context.MaxRate" Variant="Variant.Outlined"
+                                                  Adornment="Adornment.End" AdornmentText="%"
+                                                  Margin="@(_denseMode ? Margin.Dense : Margin.Normal)" Class="mt-0"/>
+                                </MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudTabPanel>
+                    <MudTabPanel Text="数值上限/下限">
+                        <MudTable Items="@_kiUpdatePageModel.AttributeArray" Breakpoint="Breakpoint.None" Striped="true"
+                                  Dense="@_denseMode" Elevation="2">
+                            <HeaderContent>
+                                <MudTh>属性</MudTh>
+                                <MudTh>数值上限</MudTh>
+                                <MudTh>数值下限</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="属性">@context.Name</MudTd>
+                                <MudTd DataLabel="数值上限">
+                                    <MudTextField ShrinkLabel @bind-Value="@context.MaxValue" Variant="Variant.Outlined"
+                                                  Adornment="@(context.Name == "首领克制" ? Adornment.End : Adornment.None)"
+                                                  AdornmentText="@(context.Name == "首领克制" ? "%" : "")"
+                                                  Margin="@(_denseMode ? Margin.Dense : Margin.Normal)" Class="mt-0"/>
+                                </MudTd>
+                                <MudTd DataLabel="数值下限">
+                                    <MudTextField ShrinkLabel @bind-Value="@context.MinValue" Variant="Variant.Outlined"
+                                                  Adornment="@(context.Name == "首领克制" ? Adornment.End : Adornment.None)"
+                                                  AdornmentText="@(context.Name == "首领克制" ? "%" : "")"
+                                                  Margin="@(_denseMode ? Margin.Dense : Margin.Normal)" Class="mt-0"/>
+                                </MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudTabPanel>
+                </MudTabs>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12">
+            <MudPaper Class="pa-4 mt-4">
+                <MudText Typo="Typo.h6" Class="mb-4">OCR 识别区：粘贴识别文本或图片识别，自动填入对应列</MudText>
+                <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-4" Centered="true" @bind-ActivePanelIndex="_activeOcrTab">
+                    <MudTabPanel Text="填写数值识别">
+                        <MudTextField ShrinkLabel T="string" @bind-Value="_ocrFillText" Label="粘贴识别文本"
+                                      Variant="Variant.Outlined" Margin="Margin.Normal" Lines="3"/>
+                        <MudStack Row="true" Spacing="2" Class="mt-2">
+                            <MudButton Variant="Variant.Filled" Color="Color.Info"
+                                       ButtonType="ButtonType.Button" OnClick="OpenOcrImageDialog"
+                                       StartIcon="@Icons.Material.Filled.Image">
+                                图片自动识别
+                            </MudButton>
+                            <MudButton Variant="Variant.Filled" Color="Color.Secondary"
+                                       ButtonType="ButtonType.Button" OnClick="OnRecognizeFill">
+                                手动识别
+                            </MudButton>
+                        </MudStack>
+                    </MudTabPanel>
+                    <MudTabPanel Text="上限收益率识别">
+                        <MudTextField ShrinkLabel T="string" @bind-Value="_ocrRateText" Label="粘贴识别文本"
+                                      Variant="Variant.Outlined" Margin="Margin.Normal" Lines="3"/>
+                        <MudStack Row="true" Spacing="2" Class="mt-2">
+                            <MudButton Variant="Variant.Filled" Color="Color.Info"
+                                       ButtonType="ButtonType.Button" OnClick="OpenOcrImageDialog"
+                                       StartIcon="@Icons.Material.Filled.Image">
+                                图片自动识别
+                            </MudButton>
+                            <MudButton Variant="Variant.Filled" Color="Color.Secondary"
+                                       ButtonType="ButtonType.Button" OnClick="OnRecognizeRate">
+                                手动识别
+                            </MudButton>
+                        </MudStack>
+                    </MudTabPanel>
+                </MudTabs>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12">
+            <MudPaper Class="pa-4 mt-4">
+                <MudText Typo="Typo.h6" Class="mb-4">输出区：各属性实际收益率（点击表头可切换排序）</MudText>
+                @if (_results.Count > 0)
+                {
+                    <MudTable Items="@_sortedResults" Breakpoint="Breakpoint.None" Striped="true"
+                              Dense="@_denseMode" Elevation="2">
+                        <HeaderContent>
+                            <MudTh>属性</MudTh>
+                            <MudTh>属性值</MudTh>
+                            <MudTh>
+                                <MudTableSortLabel InitialDirection="SortDirection.Descending"
+                                                   SortBy="new Func<KiUpdateResult, object>(x => x.ActualRate)">
+                                    实际收益率
+                                </MudTableSortLabel>
+                            </MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="属性">@context.Name</MudTd>
+                            <MudTd DataLabel="属性值">@FormatInputValue(context)</MudTd>
+                            <MudTd DataLabel="实际收益率">@context.ActualRate.ToString("P2")</MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Class="mt-4">
+                        <MudChip T="string" Color="Color.Success">总实际收益率</MudChip>
+                        <MudText Typo="Typo.h6" Color="Color.Success" Class="ml-2">@_totalRate.ToString("P2")</MudText>
+                    </MudStack>
+                }
+                else
+                {
+                    <MudText Typo="Typo.body1" Align="Align.Center" Color="Color.Default" Class="py-4">
+                        暂无结果，请先填写词条数值并点击「计算」
+                    </MudText>
+                }
+            </MudPaper>
+        </MudItem>
+    }
+    else
+    {
+        <MudItem xs="12">
+            <MudPaper Class="pa-4 mt-4">
+                <MudSkeleton/>
+                <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Rectangle" Height="300px"/>
+                <MudSkeleton/>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12">
+            <MudPaper Class="pa-4 mt-4">
+                <MudSkeleton/>
+                <MudSkeleton Animation="Animation.Wave" SkeletonType="SkeletonType.Rectangle" Height="300px"/>
+                <MudSkeleton/>
+            </MudPaper>
+        </MudItem>
+    }
+
+    <MudItem xs="12" Class="d-flex align-center justify-center">
+        <MudStack Row="true" Spacing="4">
+            <MudButton Variant="Variant.Filled" Disabled="@renderNotComplete" Color="Color.Info" Class="d-flex"
+                       ButtonType="ButtonType.Button" OnClick="OnCalculate">计算
+            </MudButton>
+            <MudButton Variant="Variant.Filled" Disabled="@renderNotComplete" Color="Color.Default" Class="d-flex"
+                       ButtonType="ButtonType.Button" OnClick="ShowTips">帮助说明
+            </MudButton>
+        </MudStack>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private readonly DialogParameters<TipsDialog> _tipsDialogParameters = new();
+    private readonly DialogOptions _tipsDialogOptions = new();
+
+    private KiUpdateConfig _currentConfig;
+    private KiUpdatePageModel _kiUpdatePageModel;
+    private List<KiUpdateResult> _results = new();
+    private List<KiUpdateResult> _sortedResults = new();
+    private double _totalRate;
+    private string _ocrFillText;
+    private string _ocrRateText;
+    private bool renderNotComplete { get; set; } = true;
+    private bool _denseMode;
+
+    // ---- OCR 图片识别相关状态 ----
+    // 当前激活的 OCR 标签页索引：0=填写数值识别，1=上限收益率识别。决定识别文本回写目标。
+    private int _activeOcrTab;
+
+    protected override async Task OnInitializedAsync()
+    {
+        renderNotComplete = true;
+        _denseMode = LocalStorage.GetItem<bool>(ConstText.DenseModeName);
+        await InitParameters();
+        await base.OnInitializedAsync();
+        LocalStorage.SetItemAsString(ConstText.LastVisitName, "KiUpdate");
+    }
+
+    private async Task InitParameters()
+    {
+        bool haveUpdate = await LoadData();
+        _tipsDialogParameters.Add(nameof(TipsDialog.ContentText), new MarkupString(_currentConfig.HelperText));
+        _tipsDialogOptions.CloseButton = true;
+        if (_currentConfig == null)
+        {
+            Snackbar.Add(ConstText.ConfigNotFoundText, Severity.Error);
+            return;
+        }
+
+        if (haveUpdate || _kiUpdatePageModel.AttributeArray is null || _kiUpdatePageModel.AttributeArray.Length == 0)
+        {
+            // 配置更新或本地缓存无效（被手动清除）：刷新上限/下限/收益率默认值，保留用户已填写的填写数值
+            var oldInputDic = _kiUpdatePageModel.AttributeArray?
+                .Where(a => a.InputValue.HasValue)
+                .ToDictionary(a => a.Name, a => a.InputValue) ?? new Dictionary<string, double?>();
+            _kiUpdatePageModel.AttributeArray = _currentConfig.AttributeArray;
+            // 旧版本（<20260701002）首领克制的填写数值/上限等是小数形式，需迁移为百分数值
+            bool migrateFromDecimal = _kiUpdatePageModel.CurrentInternalVersion < 20260701002;
+            foreach (var attr in _kiUpdatePageModel.AttributeArray)
+            {
+                if (oldInputDic.TryGetValue(attr.Name, out var oldInput))
+                {
+                    // 首领克制的旧填写数值是小数（如 0.011），迁移为百分数值（1.1）
+                    attr.InputValue = migrateFromDecimal && attr.Name == "首领克制" && oldInput.HasValue && oldInput < 1
+                        ? oldInput * 100
+                        : oldInput;
+                }
+            }
+
+            _kiUpdatePageModel.CurrentInternalVersion = _currentConfig.InternalVersion;
+            SaveInfo();
+        }
+
+        renderNotComplete = false;
+    }
+
+    private async Task<bool> LoadData()
+    {
+        try
+        {
+            _kiUpdatePageModel = LocalStorage.GetItem<KiUpdatePageModel>(nameof(_kiUpdatePageModel)) ?? new KiUpdatePageModel();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("升级内功词条计算器缓存加载异常" + e);
+            _kiUpdatePageModel = new KiUpdatePageModel();
+        }
+
+        var result = await ConfigHelper.GetConfigJson(Client, "KiUpdate", LocalStorage);
+        if (result.Item1 == ConstText.NotExistText)
+        {
+            Snackbar.Add(result.Item1, Severity.Error);
+        }
+        else
+        {
+            try
+            {
+                _currentConfig = JsonSerializer.Deserialize<KiUpdateConfig>(result.Item1);
+                if (result.Item2)
+                {
+                    Snackbar.Add("配置数据更新，已加载完成", Severity.Success);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Snackbar.Add("解析配置时出现异常，请检查网络");
+            }
+        }
+
+        return result.Item2;
+    }
+
+    private void OnCalculate()
+    {
+        _results.Clear();
+        _totalRate = 0;
+
+        foreach (var attr in _kiUpdatePageModel.AttributeArray)
+        {
+            if (!attr.InputValue.HasValue || attr.MaxValue == 0)
+            {
+                continue;
+            }
+
+            double rate = attr.InputValue.Value / attr.MaxValue * attr.MaxRate / 100;
+            _results.Add(new KiUpdateResult(attr.Name, attr.InputValue.Value, rate));
+            _totalRate += rate;
+        }
+
+        if (_results.Count == 0)
+        {
+            Snackbar.Add("<ul><li>未检测到已填写的词条数值</li><li>请填写数值后再计算</li></ul>", Severity.Warning);
+            return;
+        }
+
+        // 默认按收益率降序展示
+        _sortedResults = _results.OrderByDescending(r => r.ActualRate).ToList();
+
+        Snackbar.Add(ConstText.SuccessText, Severity.Success);
+        SaveInfo();
+    }
+
+    /// <summary>
+    /// 解析 OCR 识别文本，将匹配到的属性数值填入填写数值字段。
+    /// 文本形如：气血上限 +2084 首领克制 +1.1% 力量/气海 +10 ...
+    /// 规则：属性名（开头非数字文本）+ 空格 + +整数或百分数
+    /// </summary>
+    private void OnRecognizeFill()
+    {
+        if (string.IsNullOrWhiteSpace(_ocrFillText))
+        {
+            Snackbar.Add("识别文本为空，请先粘贴内容", Severity.Warning);
+            return;
+        }
+
+        // 粘贴识别前先清空所有填写数值，确保本次填入的是最新识别结果
+        foreach (var attr in _kiUpdatePageModel.AttributeArray)
+        {
+            attr.InputValue = null;
+        }
+
+        // 用已知属性名作为锚点构建正则，避免被噪音前缀干扰（如「新 最小攻击」中的「新」）
+        // 按名称长度降序拼接，防止「攻击」误匹配到「最大攻击/最小攻击」前缀
+        // 负向后顾断言确保属性名前不是中文字符，防止「抗外功会心」中的「会心」被误匹配
+        var attrDic = _kiUpdatePageModel.AttributeArray.ToDictionary(a => a.Name, a => a);
+        string nameAlt = string.Join("|", attrDic.Keys.OrderByDescending(n => n.Length).Select(Regex.Escape));
+        // 匹配：属性名 + +数值（整数或百分数）
+        var matches = Regex.Matches(_ocrFillText, $@"(?<![\u4e00-\u9fa5])({nameAlt})\s*\+(\d+(?:\.\d+)?%?)");
+
+        if (matches.Count == 0)
+        {
+            Snackbar.Add("未识别到任何属性数值，请检查文本格式", Severity.Warning);
+            return;
+        }
+
+        int matchedCount = 0;
+        foreach (Match m in matches)
+        {
+            string name = m.Groups[1].Value.Trim();
+            string valueStr = m.Groups[2].Value.Trim();
+
+            if (!attrDic.TryGetValue(name, out var attr))
+            {
+                continue;
+            }
+
+            // 解析数值：百分数去 % 后直接用百分数值（如 1.1% -> 1.1，与配置量级一致）
+            double value = ParseValueToDouble(valueStr);
+
+            // 同一属性多次出现时累加（如两个攻击词条 31+36=67）
+            attr.InputValue = (attr.InputValue ?? 0) + value;
+            matchedCount++;
+        }
+
+        if (matchedCount == 0)
+        {
+            Snackbar.Add($"未匹配到任何有效属性，识别到 {matches.Count} 项", Severity.Warning);
+            return;
+        }
+
+        string tip = $"<ul><li>成功匹配并填入填写数值 {matchedCount} 项（同属性已自动累加）</li>";
+        tip += "<li>请在「填写数值/上限收益率」标签页确认，并点击「计算」</li></ul>";
+        Snackbar.Add(tip, Severity.Info);
+        SaveInfo();
+    }
+
+    /// <summary>
+    /// 解析 OCR 识别文本，将匹配到的属性数值上限与上限收益率分别填入对应字段。
+    /// 文本形如：攻击 33 390(1.63%) 力量/气海 10 360(1.5%) 首领克制 1.2% 270(1.13%) ...
+    /// 规则：属性名 + 空格 + 第一个值(数字或百分数) + 空格 + 第二个数字 + 左括号(百分比%)
+    /// 第一个值填入数值上限，括号内百分比填入上限收益率
+    /// </summary>
+    private void OnRecognizeRate()
+    {
+        if (string.IsNullOrWhiteSpace(_ocrRateText))
+        {
+            Snackbar.Add("识别文本为空，请先粘贴内容", Severity.Warning);
+            return;
+        }
+
+        // 用已知属性名作为锚点构建正则，避免被表头/噪音文本干扰
+        // 按名称长度降序拼接，防止「攻击」误匹配到「最大攻击」前缀
+        var attrDic = _kiUpdatePageModel.AttributeArray.ToDictionary(a => a.Name, a => a);
+        string nameAlt = string.Join("|", attrDic.Keys.OrderByDescending(n => n.Length).Select(Regex.Escape));
+        // 匹配：属性名 + 第一个值(数字或百分数) + 第二个数字 + (百分比%)
+        // 负向后顾断言确保属性名前不是中文字符，防止「抗外功会心」中的「会心」被误匹配
+        // 括号兼容全角「（」「）」和半角「(」「)」，OCR 常见全角/半角混用
+        var matches = Regex.Matches(_ocrRateText, $@"(?<![\u4e00-\u9fa5])({nameAlt})\s+(\d+(?:\.\d+)?%?)\s+\d+[(（](\d+(?:\.\d+)?)%[)）]");
+
+        if (matches.Count == 0)
+        {
+            Snackbar.Add("未识别到任何属性收益率，请检查文本格式", Severity.Warning);
+            return;
+        }
+
+        int matchedCount = 0;
+        foreach (Match m in matches)
+        {
+            string name = m.Groups[1].Value.Trim();
+            string maxValueStr = m.Groups[2].Value.Trim();
+            string rateStr = m.Groups[3].Value.Trim();
+
+            if (!attrDic.TryGetValue(name, out var attr))
+            {
+                continue;
+            }
+
+            // 第一个值填入数值上限（百分数去 % 后取百分数值，如 1.2% -> 1.2，与配置量级一致）
+            attr.MaxValue = ParseValueToDouble(maxValueStr);
+
+            // 括号内百分比填入上限收益率（如 1.63 直接取百分数值 1.63）
+            if (double.TryParse(rateStr, out double percentValue))
+            {
+                attr.MaxRate = percentValue;
+                matchedCount++;
+            }
+        }
+
+        if (matchedCount == 0)
+        {
+            Snackbar.Add("未匹配到任何有效属性收益率，请检查文本格式", Severity.Warning);
+            return;
+        }
+
+        string tip = $"<ul><li>成功匹配并填入数值上限与上限收益率 {matchedCount} 项</li>";
+        tip += "<li>请在「填写数值/上限收益率」标签页确认，并点击「计算」</li></ul>";
+        Snackbar.Add(tip, Severity.Info);
+        SaveInfo();
+    }
+
+    /// <summary>
+    /// 将字符串解析为 double，百分数（如 "1.2%"）去掉 % 后取百分数值（1.2），整数直接返回
+    /// </summary>
+    private static double ParseValueToDouble(string valueStr)
+    {
+        if (valueStr.EndsWith("%"))
+        {
+            return double.TryParse(valueStr.TrimEnd('%'), out double percentValue) ? percentValue : 0;
+        }
+
+        return double.TryParse(valueStr, out double numValue) ? numValue : 0;
+    }
+
+    /// <summary>
+    /// 格式化输出区的属性值显示：首领克制为百分比数值（带 %），其余为普通数值
+    /// </summary>
+    private string FormatInputValue(KiUpdateResult result)
+    {
+        // 首领克制的填写数值是百分数值（如 1.1 表示 1.1%），加 % 后缀与输入区一致
+        return result.Name == "首领克制" ? $"{result.InputValue}%" : result.InputValue.ToString();
+    }
+
+    private void SaveInfo()
+    {
+        LocalStorage.SetItem(nameof(_kiUpdatePageModel), _kiUpdatePageModel);
+    }
+
+    private void ShowTips()
+    {
+        Dialog.Show<TipsDialog>("帮助说明", _tipsDialogParameters, _tipsDialogOptions);
+    }
+
+    /// <summary>
+    /// 打开图片识别弹窗。弹窗自己注入 WebOcrEngine（Scoped）并管理引擎状态/进度，
+    /// 故本组件只需传入「当前标签页」用于决定识别文本回写目标。
+    /// 引擎实例仍为 Scoped 共享，关闭弹窗不释放（满足实例开销顾虑）。
+    /// </summary>
+    private void OpenOcrImageDialog()
+    {
+        var parameters = new DialogParameters<OcrImageDialog>
+        {
+            { x => x.ActiveOcrTab, _activeOcrTab },
+            { x => x.OnRecognized, EventCallback.Factory.Create<string>(this, OnOcrRecognizedAsync) },
+        };
+        var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true };
+        Dialog.Show<OcrImageDialog>("图片识别", parameters, options);
+    }
+
+    /// <summary>
+    /// 弹窗识别完成后回调：把文本写入当前激活的 OCR 标签页对应文本框，并复用现有解析逻辑填入对应列。
+    /// 0=填写数值识别，1=上限收益率识别。
+    /// </summary>
+    private Task OnOcrRecognizedAsync(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            Snackbar.Add("未识别到文字，请尝试更清晰的截图或调整框选范围", Severity.Warning);
+            return Task.CompletedTask;
+        }
+
+        if (_activeOcrTab == 0)
+        {
+            _ocrFillText = text;
+            OnRecognizeFill();
+        }
+        else
+        {
+            _ocrRateText = text;
+            OnRecognizeRate();
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// 单属性实际收益率计算结果
+    /// </summary>
+    private class KiUpdateResult
+    {
+        public string Name { get; set; }
+        /// <summary>
+        /// 填写的属性数值（首领克制为百分数值，如 1.1）
+        /// </summary>
+        public double InputValue { get; set; }
+        public double ActualRate { get; set; }
+
+        public KiUpdateResult(string name, double inputValue, double actualRate)
+        {
+            Name = name;
+            InputValue = inputValue;
+            ActualRate = actualRate;
+        }
+    }
+}

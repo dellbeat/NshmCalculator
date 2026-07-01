@@ -1,0 +1,267 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@using NshmCalculator.MudClient.Models
+@using NshmCalculator.MudClient.Services
+@using Align = MudBlazor.Align
+@using Color = MudBlazor.Color
+@using Size = MudBlazor.Size
+@inject IJSRuntime JS
+@inject WebOcrEngine Engine
+
+<MudDialog MaxWidth="MaxWidth.Medium" FullWidth="true">
+    <TitleContent>
+        <MudText Typo="Typo.h6">📷 图片识别</MudText>
+    </TitleContent>
+    <DialogContent>
+        @* ---- 缓存状态提示 ----
+           仅在引擎未就绪时显示缓存预检结果（用于提示首次加载是否需联网）。
+           引擎已就绪时不再显示「缺 X 个文件」——文件已在内存中可用，缓存状态仅与
+           「下次离线」相关，继续显示缺失会与「可正常识别」的实际体验矛盾，造成困惑。
+           （开发环境下 service-worker.js 为空占位，文件不会进 Cache Storage，
+           故 cache-check 必然报缺；生产环境的发布版 SW 才会按需缓存。） *@
+        @if (!_engineReady && _cacheStatus is { Supported: true })
+        {
+            <MudAlert Severity="@(_cacheStatus.Complete ? Severity.Success : Severity.Warning)" Class="mb-3">
+                @if (_cacheStatus.Complete)
+                {
+                    <MudText>● 已缓存完毕</MudText>
+                }
+                else
+                {
+                    <MudText>○ 首次加载需联网下载引擎文件（@_cacheStatus.Missing.Count/@_cacheStatus.Total 个未缓存）</MudText>
+                }
+            </MudAlert>
+        }
+
+        @* ---- 加载引擎区（未就绪时显示） ---- *@
+        @if (!_engineReady)
+        {
+            <MudStack Spacing="3" AlignItems="AlignItems.Center" Class="py-4">
+                <MudText Typo="Typo.body1" Align="Align.Center">
+                    OCR 引擎尚未加载。引擎与模型（约 21MB）仅在首次加载时下载，之后会在本地缓存，无需再次下载。
+                </MudText>
+                <MudText Typo="Typo.body1" Align="Align.Center">
+                    避免使用浏览器的隐身模式，否则本地缓存机制无法生效。
+                </MudText>
+                @if (!string.IsNullOrEmpty(_status))
+                {
+                    <MudText Typo="Typo.body2" Color="Color.Info" Align="Align.Center">@_status</MudText>
+                }
+                <MudProgressLinear Value="@_progress" Max="100" Color="Color.Info" Size="Size.Large" Rounded="true" />
+                <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="LoadEngineAsync"
+                           Disabled="@_loading">
+                    @(_loading ? "加载中…" : "加载 OCR 引擎")
+                </MudButton>
+            </MudStack>
+        }
+        else
+        {
+            @* ---- 读取图片 + 框选 + 识别 ---- *@
+            <MudStack Spacing="3">
+                <label class="ocr-file-label">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Upload"
+                               HtmlTag="span">
+                        读取本地图片
+                    </MudButton>
+                    <InputFile OnChange="OnFileSelectedAsync" accept="image/png,image/jpeg,image/bmp,image/webp" hidden style="display:none" />
+                </label>
+
+                @if (!string.IsNullOrEmpty(_imagePreviewUrl))
+                {
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">
+                            在图片上拖拽框选识别范围（不框选则识别整图）。
+                        </MudText>
+                        <MudButton Variant="Variant.Filled" Color="Color.Default" Size="Size.Small"
+                                   StartIcon="@Icons.Material.Filled.CropFree" OnClick="ResetCrop">
+                            重置选区
+                        </MudButton>
+                    </MudStack>
+                    <div class="ocr-crop-stage">
+                        <img src="@_imagePreviewUrl" alt="预览" class="ocr-preview-img" @ref="_imgRef" />
+                        <canvas @ref="_cropCanvasRef" class="ocr-crop-canvas"></canvas>
+                    </div>
+
+                    @if (_recognizing)
+                    {
+                        <MudText Typo="Typo.body2" Color="Color.Info">识别中…</MudText>
+                    }
+
+                    <MudStack Row="true" Spacing="2">
+                        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="RecognizeAsync"
+                                   Disabled="@_recognizing">
+                            @(_recognizing ? "识别中…" : "识别并填入文本框")
+                        </MudButton>
+                    </MudStack>
+                }
+                else
+                {
+                    <MudText Typo="Typo.body2" Color="Color.Surface" Class="text-center py-4">
+                        请先读取一张图片（支持 PNG / JPG / BMP / WEBP，上限 20MB）
+                    </MudText>
+                }
+            </MudStack>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Default" OnClick="Cancel">关闭</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = null!;
+
+    /// <summary>当前激活的 OCR 标签页索引：0=填写数值识别，1=上限收益率识别（决定识别文本回写目标）。</summary>
+    [Parameter] public int ActiveOcrTab { get; set; }
+
+    /// <summary>识别完成回调：把识别出的文本回传父组件写入对应 OCR 文本框并触发解析。</summary>
+    [Parameter] public EventCallback<string> OnRecognized { get; set; }
+
+    // ---- 引擎状态（本组件自持，订阅 Engine 的事件实时更新，不依赖父组件重渲染）----
+    private bool _engineReady;
+    private bool _loading;
+    private string? _status;
+    private int _progress;
+    private CacheStatus? _cacheStatus;
+
+    private ElementReference _cropCanvasRef;
+    private ElementReference _imgRef;
+    private IJSObjectReference? _cropModule;
+    private string? _imagePreviewUrl;
+    private string? _cropInitedFor;
+    private byte[] _imageBytes = Array.Empty<byte>();
+    private bool _recognizing;
+
+    protected override void OnInitialized()
+    {
+        // 同步当前引擎就绪态（跨弹窗复用：若已加载过则直接进入读图界面）
+        _engineReady = Engine.IsReady;
+        // 订阅引擎事件：进度/状态回调实时驱动本组件 StateHasChanged
+        // （关键：弹窗渲染在 MudDialogProvider 中，不在父组件的渲染树内，
+        //   父组件 StateHasChanged 不会刷新弹窗；故必须由弹窗自己订阅并刷新）
+        Engine.OnStatus += OnEngineStatus;
+        Engine.OnProgress += OnEngineProgress;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // 首次渲染后检测缓存状态（异步，不阻塞打开）
+            _cacheStatus = await Engine.CheckCacheAsync();
+            await InvokeAsync(StateHasChanged);
+        }
+
+        // 预览图变化时，初始化 canvas 框选（参考 crop.js：解绑旧事件再绑定新的）
+        if (_imagePreviewUrl is not null && _imagePreviewUrl != _cropInitedFor)
+        {
+            _cropModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/ocr/crop.js");
+            await _cropModule.InvokeVoidAsync("initCrop", _cropCanvasRef);
+            _cropInitedFor = _imagePreviewUrl;
+        }
+    }
+
+    private async Task LoadEngineAsync()
+    {
+        if (_engineReady || _loading) return;
+        _loading = true;
+        try
+        {
+            await Engine.InitializeAsync();
+            _engineReady = true;
+            // 重新检测缓存（加载成功后应已缓存齐全）
+            _cacheStatus = await Engine.CheckCacheAsync();
+        }
+        catch (Exception ex)
+        {
+            _status = $"加载失败：{ex.Message}";
+        }
+        finally
+        {
+            _loading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void OnEngineStatus(string message)
+    {
+        _status = message;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OnEngineProgress(int percent)
+    {
+        _progress = percent;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnFileSelectedAsync(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        const long max = 20 * 1024 * 1024; // 20MB
+        if (file.Size > max)
+        {
+            _imagePreviewUrl = null;
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+
+        await using var ms = new MemoryStream();
+        await file.OpenReadStream(max).CopyToAsync(ms);
+        _imageBytes = ms.ToArray();
+        // 用 data URL 预览（无需 object-URL 清理），同时供 crop.js 的 getCroppedBase64 fetch 取原图像素
+        _imagePreviewUrl = $"data:{file.ContentType};base64,{Convert.ToBase64String(_imageBytes)}";
+        _cropInitedFor = null; // 触发重新初始化框选
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ResetCrop()
+    {
+        if (_cropModule is not null)
+            await _cropModule.InvokeVoidAsync("resetSelection");
+    }
+
+    private async Task RecognizeAsync()
+    {
+        if (_imageBytes.Length == 0) return;
+
+        // 若有框选，从原图按选区裁剪；无框选则识别整图
+        byte[] bytesToRecognize = _imageBytes;
+        if (_cropModule is not null && _imagePreviewUrl is not null)
+        {
+            try
+            {
+                var base64 = await _cropModule.InvokeAsync<string>("getCroppedBase64", _imagePreviewUrl);
+                if (!string.IsNullOrEmpty(base64))
+                    bytesToRecognize = Convert.FromBase64String(base64);
+            }
+            catch
+            {
+                // 裁剪失败则退回整图识别
+            }
+        }
+
+        _recognizing = true;
+        await InvokeAsync(StateHasChanged);
+        try
+        {
+            var result = await Engine.RecognizeAsync(bytesToRecognize);
+            var text = result?.Text ?? string.Empty;
+            // 把识别文本回传父组件写入对应 OCR 文本框并触发解析
+            await OnRecognized.InvokeAsync(text);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        finally
+        {
+            _recognizing = false;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    public void Dispose()
+    {
+        // 解绑事件，避免重复订阅导致多次刷新/内存泄漏
+        Engine.OnStatus -= OnEngineStatus;
+        Engine.OnProgress -= OnEngineProgress;
+    }
+}

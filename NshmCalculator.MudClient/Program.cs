@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor;
 using MudBlazor.Services;
 using NshmCalculator.MudClient;
+using NshmCalculator.MudClient.Services;
 using NshmCalculator.MudClient.Utilities;
 using NshmCalculator.MudClient.Utilities.Interface;
 using Tewr.Blazor.FileReader;
@@ -35,6 +36,7 @@ builder.Services.AddMudServices(config =>
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddBlazorDownloadFile();
 builder.Services.AddSingleton<IStateContainer, StateContainer>();
+builder.Services.AddScoped<WebOcrEngine>();
 builder.Services.AddApexCharts(option =>
 {
     option.GlobalOptions = new ApexChartBaseOptions()

@@ -136,3 +136,34 @@ a, .btn-link {
 code {
     color: #c02d76;
 }
+
+/* ============ OCR 图片识别框选（OcrImageDialog） ============ */
+/* canvas 叠加在预览图上，半透明遮罩 + 蓝边框选矩形。
+   关键：stage 以 img 的渲染尺寸为基准撑开，canvas 用 position:absolute + inset:0
+   精确覆盖 img 的盒模型区域，避免 display:inline-block / line-height 导致的
+   img 与 canvas 几何不一致。 */
+.ocr-crop-stage {
+    position: relative;
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    line-height: 0; /* 消除 img 底部基线间隙 */
+    user-select: none;
+}
+
+.ocr-crop-stage .ocr-preview-img {
+    display: block;
+    max-width: 100%;
+    max-height: 50vh; /* 图片最大高度不超过视口一半，防止高图撑高把底部按钮挤出屏幕 */
+    height: auto;
+}
+
+.ocr-crop-stage .ocr-crop-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+    touch-action: none; /* 防止触摸拖拽框选时触发页面滚动 */
+}

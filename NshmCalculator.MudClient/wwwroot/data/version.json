@@ -2,14 +2,16 @@
   "ConfigVersionInfo": {
     "sf": 20250225001,
     "syTreat": 20250329001,
-    "update":20250828001,
-    "pve":20250302001
+    "update":20260701001,
+    "pve":20250302001,
+    "KiUpdate":20260701003
   },
   "ConfigPathInfo": {
     "sf": "../data/config_sf.json",
     "syTreat": "../data/config_syTreat.json",
     "update": "../data/config_update.json",
-    "pve": "../data/config_pve.json"
+    "pve": "../data/config_pve.json",
+    "KiUpdate": "../data/config_KiUpdate.json"
   },
-  "UpdateTime": "2025-03-29 01:39:04"
+  "UpdateTime": "2026-07-01 12:16:36"
 }
