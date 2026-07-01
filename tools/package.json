@@ -1,0 +1,17 @@
+{
+  "name": "nshm-ocr-bundler",
+  "version": "1.0.0",
+  "private": true,
+  "description": "把 ppu-paddle-ocr + onnxruntime-web 打成单文件 bundle，供自托管模式本地化使用。非 dotnet 构建依赖，按需手动运行：npm install && node bundle.mjs",
+  "type": "module",
+  "scripts": {
+    "build": "node bundle.mjs"
+  },
+  "dependencies": {
+    "ppu-paddle-ocr": "6.0.0",
+    "onnxruntime-web": "^1.23.2"
+  },
+  "devDependencies": {
+    "esbuild": "^0.23.1"
+  }
+}

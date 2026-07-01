@@ -18,6 +18,14 @@
     </ItemGroup>
 
     <ItemGroup>
+        <!-- 无头浏览器 E2E 测试：验证设置页「清空本地存储」在真实浏览器 localStorage 下的端到端行为。
+             ISyncLocalStorageService 依赖 JS 互操作，bUnit 无法覆盖，故用 Playwright.NET（与现有 NUnit/net8.0 一致）。
+             首次需执行：pwsh bin/Debug/net8.0/playwright.ps1 install chromium -->
+        <PackageReference Include="Microsoft.Playwright" Version="1.44.0"/>
+        <PackageReference Include="Microsoft.Playwright.NUnit" Version="1.44.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\NshmCalcuator\Shared\NshmCalcuator.Shared.csproj"/>
     </ItemGroup>
 

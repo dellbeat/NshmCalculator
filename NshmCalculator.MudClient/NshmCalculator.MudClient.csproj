@@ -21,6 +21,16 @@
 	  <_ContentIncludedByDefault Remove="wwwroot\data\enemyData.json" />
 	</ItemGroup>
 
+	<!-- OCR 自托管资源：.onnx / .wasm.br / .glue.js / .map 等扩展名默认会被 .NET SDK
+	     作为 Content 隐式包含，但 Blazor 的 wwwroot 复制管线 (BlazorWasmAssets) 只复制
+	     匹配 wwwroot 下被识别为 Content 且未被 Exclude 的项。下面显式确保 OCR 资源被
+	     纳入输出（用 Update 而非 Include，避免与隐式包含冲突 NETSDK1022）。 -->
+	<ItemGroup>
+	  <Content Update="wwwroot\ocr-models\**\*" CopyToOutputDirectory="PreserveNewest" />
+	  <Content Update="wwwroot\ocr-ort\**\*" CopyToOutputDirectory="PreserveNewest" />
+	  <Content Update="wwwroot\js\ocr\**\*" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="Blazor-ApexCharts" Version="5.0.0" />
 		<PackageReference Include="BlazorDownloadFile" Version="2.4.0.2" />
