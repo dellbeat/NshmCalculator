@@ -1,0 +1,136 @@
+﻿@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params
+@using Color = MudBlazor.Color
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">编辑内功记录</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudField Label="内功标题" ReadOnly="true" Variant="Variant.Outlined"
+                  Margin="@(DenseMode ? Margin.Dense : Margin.Normal)">@Record.Title</MudField>
+        <MudTextField @bind-Value="Record.Remark" Label="内功备注" Variant="Variant.Outlined" Immediate="true"
+                      Margin="@(DenseMode ? Margin.Dense : Margin.Normal)" Class="mt-2"/>
+
+        <MudText Typo="Typo.subtitle1" Class="mt-4 mb-2">词条数值（修改后自动复算实际收益率）</MudText>
+        <MudGrid>
+            @foreach (var pair in _editValues)
+            {
+                <MudItem xs="6" sm="4" md="3">
+                    <MudTextField ShrinkLabel T="double" @bind-Value="_editValues[pair.Key]" Label="@pair.Key"
+                                  Variant="Variant.Outlined" Margin="@(DenseMode ? Margin.Dense : Margin.Normal)"
+                                 OnChange="@(() => Recalculate())"/>
+                </MudItem>
+            }
+        </MudGrid>
+
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="mt-2">
+            <MudChip T="string" Color="Color.Success">实际收益率</MudChip>
+            <MudText Typo="Typo.h6" Color="Color.Success" Class="ml-2">@_totalRate.ToString("P2")</MudText>
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Error" OnClick="OnDelete">删除</MudButton>
+        <MudButton OnClick="Cancel">取消</MudButton>
+        <MudButton Color="Color.Info" Variant="Variant.Filled" OnClick="Submit">保存</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+
+    /// <summary>被编辑的内功记录（引用传入，保存时回写）</summary>
+    [Parameter] public KiUpdateRecord Record { get; set; }
+
+    /// <summary>参与复算的配置属性列表</summary>
+    [Parameter] public KiUpdateAttribute[] ConfigAttributes { get; set; } = [];
+
+    [Parameter] public bool DenseMode { get; set; }
+
+    /// <summary>编辑过程中的属性数值快照（属性名 -> 数值），取消时回滚</summary>
+    private readonly Dictionary<string, double> _snapshot = new();
+
+    /// <summary>双向绑定的编辑数值（属性名 -> 数值）</summary>
+    private readonly Dictionary<string, double> _editValues = new();
+
+    /// <summary>实时复算的实际收益率</summary>
+    private double _totalRate;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        // 初始化编辑数值与快照（拷贝，避免直接引用原字典导致取消时无法回滚）
+        foreach (var pair in Record.InputValues)
+        {
+            _editValues[pair.Key] = pair.Value;
+            _snapshot[pair.Key] = pair.Value;
+        }
+
+        Recalculate();
+    }
+
+    /// <summary>
+    /// 基于当前配置属性的上限/上限收益率复算实际收益率（与主计算器公式一致）。
+    /// 直接累加型属性（如灵韵）：收益 = 数值 / 100；公式型属性：收益 = 数值 / 数值上限 × 上限收益率 / 100。
+    /// </summary>
+    private void Recalculate()
+    {
+        _totalRate = 0;
+        if (ConfigAttributes is null || ConfigAttributes.Length == 0)
+        {
+            return;
+        }
+
+        var attrDic = ConfigAttributes.ToDictionary(a => a.Name);
+        foreach (var pair in _editValues)
+        {
+            if (!attrDic.TryGetValue(pair.Key, out var attr))
+            {
+                continue;
+            }
+
+            double v = pair.Value;
+            if (attr.IsDirectAdd)
+            {
+                _totalRate += v / 100;
+            }
+            else
+            {
+                if (attr.MaxValue == 0)
+                {
+                    continue;
+                }
+
+                _totalRate += v / attr.MaxValue * attr.MaxRate / 100;
+            }
+        }
+    }
+
+    private void Submit()
+    {
+        // 将编辑数值回写到记录
+        Record.InputValues = new Dictionary<string, double>(_editValues);
+        Record.TotalRate = _totalRate;
+        MudDialog.Close(DialogResult.Ok(Record));
+    }
+
+    private void Cancel()
+    {
+        // 回滚：恢复记录的 InputValues 到打开对话框时的状态
+        Record.InputValues = new Dictionary<string, double>(_snapshot);
+        MudDialog.Cancel();
+    }
+
+    private async Task OnDelete()
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "删除确认",
+            $"确定删除内功「{Record.Title}」吗？此操作不可恢复。",
+            yesText: "删除", cancelText: "再想想");
+        if (result == true)
+        {
+            MudDialog.Close(DialogResult.Ok<KiUpdateRecord>(null));
+        }
+    }
+}

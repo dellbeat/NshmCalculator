@@ -1,0 +1,49 @@
+﻿@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params
+@using Color = MudBlazor.Color
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">保存内功记录</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="_title" Label="内功标题" Variant="Variant.Outlined" Immediate="true"
+                      Margin="@(DenseMode ? Margin.Dense : Margin.Normal)" Class="mt-2"/>
+        <MudTextField @bind-Value="_remark" Label="内功备注" Variant="Variant.Outlined" Immediate="true"
+                      Margin="@(DenseMode ? Margin.Dense : Margin.Normal)" Class="mt-2"/>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">取消</MudButton>
+        <MudButton Color="Color.Info" Variant="Variant.Filled" OnClick="Submit">确定</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public bool DenseMode { get; set; }
+
+    private string _title;
+    private string _remark;
+
+    /// <summary>
+    /// 保存结果：标题/备注
+    /// </summary>
+    public record SaveResult(string Title, string Remark);
+
+    private void Submit()
+    {
+        if (string.IsNullOrWhiteSpace(_title))
+        {
+            Snackbar.Add("请填写内功标题", Severity.Warning);
+            return;
+        }
+
+        MudDialog.Close(DialogResult.Ok(new SaveResult(_title.Trim(), _remark)));
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}
