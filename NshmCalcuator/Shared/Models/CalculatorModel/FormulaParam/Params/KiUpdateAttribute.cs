@@ -31,4 +31,9 @@ public class KiUpdateAttribute
     /// 填写数值（用户输入的实际词条数值，未填写为 null）
     /// </summary>
     public double? InputValue { get; set; }
+
+    /// <summary>
+    /// 是否为直接累加型属性（如灵韵：收益直接等于填写数值的百分比，无需数值上限/下限/上限收益率参与计算）
+    /// </summary>
+    public bool IsDirectAdd { get; set; }
 }

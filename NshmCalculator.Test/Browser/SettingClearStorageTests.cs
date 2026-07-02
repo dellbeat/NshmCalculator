@@ -42,7 +42,7 @@ public class SettingClearStorageTests : PageTest
                 {
                     Path = $"../../../test-results-failure-{TestContext.CurrentContext.Test.Name}.png",
                     FullPage = true
-                });
+                }); 
             }
             catch
             {
