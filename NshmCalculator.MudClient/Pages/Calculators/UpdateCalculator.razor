@@ -1,4 +1,5 @@
 @page "/KiUpdate"
+@using System.Collections.ObjectModel
 @using System.Text.Json
 @using System.Text.RegularExpressions
 @using Blazored.LocalStorage
@@ -47,14 +48,21 @@
                                 <MudTd DataLabel="属性">@context.Name</MudTd>
                                 <MudTd DataLabel="填写数值">
                                     <MudTextField ShrinkLabel @bind-Value="@context.InputValue" Variant="Variant.Outlined"
-                                                  Adornment="@(context.Name == "首领克制" ? Adornment.End : Adornment.None)"
-                                                  AdornmentText="@(context.Name == "首领克制" ? "%" : "")"
+                                                  Adornment="@(context.Name == "首领克制" || context.IsDirectAdd ? Adornment.End : Adornment.None)"
+                                                  AdornmentText="@(context.Name == "首领克制" || context.IsDirectAdd ? "%" : "")"
                                                   Margin="@(_denseMode ? Margin.Dense : Margin.Normal)" Class="mt-0"/>
                                 </MudTd>
                                 <MudTd DataLabel="上限收益率">
-                                    <MudTextField ShrinkLabel @bind-Value="@context.MaxRate" Variant="Variant.Outlined"
-                                                  Adornment="Adornment.End" AdornmentText="%"
-                                                  Margin="@(_denseMode ? Margin.Dense : Margin.Normal)" Class="mt-0"/>
+                                    @if (context.IsDirectAdd)
+                                    {
+                                        <MudText Align="Align.Center" Color="Color.Default">—</MudText>
+                                    }
+                                    else
+                                    {
+                                        <MudTextField ShrinkLabel @bind-Value="@context.MaxRate" Variant="Variant.Outlined"
+                                                      Adornment="Adornment.End" AdornmentText="%"
+                                                      Margin="@(_denseMode ? Margin.Dense : Margin.Normal)" Class="mt-0"/>
+                                    }
                                 </MudTd>
                             </RowTemplate>
                         </MudTable>
@@ -70,16 +78,30 @@
                             <RowTemplate>
                                 <MudTd DataLabel="属性">@context.Name</MudTd>
                                 <MudTd DataLabel="数值上限">
-                                    <MudTextField ShrinkLabel @bind-Value="@context.MaxValue" Variant="Variant.Outlined"
-                                                  Adornment="@(context.Name == "首领克制" ? Adornment.End : Adornment.None)"
-                                                  AdornmentText="@(context.Name == "首领克制" ? "%" : "")"
-                                                  Margin="@(_denseMode ? Margin.Dense : Margin.Normal)" Class="mt-0"/>
+                                    @if (context.IsDirectAdd)
+                                    {
+                                        <MudText Align="Align.Center" Color="Color.Default">—</MudText>
+                                    }
+                                    else
+                                    {
+                                        <MudTextField ShrinkLabel @bind-Value="@context.MaxValue" Variant="Variant.Outlined"
+                                                      Adornment="@(context.Name == "首领克制" ? Adornment.End : Adornment.None)"
+                                                      AdornmentText="@(context.Name == "首领克制" ? "%" : "")"
+                                                      Margin="@(_denseMode ? Margin.Dense : Margin.Normal)" Class="mt-0"/>
+                                    }
                                 </MudTd>
                                 <MudTd DataLabel="数值下限">
-                                    <MudTextField ShrinkLabel @bind-Value="@context.MinValue" Variant="Variant.Outlined"
-                                                  Adornment="@(context.Name == "首领克制" ? Adornment.End : Adornment.None)"
-                                                  AdornmentText="@(context.Name == "首领克制" ? "%" : "")"
-                                                  Margin="@(_denseMode ? Margin.Dense : Margin.Normal)" Class="mt-0"/>
+                                    @if (context.IsDirectAdd)
+                                    {
+                                        <MudText Align="Align.Center" Color="Color.Default">—</MudText>
+                                    }
+                                    else
+                                    {
+                                        <MudTextField ShrinkLabel @bind-Value="@context.MinValue" Variant="Variant.Outlined"
+                                                      Adornment="@(context.Name == "首领克制" ? Adornment.End : Adornment.None)"
+                                                      AdornmentText="@(context.Name == "首领克制" ? "%" : "")"
+                                                      Margin="@(_denseMode ? Margin.Dense : Margin.Normal)" Class="mt-0"/>
+                                    }
                                 </MudTd>
                             </RowTemplate>
                         </MudTable>
@@ -128,38 +150,80 @@
 
         <MudItem xs="12">
             <MudPaper Class="pa-4 mt-4">
-                <MudText Typo="Typo.h6" Class="mb-4">输出区：各属性实际收益率（点击表头可切换排序）</MudText>
-                @if (_results.Count > 0)
-                {
-                    <MudTable Items="@_sortedResults" Breakpoint="Breakpoint.None" Striped="true"
-                              Dense="@_denseMode" Elevation="2">
-                        <HeaderContent>
-                            <MudTh>属性</MudTh>
-                            <MudTh>属性值</MudTh>
-                            <MudTh>
-                                <MudTableSortLabel InitialDirection="SortDirection.Descending"
-                                                   SortBy="new Func<KiUpdateResult, object>(x => x.ActualRate)">
-                                    实际收益率
-                                </MudTableSortLabel>
-                            </MudTh>
-                        </HeaderContent>
-                        <RowTemplate>
-                            <MudTd DataLabel="属性">@context.Name</MudTd>
-                            <MudTd DataLabel="属性值">@FormatInputValue(context)</MudTd>
-                            <MudTd DataLabel="实际收益率">@context.ActualRate.ToString("P2")</MudTd>
-                        </RowTemplate>
-                    </MudTable>
-                    <MudStack Row="true" AlignItems="AlignItems.Center" Class="mt-4">
-                        <MudChip T="string" Color="Color.Success">总实际收益率</MudChip>
-                        <MudText Typo="Typo.h6" Color="Color.Success" Class="ml-2">@_totalRate.ToString("P2")</MudText>
-                    </MudStack>
-                }
-                else
-                {
-                    <MudText Typo="Typo.body1" Align="Align.Center" Color="Color.Default" Class="py-4">
-                        暂无结果，请先填写词条数值并点击「计算」
-                    </MudText>
-                }
+                <MudText Typo="Typo.h6" Class="mb-4">输出区</MudText>
+                <MudTabs KeepPanelsAlive="true" Elevation="2" PanelClass="pa-2" ApplyEffectsToContainer="true">
+                    <MudTabPanel Text="输出结果">
+                        @if (_results.Count > 0)
+                        {
+                            <MudTable Items="@_sortedResults" Breakpoint="Breakpoint.None" Striped="true"
+                                      Dense="@_denseMode" Elevation="2">
+                                <HeaderContent>
+                                    <MudTh>属性</MudTh>
+                                    <MudTh>属性值</MudTh>
+                                    <MudTh>
+                                        <MudTableSortLabel InitialDirection="SortDirection.Descending"
+                                                           SortBy="new Func<KiUpdateResult, object>(x => x.ActualRate)">
+                                            实际收益率
+                                        </MudTableSortLabel>
+                                    </MudTh>
+                                </HeaderContent>
+                                <RowTemplate>
+                                    <MudTd DataLabel="属性">@context.Name</MudTd>
+                                    <MudTd DataLabel="属性值">@FormatInputValue(context)</MudTd>
+                                    <MudTd DataLabel="实际收益率">@context.ActualRate.ToString("P2")</MudTd>
+                                </RowTemplate>
+                            </MudTable>
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Class="mt-4">
+                                <MudChip T="string" Color="Color.Success">总实际收益率</MudChip>
+                                <MudText Typo="Typo.h6" Color="Color.Success" Class="ml-2">@_totalRate.ToString("P2")</MudText>
+                            </MudStack>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.body1" Align="Align.Center" Color="Color.Default" Class="py-4">
+                                暂无结果，请先填写词条数值并点击「计算」
+                            </MudText>
+                        }
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd" Class="mt-4">
+                            <MudButton Variant="Variant.Filled" Color="Color.Success" Disabled="@(_results.Count == 0)"
+                                       OnClick="OnSaveRecord">保存内功记录
+                            </MudButton>
+                        </MudStack>
+                    </MudTabPanel>
+
+                    <MudTabPanel Text="保存内功记录">
+                        @if (_recordObservable.Count > 0)
+                        {
+                            <MudTable T="KiUpdateRecord" Items="@_recordObservable" Breakpoint="Breakpoint.None" Striped="true"
+                                      Dense="@_denseMode" Elevation="2" OnRowClick="OnRecordClick">
+                                <HeaderContent>
+                                    <MudTh>内功名称</MudTh>
+                                    <MudTh>
+                                        <MudTableSortLabel InitialDirection="SortDirection.Descending"
+                                                           SortBy="new Func<KiUpdateRecord, object>(x => x.TotalRate)">
+                                            计算收益
+                                        </MudTableSortLabel>
+                                    </MudTh>
+                                    <MudTh>备注</MudTh>
+                                </HeaderContent>
+                                <RowTemplate>
+                                    <MudTd DataLabel="内功名称">@context.Title</MudTd>
+                                    <MudTd DataLabel="计算收益">@context.TotalRate.ToString("P2")</MudTd>
+                                    <MudTd DataLabel="备注">@context.Remark</MudTd>
+                                </RowTemplate>
+                                <PagerContent>
+                                    <MudTablePager PageSizeOptions="new[] { 10 }" HideRowsPerPage="true"/>
+                                </PagerContent>
+                            </MudTable>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.body1" Align="Align.Center" Color="Color.Default" Class="py-4">
+                                暂无保存的内功记录，计算后可在「输出结果」页点击保存
+                            </MudText>
+                        }
+                    </MudTabPanel>
+                </MudTabs>
             </MudPaper>
         </MudItem>
     }
@@ -212,6 +276,16 @@
     // 当前激活的 OCR 标签页索引：0=填写数值识别，1=上限收益率识别。决定识别文本回写目标。
     private int _activeOcrTab;
 
+    // ---- 保存内功记录相关状态 ----
+    // 内功记录页面数据模型（持久化，键名 _kiUpdateRecordPageModel）
+    private KiUpdateRecordPageModel _kiUpdateRecordPageModel;
+    // 内功记录列表（绑定到 MudTable）
+    private ObservableCollection<KiUpdateRecord> _recordObservable = new();
+    // 保存对话框参数/选项
+    private readonly DialogParameters<KiUpdateSaveDialog> _saveDialogParameters = new();
+    private readonly DialogOptions _recordDialogOptions = new() { DisableBackdropClick = true, FullWidth = true, MaxWidth = MaxWidth.Medium };
+
+
     protected override async Task OnInitializedAsync()
     {
         renderNotComplete = true;
@@ -256,7 +330,80 @@
             SaveInfo();
         }
 
+        // 加载内功记录：读取 localStorage，并按当前配置复算每条记录的实际收益率
+        LoadRecords();
+
         renderNotComplete = false;
+    }
+
+    /// <summary>
+    /// 从 localStorage 加载内功记录列表，复算每条记录的实际收益率并构建可观察集合。
+    /// </summary>
+    private void LoadRecords()
+    {
+        try
+        {
+            _kiUpdateRecordPageModel = LocalStorage.GetItem<KiUpdateRecordPageModel>(nameof(_kiUpdateRecordPageModel)) ?? new KiUpdateRecordPageModel();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("内功记录缓存加载异常" + e);
+            _kiUpdateRecordPageModel = new KiUpdateRecordPageModel();
+        }
+
+        foreach (var record in _kiUpdateRecordPageModel.Records)
+        {
+            record.TotalRate = CalcRecordTotalRate(record);
+        }
+
+        _recordObservable = new ObservableCollection<KiUpdateRecord>(_kiUpdateRecordPageModel.Records);
+    }
+
+    /// <summary>
+    /// 基于当前配置属性的上限/上限收益率复算记录的实际收益率（与主计算器公式一致）。
+    /// 直接累加型属性（如灵韵）：收益 = 数值 / 100；公式型属性：收益 = 数值 / 数值上限 × 上限收益率 / 100。
+    /// </summary>
+    private double CalcRecordTotalRate(KiUpdateRecord record)
+    {
+        if (_currentConfig?.AttributeArray is null || _currentConfig.AttributeArray.Length == 0)
+        {
+            return 0;
+        }
+
+        var attrDic = _currentConfig.AttributeArray.ToDictionary(a => a.Name);
+        double total = 0;
+        foreach (var pair in record.InputValues)
+        {
+            if (!attrDic.TryGetValue(pair.Key, out var attr))
+            {
+                continue;
+            }
+
+            double v = pair.Value;
+            if (attr.IsDirectAdd)
+            {
+                total += v / 100;
+            }
+            else
+            {
+                if (attr.MaxValue == 0)
+                {
+                    continue;
+                }
+
+                total += v / attr.MaxValue * attr.MaxRate / 100;
+            }
+        }
+
+        return total;
+    }
+
+    /// <summary>
+    /// 持久化内功记录列表到 localStorage。
+    /// </summary>
+    private void SaveRecords()
+    {
+        LocalStorage.SetItem(nameof(_kiUpdateRecordPageModel), _kiUpdateRecordPageModel);
     }
 
     private async Task<bool> LoadData()
@@ -303,14 +450,29 @@
 
         foreach (var attr in _kiUpdatePageModel.AttributeArray)
         {
-            if (!attr.InputValue.HasValue || attr.MaxValue == 0)
+            if (!attr.InputValue.HasValue)
             {
                 continue;
             }
 
-            double rate = attr.InputValue.Value / attr.MaxValue * attr.MaxRate / 100;
-            _results.Add(new KiUpdateResult(attr.Name, attr.InputValue.Value, rate));
-            _totalRate += rate;
+            // 直接累加型属性（如灵韵）：收益直接等于填写数值的百分比；公式型属性按公式计算
+            if (attr.IsDirectAdd)
+            {
+                double directRate = attr.InputValue.Value / 100;
+                _results.Add(new KiUpdateResult(attr.Name, attr.InputValue.Value, directRate, true));
+                _totalRate += directRate;
+            }
+            else
+            {
+                if (attr.MaxValue == 0)
+                {
+                    continue;
+                }
+
+                double rate = attr.InputValue.Value / attr.MaxValue * attr.MaxRate / 100;
+                _results.Add(new KiUpdateResult(attr.Name, attr.InputValue.Value, rate, attr.Name == "首领克制"));
+                _totalRate += rate;
+            }
         }
 
         if (_results.Count == 0)
@@ -327,7 +489,90 @@
     }
 
     /// <summary>
-    /// 解析 OCR 识别文本，将匹配到的属性数值填入填写数值字段。
+    /// 保存当前计算结果为一条内功记录：弹出保存对话框收集标题/备注，
+    /// 从当前 _results 构建各属性填写数值，加入记录列表并持久化。
+    /// </summary>
+    private async Task OnSaveRecord()
+    {
+        _saveDialogParameters[nameof(KiUpdateSaveDialog.DenseMode)] = _denseMode;
+        var dialog = await Dialog.ShowAsync<KiUpdateSaveDialog>("保存内功记录", _saveDialogParameters, _recordDialogOptions);
+        var result = await dialog.Result;
+        StateHasChanged();
+        if (result.Canceled)
+        {
+            return;
+        }
+
+        if (result.Data is not KiUpdateSaveDialog.SaveResult saveResult)
+        {
+            return;
+        }
+
+        // 从当前计算结果构建属性填写数值字典
+        var inputValues = new Dictionary<string, double>();
+        foreach (var r in _results)
+        {
+            inputValues[r.Name] = r.InputValue;
+        }
+
+        int newId = _kiUpdateRecordPageModel.Records.Count > 0 ? _kiUpdateRecordPageModel.Records.Max(r => r.Id) + 1 : 1;
+        var record = new KiUpdateRecord
+        {
+            Id = newId,
+            Title = saveResult.Title,
+            Remark = saveResult.Remark,
+            CreatedAt = DateTime.Now,
+            InputValues = inputValues,
+            TotalRate = _totalRate
+        };
+
+        _kiUpdateRecordPageModel.Records.Add(record);
+        _recordObservable.Add(record);
+        SaveRecords();
+        Snackbar.Add("内功记录已保存", Severity.Success);
+    }
+
+    /// <summary>
+    /// 点击内功记录列表条目：弹出编辑对话框，支持编辑词条数值、复算实际收益率、删除记录。
+    /// </summary>
+    private async Task OnRecordClick(TableRowClickEventArgs<KiUpdateRecord> args)
+    {
+        var record = args.Item;
+        if (record == null)
+        {
+            return;
+        }
+
+        var parameters = new DialogParameters<KiUpdateRecordDialog>
+        {
+            [nameof(KiUpdateRecordDialog.Record)] = record,
+            [nameof(KiUpdateRecordDialog.ConfigAttributes)] = _currentConfig.AttributeArray,
+            [nameof(KiUpdateRecordDialog.DenseMode)] = _denseMode
+        };
+        var dialog = await Dialog.ShowAsync<KiUpdateRecordDialog>("编辑内功记录", parameters, _recordDialogOptions);
+        var result = await dialog.Result;
+        StateHasChanged();
+        if (result.Canceled)
+        {
+            return;
+        }
+
+        // 返回 null 表示删除该记录
+        if (result.Data is null)
+        {
+            _kiUpdateRecordPageModel.Records.Remove(record);
+            _recordObservable.Remove(record);
+            SaveRecords();
+            Snackbar.Add("内功记录已删除", Severity.Success);
+            return;
+        }
+
+        // 编辑保存：记录的 InputValues/Remark 已在对话框内回写，此处复算并持久化
+        record.TotalRate = CalcRecordTotalRate(record);
+        SaveRecords();
+        Snackbar.Add("内功记录已更新", Severity.Success);
+    }
+
     /// 文本形如：气血上限 +2084 首领克制 +1.1% 力量/气海 +10 ...
     /// 规则：属性名（开头非数字文本）+ 空格 + +整数或百分数
     /// </summary>
@@ -468,12 +713,12 @@
     }
 
     /// <summary>
-    /// 格式化输出区的属性值显示：首领克制为百分比数值（带 %），其余为普通数值
+    /// 格式化输出区的属性值显示：百分比数值属性（首领克制/灵韵）带 % 后缀，其余为普通数值
     /// </summary>
     private string FormatInputValue(KiUpdateResult result)
     {
-        // 首领克制的填写数值是百分数值（如 1.1 表示 1.1%），加 % 后缀与输入区一致
-        return result.Name == "首领克制" ? $"{result.InputValue}%" : result.InputValue.ToString();
+        // 百分比数值属性（如 1.1 表示 1.1%），加 % 后缀与输入区一致
+        return result.IsPercent ? $"{result.InputValue}%" : result.InputValue.ToString();
     }
 
     private void SaveInfo()
@@ -535,16 +780,19 @@
     {
         public string Name { get; set; }
         /// <summary>
-        /// 填写的属性数值（首领克制为百分数值，如 1.1）
+        /// 填写的属性数值（首领克制/灵韵为百分数值，如 1.1）
         /// </summary>
         public double InputValue { get; set; }
         public double ActualRate { get; set; }
+        /// <summary>是否为百分比数值属性（显示时加 % 后缀）</summary>
+        public bool IsPercent { get; set; }
 
-        public KiUpdateResult(string name, double inputValue, double actualRate)
+        public KiUpdateResult(string name, double inputValue, double actualRate, bool isPercent = false)
         {
             Name = name;
             InputValue = inputValue;
             ActualRate = actualRate;
+            IsPercent = isPercent;
         }
     }
 }
