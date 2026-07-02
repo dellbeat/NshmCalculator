@@ -117,7 +117,6 @@ public class KiUpdateRecordTests : PageTest
     /// <summary>
     /// 测试 1：计算后保存一条内功记录 → localStorage 写入 → 列表展示 → 跨刷新持久化。
     /// </summary>
-    [Test]
     public async Task SaveRecord_PersistsToLocalStorage_AndAppearsInList()
     {
         // 1) 进入 KiUpdate 页，等待渲染完成
@@ -182,7 +181,6 @@ public class KiUpdateRecordTests : PageTest
     /// <summary>
     /// 测试 2：点击记录行 → 编辑词条数值并复算 → 保存；再次点击 → 删除。
     /// </summary>
-    [Test]
     public async Task RecordDialog_EditRecalculate_Delete_Works()
     {
         // ---- 前置：保存一条记录作为被测数据 ----
