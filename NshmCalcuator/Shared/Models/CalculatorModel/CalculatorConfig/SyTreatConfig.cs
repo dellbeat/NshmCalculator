@@ -1,52 +1,51 @@
-﻿using NshmCalculator.Shared.Models.Interface;
+﻿using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Formula;
+using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params;
+using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Result;
+using NshmCalculator.Shared.Models.Interface;
 
 namespace NshmCalculator.Shared.Models.CalculatorModel.CalculatorConfig;
 
 /// <summary>
-/// 师尹的素问治疗计算器页面的数据配置
+/// 师尹的素问治疗计算器页面的数据配置（4.1.1 起 NCalc 配置驱动，对齐 PVE 架构）
 /// </summary>
-public class SyTreatConfig: IGameConfig
+public class SyTreatConfig : IGameConfig
 {
     /// <summary>
     /// 原文件版本，对应界面上的引用
     /// </summary>
     public string Version { get; set; }
 
-    #region 治疗量计算系数
+    /// <summary>
+    /// 组别列表，确定界面渲染顺序
+    /// </summary>
+    public string[] CategoryArray { get; set; }
 
     /// <summary>
-    /// 会心50%临界评分（对应4.1.1表格I10公式常量2290）：会心率 = 1/(1+e^(1−会心/该值))
+    /// 前端参数列表（包含基础面板、属性变化、转换疗强、PVP 词条收益等所有输入项）
     /// </summary>
-    public double CriticalRating50 { get; set; }
-
-    #endregion
+    public FrontParamInfo[] FrontParamInfoArray { get; set; }
 
     /// <summary>
-    /// 转换疗强参数列表
+    /// 中间公式（系数表常量、会心率、奶量、K23 分组小计等）
     /// </summary>
-    public FieldInfo[] TransTreatFields { get; set; } = null;
+    public PveFormula[] InternalFormulas { get; set; }
 
     /// <summary>
-    /// 属性词条数值参数列表
+    /// 结果公式（奶量、K23 总收益、评级、灵韵收益参考、周天收益等）
     /// </summary>
-    public FieldInfo[] ScoreFields { get; set; } = null;
+    public PveFormula[] ResultFormulas { get; set; }
 
     /// <summary>
-    /// 属性词条分类排序
+    /// 结果展示分组（对应界面的结果 Tab）
     /// </summary>
-    public string[] ScoreFieldsGroupArray { get; set; } = null;
-    
+    public ResultGroup[] ResultGroups { get; set; }
+
     /// <summary>
-    /// 灵韵分映射
+    /// 参数默认值（key 与 FrontParamInfoArray 的 Code 对应）
     /// </summary>
-    public Dictionary<string,string> SpecialScoreDictionary { get; set; } = null;
-    
-    /// <summary>
-    /// 需要除以疗承比的列表
-    /// </summary>
-    public string[] ExceptSpecialScoreArray { get; set; } = null;
-    
+    public Dictionary<string, ParamValue> DefaultParamValues { get; set; }
+
     public long InternalVersion { get; set; }
-    
+
     public string HelperText { get; set; }
 }
