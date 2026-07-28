@@ -10,21 +10,21 @@ public class SyTreatPageModel
     [ValidateComplexType]
     public TreatInfo BaseTreatInfo { get; set; } = new TreatInfo()
     {
-        Attack = 8000,
         TreatIntensity = 6290,
         CriticalHits = 1500,
-        ZtCriticalHitsRate = 3,
-        CriticalDamageRate = 160
+        ExtraCriticalHitsRate = 3,
+        CriticalDamageRate = 160,
+        CureGain = 170
     };
 
     [ValidateComplexType]
     public TreatInfo DifferenceTreatInfo { get; set; } = new TreatInfo()
     {
-        Attack = 8000,
         TreatIntensity = 6290,
         CriticalHits = 1500,
-        ZtCriticalHitsRate = 3,
-        CriticalDamageRate = 160
+        ExtraCriticalHitsRate = 3,
+        CriticalDamageRate = 160,
+        CureGain = 170
     };
 
     /// <summary>
@@ -60,14 +60,14 @@ public class SyTreatPageModel
     #region 变化计算面板
 
     /// <summary>
-    /// 新增攻击
-    /// </summary>
-    public int Attack { get; set; }
-    
-    /// <summary>
-    /// 新增治疗
+    /// 新增治疗强度
     /// </summary>
     public int TreatIntensity { get; set; }
+
+    /// <summary>
+    /// 新增疗效增益
+    /// </summary>
+    public double CureGain { get; set; }
     
     /// <summary>
     /// 新增会心

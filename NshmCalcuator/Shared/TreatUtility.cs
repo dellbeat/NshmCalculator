@@ -7,16 +7,21 @@ namespace NshmCalculator.Shared;
 public static class TreatUtility
 {
     /// <summary>
-    /// 计算治疗量
+    /// 计算治疗量与会心率（对应4.1.1表格I10/J10公式）
+    /// <para>会心率 = 1/(1+e^(1−会心/CriticalRating50)) + 额外会心率</para>
+    /// <para>奶量   = 治疗强度 × (1 + (会伤−1) × 会心率) × 疗效增益</para>
     /// </summary>
     /// <param name="info">治疗面板信息</param>
-    private static void Calculate(TreatInfo info, SyTreatConfig config = null)
+    /// <param name="config">治疗计算器配置</param>
+    private static void Calculate(TreatInfo info, SyTreatConfig config)
     {
-        info.CalculateCriticalHitsRate = (info.CriticalHits * config.CriticalHitsMult + config.CriticalHitsAddition1) /
-                                         (info.CriticalHits + config.CriticalHitsAddition2) / 100 +
-                                         info.ZtCriticalHitsRate * 0.01 + info.ExtraCriticalHitsRate; //除了100之外全变了
-        info.CalculateTreatNum = (info.Attack * 0.6 + info.TreatIntensity + config.TreatIntensityAddition) * 1.106 *
-                                 (1 + (info.CriticalDamageRate * 0.01 - 1) / 2 * info.CalculateCriticalHitsRate); //1333系数变化
+        info.CalculateCriticalHitsRate =
+            1.0 / (1.0 + Math.Exp(1 - info.CriticalHits / config.CriticalRating50))
+            + info.ExtraCriticalHitsRate / 100.0;
+        info.CalculateTreatNum =
+            info.TreatIntensity
+            * (1 + (info.CriticalDamageRate / 100.0 - 1) * info.CalculateCriticalHitsRate)
+            * info.CureGain / 100.0;
     }
 
     /// <summary>
@@ -24,16 +29,25 @@ public static class TreatUtility
     /// </summary>
     /// <param name="baseInfo">基础治疗面板信息</param>
     /// <param name="changeInfo">改动后的治疗面板信息</param>
+    /// <param name="config">治疗计算器配置</param>
     /// <returns>治疗增量和收益率</returns>
-    public static (double, double) Compare(TreatInfo baseInfo, TreatInfo changeInfo, SyTreatConfig config = null)
+    public static (double, double) Compare(TreatInfo baseInfo, TreatInfo changeInfo, SyTreatConfig config)
     {
-        double gainRate = 0;
         Calculate(baseInfo, config);
         Calculate(changeInfo, config);
         double dispersion = changeInfo.CalculateTreatNum - baseInfo.CalculateTreatNum;
-        gainRate = dispersion / baseInfo.CalculateTreatNum;
+        double gainRate = dispersion / baseInfo.CalculateTreatNum;
 
         return (dispersion, gainRate);
+    }
+
+    /// <summary>
+    /// 计算单组面板的会心率与奶量（供单元测试调用，内部走 Calculate）
+    /// </summary>
+    public static (double criticalHitsRate, double treatNum) Compute(TreatInfo info, SyTreatConfig config)
+    {
+        Calculate(info, config);
+        return (info.CalculateCriticalHitsRate, info.CalculateTreatNum);
     }
 
     /// <summary>

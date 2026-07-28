@@ -57,11 +57,6 @@
                             <MudText Typo="Typo.subtitle2" Align="Align.Center">基础治疗面板</MudText>
                         </MudItem>
                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.BaseTreatInfo.Attack"
-                                          For="@(() => _treatPageModel.BaseTreatInfo.Attack)" Label="攻击" Variant="Variant.Outlined"
-                                          Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
-                        </MudItem>
-                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.BaseTreatInfo.TreatIntensity"
                                           For="@(() => _treatPageModel.BaseTreatInfo.TreatIntensity)" Label="治疗强度" Variant="Variant.Outlined"
                                           Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
@@ -78,10 +73,16 @@
                                           Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                         </MudItem>
                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.BaseTreatInfo.ZtCriticalHitsRate"
-                                          For="@(() => _treatPageModel.BaseTreatInfo.ZtCriticalHitsRate)" Adornment="Adornment.End" AdornmentText="%"
-                                          AdornmentColor="Color.Dark" Label="金周天会心率" HelperText="内功元素中1金周天加的会心率"
+                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.BaseTreatInfo.ExtraCriticalHitsRate"
+                                          For="@(() => _treatPageModel.BaseTreatInfo.ExtraCriticalHitsRate)" Adornment="Adornment.End" AdornmentText="%"
+                                          AdornmentColor="Color.Dark" Label="额外会心率" HelperText="如锻寒芒等额外添加的会心率"
                                           Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
+                        </MudItem>
+                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
+                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.BaseTreatInfo.CureGain"
+                                          For="@(() => _treatPageModel.BaseTreatInfo.CureGain)" Adornment="Adornment.End" AdornmentText="%"
+                                          AdornmentColor="Color.Dark" Label="疗效增益" Variant="Variant.Outlined"
+                                          Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                         </MudItem>
                         <MudItem xs="12" Class="d-flex align-center justify-center">
                             <MudStack Row="true" Spacing="4">
@@ -96,11 +97,6 @@
                                 <MudTabPanel Text="属性变化计算">
                                     <MudGrid>
                                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.Attack" For="@(() => _treatPageModel.Attack)"
-                                                          Label="攻击" Variant="Variant.Outlined"
-                                                          Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
-                                        </MudItem>
-                                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.TreatIntensity"
                                                           For="@(() => _treatPageModel.TreatIntensity)" Label="治疗强度" Variant="Variant.Outlined"
                                                           Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
@@ -114,12 +110,18 @@
                                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.CriticalHitsRate"
                                                           For="@(() => _treatPageModel.CriticalHitsRate)" Adornment="Adornment.End" AdornmentText="%"
-                                                          AdornmentColor="Color.Dark" Label="会心率" Variant="Variant.Outlined"
+                                                          AdornmentColor="Color.Dark" Label="额外会心率增量" Variant="Variant.Outlined"
                                                           Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                         </MudItem>
                                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.CriticalHits"
                                                           For="@(() => _treatPageModel.CriticalHits)" Label="会心" Variant="Variant.Outlined"
+                                                          Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
+                                        </MudItem>
+                                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
+                                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.CureGain"
+                                                          For="@(() => _treatPageModel.CureGain)" Adornment="Adornment.End" AdornmentText="%"
+                                                          AdornmentColor="Color.Dark" Label="疗效增益增量" Variant="Variant.Outlined"
                                                           Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                         </MudItem>
                                         <MudItem xs="12" Class="d-flex align-center justify-center">
@@ -128,63 +130,6 @@
                                                     变化后会心率：@_treatPageModel.CalculateCriticalHitsRate.ToString("P2")</MudChip>
                                                 <MudChip Color="Color.Info">变化后治疗量：@_treatPageModel.CalculateTreatNum.ToString("F3")</MudChip>
                                             </MudStack>
-                                        </MudItem>
-                                    </MudGrid>
-                                </MudTabPanel>
-                                <MudTabPanel Text="新面板计算">
-                                    <MudGrid>
-                                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.DifferenceTreatInfo.Attack"
-                                                          For="@(() => _treatPageModel.DifferenceTreatInfo.Attack)" Label="攻击"
-                                                          Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
-                                        </MudItem>
-                                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.DifferenceTreatInfo.TreatIntensity"
-                                                          For="@(() => _treatPageModel.DifferenceTreatInfo.TreatIntensity)" Label="治疗强度"
-                                                          Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
-                                        </MudItem>
-                                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.DifferenceTreatInfo.CriticalHits"
-                                                          For="@(() => _treatPageModel.DifferenceTreatInfo.CriticalHits)" Label="会心"
-                                                          Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
-                                        </MudItem>
-                                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.DifferenceTreatInfo.CriticalDamageRate"
-                                                          For="@(() => _treatPageModel.DifferenceTreatInfo.CriticalDamageRate)"
-                                                          Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Label="会伤百分比"
-                                                          Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
-                                        </MudItem>
-                                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.DifferenceTreatInfo.ZtCriticalHitsRate"
-                                                          For="@(() => _treatPageModel.DifferenceTreatInfo.ZtCriticalHitsRate)"
-                                                          Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Label="金周天会心率"
-                                                          Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
-                                        </MudItem>
-                                        <MudItem xs="12" Class="d-flex align-center justify-center">
-                                            <MudStack Row="true" Spacing="4">
-                                                <MudChip Color="Color.Info">
-                                                    新面板会心率：@_treatPageModel.DifferenceTreatInfo.CalculateCriticalHitsRate.ToString("P2")</MudChip>
-                                                <MudChip Color="Color.Info">
-                                                    新面板治疗量：@_treatPageModel.DifferenceTreatInfo.CalculateTreatNum.ToString("F3")</MudChip>
-                                            </MudStack>
-                                        </MudItem>
-                                    </MudGrid>
-                                </MudTabPanel>
-                                <MudTabPanel Text="转换疗强计算">
-                                    <MudGrid>
-                                        @if (_currentConfig.TransTreatFields?.Length > 0)
-                                        {
-                                            foreach (var treatField in _currentConfig.TransTreatFields)
-                                            {
-                                                <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                                    <MudTextField ShrinkLabel @bind-Value="@treatField.Value" For="@(() => @treatField.Value)"
-                                                                  Label="@treatField.Name" Variant="Variant.Outlined"
-                                                                  Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
-                                                </MudItem>
-                                            }
-                                        }
-                                        <MudItem xs="12">
-                                            <MudAlert Severity="Severity.Info">转换疗强计算结果与基础面板无关</MudAlert>
                                         </MudItem>
                                     </MudGrid>
                                 </MudTabPanel>
@@ -247,15 +192,10 @@
                                 @switch (_treatPageModel.ActiveIndex)
                                 {
                                     case 0:
-                                    case 1:
                                         <MudChip Color="Color.Info">治疗量增值：@_treatPageModel.TreatGrowthNum.ToString("F3")</MudChip>
                                         <MudChip Color="Color.Info">收益百分比：@_treatPageModel.TreatGrowthPercent.ToString("P2")</MudChip>
                                         break;
-                                    case 2:
-                                        <MudChip
-                                            Color="Color.Success">转换疗强：@_treatPageModel.ConvertTreatNum.ToString("F2")</MudChip>
-                                        break;
-                                    case 3:
+                                    case 1:
                                         <MudChip Color="Color.Info">灵韵分（不记总评分）：@_treatPageModel.SpecialScoreText</MudChip>
                                         <MudChip
                                             Color="Color.Success">总评分：@_treatPageModel.Score.ToString("F3")</MudChip>
@@ -391,12 +331,6 @@
                 AdditionalCalculate();
                 break;
             case 1:
-                CompareCalculate();
-                break;
-            case 2:
-                ConvertTreatNumCalculate();
-                break;
-            case 3:
                 ScoreCalculate();
                 break;
         }
@@ -406,12 +340,12 @@
 
     private void AdditionalCalculate()
     {
-        _additionalInfo.Attack = _treatPageModel.BaseTreatInfo.Attack + _treatPageModel.Attack;
         _additionalInfo.TreatIntensity = _treatPageModel.BaseTreatInfo.TreatIntensity + _treatPageModel.TreatIntensity;
         _additionalInfo.CriticalDamageRate = _treatPageModel.BaseTreatInfo.CriticalDamageRate + _treatPageModel.CriticalDamageRate;
         _additionalInfo.CriticalHits = _treatPageModel.BaseTreatInfo.CriticalHits + _treatPageModel.CriticalHits;
-        _additionalInfo.ZtCriticalHitsRate = _treatPageModel.BaseTreatInfo.ZtCriticalHitsRate;
-        _additionalInfo.ExtraCriticalHitsRate = _treatPageModel.CriticalHitsRate / 100;
+        // 额外会心率 = 基础额外会心率 + 变化 tab 的额外会心率增量（界面输入为百分比）
+        _additionalInfo.ExtraCriticalHitsRate = _treatPageModel.BaseTreatInfo.ExtraCriticalHitsRate + _treatPageModel.CriticalHitsRate;
+        _additionalInfo.CureGain = _treatPageModel.BaseTreatInfo.CureGain + _treatPageModel.CureGain;
 
         (_treatPageModel.TreatGrowthNum, _treatPageModel.TreatGrowthPercent) = TreatUtility.Compare(_treatPageModel.BaseTreatInfo, _additionalInfo, _currentConfig);
         _treatPageModel.CalculateCriticalHitsRate = _additionalInfo.CalculateCriticalHitsRate;

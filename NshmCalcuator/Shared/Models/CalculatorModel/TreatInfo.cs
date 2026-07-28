@@ -7,46 +7,41 @@ public class TreatInfo
     #region 基础数值
 
     /// <summary>
-    /// 面板攻击
-    /// </summary>
-    [Required(ErrorMessage = "请输入整数")]
-    [Range(0, 100000, ErrorMessage = "请保证面板攻击在0-100000范围内")]
-    public int Attack { get; set; }
-    
-    /// <summary>
     /// 基础治疗强度
     /// </summary>
     [Required(ErrorMessage = "请输入整数")]
     [Range(0, 100000, ErrorMessage = "请保证治疗强度在0-100000范围内")]
     public int TreatIntensity { get; set; }
-    
+
     /// <summary>
     /// 基础会心
     /// </summary>
     [Required(ErrorMessage = "请输入整数")]
     [Range(0, 100000, ErrorMessage = "请保证会心在0-100000范围内")]
     public int CriticalHits { get; set; }
-    
-    /// <summary>
-    /// 周天会心率（注意为百分比，需要做处理）
-    /// </summary>
-    [Required(ErrorMessage = "请直接输入数字，无需百分号")]
-    [Range(0, 5, ErrorMessage = "请保证周天会心百分比在0.0-5.0范围内")]
-    public double ZtCriticalHitsRate { get; set; }
 
     /// <summary>
-    /// 会伤率
+    /// 额外会心率（百分比形式，如锻寒芒等额外添加的会心率，对应4.1.1表格G10）
+    /// </summary>
+    [Required(ErrorMessage = "请直接输入数字，无需百分号")]
+    [Range(0, 100, ErrorMessage = "请保证额外会心百分比在0.0-100.0范围内")]
+    public double ExtraCriticalHitsRate { get; set; }
+
+    /// <summary>
+    /// 会伤率（百分比形式）
     /// </summary>
     [Required(ErrorMessage = "请直接输入数字，无需百分号")]
     [Range(0, 1000, ErrorMessage = "请保证会伤率在0.0-1000.0范围内")]
     public double CriticalDamageRate { get; set; }
 
-    #endregion
-
     /// <summary>
-    /// 会心率增量（不在页面上展示，不用考虑百分比格式）
+    /// 疗效增益（百分比形式，对应4.1.1表格E10，默认170即1.7倍）
     /// </summary>
-    public double ExtraCriticalHitsRate { get; set; }
+    [Required(ErrorMessage = "请直接输入数字，无需百分号")]
+    [Range(0, 1000, ErrorMessage = "请保证疗效增益百分比在0.0-1000.0范围内")]
+    public double CureGain { get; set; } = 170;
+
+    #endregion
 
     #region 计算结果区域
 

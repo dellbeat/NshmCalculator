@@ -13,28 +13,11 @@ public class SyTreatConfig: IGameConfig
     public string Version { get; set; }
 
     #region 治疗量计算系数
-    
-    //乘数：与其他数乘/除；增数，与其他数加/减
-    
+
     /// <summary>
-    /// 会心乘数
+    /// 会心50%临界评分（对应4.1.1表格I10公式常量2290）：会心率 = 1/(1+e^(1−会心/该值))
     /// </summary>
-    public double CriticalHitsMult { get; set; }
-    
-    /// <summary>
-    /// 会心增数1
-    /// </summary>
-    public double CriticalHitsAddition1 { get; set; }
-    
-    /// <summary>
-    /// 会心增数2
-    /// </summary>
-    public double CriticalHitsAddition2 { get; set; }
-    
-    /// <summary>
-    /// 治疗强度增数
-    /// </summary>
-    public double TreatIntensityAddition { get; set; }
+    public double CriticalRating50 { get; set; }
 
     #endregion
 
