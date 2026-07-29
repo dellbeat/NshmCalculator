@@ -1,8 +1,10 @@
 ﻿@page "/syTreat"
 @using System.Text.Json
+@using System.Text.RegularExpressions
 @using Blazored.LocalStorage
 @using NshmCalculator.MudClient.Components
 @using NshmCalculator.MudClient.Components.Dialog
+@using NshmCalculator.MudClient.Services
 @using NshmCalculator.MudClient.Utilities
 @using NshmCalculator.Shared
 @using NshmCalculator.Shared.Models.CalculatorModel
@@ -17,6 +19,7 @@
 @inject ISnackbar Snackbar
 @inject HttpClient Client
 @inject IDialogService Dialog
+@inject WebOcrEngine Engine
 
 <PageTitle>素问治疗计算器</PageTitle>
 
@@ -155,13 +158,31 @@
                                     </MudGrid>
                                 </MudTabPanel>
 
-                                @* ----- Tab1: PVP词条收益 (配置驱动) ----- *@
-                                <MudTabPanel Text="PVP词条收益">
+                                @* ----- Tab1: 内功词条收益 (配置驱动) ----- *@
+                                <MudTabPanel Text="内功词条收益">
                                     <MudGrid>
                                         <MudItem xs="12">
                                             <MudAlert Severity="Severity.Info">
-                                                气血不计算内功主词条的"气血上限"值。疗承比根据个人理解填入你认为1%治疗提升=X%坦度提升，X越低说明坦度越重要
+                                                OCR 识别区：粘贴识别文本或上传图片，自动填入对应单元格
                                             </MudAlert>
+                                        </MudItem>
+                                        <MudItem xs="12">
+                                            <MudPaper Class="pa-4 mt-2">
+                                                <MudTextField ShrinkLabel T="string" @bind-Value="_ocrText"
+                                                              Label="粘贴识别文本" Variant="Variant.Outlined"
+                                                              Margin="Margin.Normal" Lines="3"/>
+                                                <MudStack Row="true" Spacing="2" Class="mt-2">
+                                                    <MudButton Variant="Variant.Filled" Color="Color.Info"
+                                                               ButtonType="ButtonType.Button" OnClick="OpenOcrImageDialog"
+                                                               StartIcon="@Icons.Material.Filled.Image">
+                                                        图片自动识别
+                                                    </MudButton>
+                                                    <MudButton Variant="Variant.Filled" Color="Color.Secondary"
+                                                               ButtonType="ButtonType.Button" OnClick="OnRecognize">
+                                                        手动识别
+                                                    </MudButton>
+                                                </MudStack>
+                                            </MudPaper>
                                         </MudItem>
                                         <MudItem xs="12">
                                             <MudExpansionPanels MultiExpansion="true">
@@ -178,10 +199,21 @@
                                                           Label="疗承比" HelperText="详情查阅帮助说明" Variant="Variant.Outlined"
                                                           Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                         </MudItem>
+                                        <MudItem xs="6">
+                                            <MudSelect T="string" ShrinkLabel @bind-Value="_treatPageModel.LingYunSelection"
+                                                       Label="灵韵" HelperText="选择灵韵内功自动计入收益(固垒按疗承比动态计算)"
+                                                       Variant="Variant.Outlined"
+                                                       Margin="@(_denseMode ? Margin.Dense : Margin.Normal)">
+                                                @foreach (var option in _lingyunOptions)
+                                                {
+                                                    <MudSelectItem T="string" Value="@option">@option</MudSelectItem>
+                                                }
+                                            </MudSelect>
+                                        </MudItem>
                                         <MudItem xs="12" Class="d-flex align-center justify-center">
                                             <MudStack Row="true" Spacing="4">
                                                 <MudChip Color="Color.Info">
-                                                    总收益：@_treatPageModel.Score.ToString("P2")
+                                                    总收益：@_treatPageModel.Score.ToString("P3")
                                                 </MudChip>
                                                 @if (!string.IsNullOrEmpty(_treatPageModel.GradeText))
                                                 {
@@ -254,12 +286,20 @@
     // 灵韵/周天参考收益表的数据行(MudTable 数据源)
     private List<ReferenceRow> _referenceRows = new();
 
+    // 灵韵下拉框选项: 首项"无" + 灵韵名称(复用"灵韵收益"参考组)
+    private List<string> _lingyunOptions = new();
+    // 灵韵名称 -> RF_LY_* Code 映射(选中后据此调用引擎求值)
+    private Dictionary<string, string> _lingyunNameToCode = new();
+
     // 基础面板会心率/奶量(显示用)
     private double _baseHealRate;
     private double _baseTreatNum;
 
     // 结果公式代号列表(供 Calculate 使用)
     private readonly List<string> _pvpCodes = new() { "RF_TotalGain", "RF_Grade" };
+
+    // OCR 识别区临时文本缓冲(不持久化)
+    private string _ocrText = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -369,13 +409,36 @@
 
         // 分类参数缓存
         _pvpParamGroups = (_currentConfig.FrontParamInfoArray ?? Array.Empty<FrontParamInfo>())
-            .Where(s => s.CategoryName == "PVP词条收益" && s.GroupName != "全局")
+            .Where(s => s.CategoryName == "内功词条收益" && s.GroupName != "全局")
             .GroupBy(s => s.GroupName ?? "其它").ToList();
 
         // 灵韵/周天参考结果组(从 ResultGroups 筛选)
         _referenceResultGroups = (_currentConfig.ResultGroups ?? Array.Empty<ResultGroup>())
             .Where(g => g.GroupName == "灵韵收益" || g.GroupName == "周天收益")
             .ToList();
+
+        // 构建灵韵下拉框选项(复用"灵韵收益"参考组的 Title/Code, 首项"无")
+        _lingyunOptions.Clear();
+        _lingyunNameToCode.Clear();
+        _lingyunOptions.Add("无");
+        var lingyunGroup = _referenceResultGroups.FirstOrDefault(g => g.GroupName == "灵韵收益");
+        if (lingyunGroup != null)
+        {
+            foreach (var line in lingyunGroup.ResultLines)
+            {
+                foreach (var item in line.ResultItems)
+                {
+                    _lingyunOptions.Add(item.Title);
+                    _lingyunNameToCode[item.Title] = item.Code;
+                }
+            }
+        }
+        // 校正持久化的选中值(老缓存可能不在新选项里)
+        if (string.IsNullOrEmpty(_treatPageModel.LingYunSelection)
+            || !_lingyunOptions.Contains(_treatPageModel.LingYunSelection))
+        {
+            _treatPageModel.LingYunSelection = "无";
+        }
 
         // 初始化计算引擎
         TreatUtility.InitUtilityFromConfig(_currentConfig);
@@ -509,19 +572,37 @@
     }
 
     /// <summary>
-    /// Tab1: PVP词条收益(配置驱动 NCalc, 含评级)
+    /// Tab1: 内功词条收益(配置驱动 NCalc, 含评级)
     /// </summary>
     private void PvpCalculate()
     {
         SyncFrontParamValues();
 
-        // 同步疗承比到字典(ST_TankRatio)
+        // 同步疗承比到字典(ST_TankRatio) —— 必须先于灵韵计算, 因为固垒依赖疗承比
         _treatPageModel.ParamValuesDictionary["ST_TankRatio"] = new()
         {
             NumberValue = _treatPageModel.TreatDefenseRatio,
             NumberMode = true
         };
 
+        // 先计算灵韵下拉框选中项对应的收益值, 作为 ST_PVP_LingYun 输入(固垒等动态公式走引擎求值)
+        double lingyunGain = 0;
+        if (_treatPageModel.LingYunSelection != "无"
+            && _lingyunNameToCode.TryGetValue(_treatPageModel.LingYunSelection, out var lyCode))
+        {
+            var lyResult = TreatUtility.CalculateRaw(new List<string> { lyCode }, _treatPageModel.ParamValuesDictionary);
+            if (lyResult.TryGetValue(lyCode, out var lyObj) && lyObj is double lyVal)
+            {
+                lingyunGain = lyVal;
+            }
+        }
+        _treatPageModel.ParamValuesDictionary["ST_PVP_LingYun"] = new()
+        {
+            NumberValue = lingyunGain,
+            NumberMode = true
+        };
+
+        // 继续总收益计算(此时 ST_PVP_LingYun 已就绪)
         var rawResults = TreatUtility.CalculateRaw(_pvpCodes, _treatPageModel.ParamValuesDictionary);
 
         if (rawResults.TryGetValue("RF_TotalGain", out var totalObj) && totalObj is double total)
@@ -533,6 +614,190 @@
         {
             _treatPageModel.GradeText = gradeObj?.ToString() ?? "";
         }
+    }
+
+    /// <summary>
+    /// 解析 OCR 识别文本，将匹配到的属性数值填入对应单元格(NumberValue)。
+    /// 规则(配置驱动，参照 UpdateCalculator.OnRecognizeFill 并适配 FrontParamInfo 模型):
+    ///  - OcrExclude==true 的属性不参与识别(如克制/抵御/会伤/会防/治疗强度)
+    ///  - 普通属性: 用 Name 作锚点，匹配 "属性名+数值"(同属性累加)
+    ///  - 自定义前缀属性: 用 OcrPrefix 作锚点(如"&lt;赛年&gt;")，匹配 "前缀+(可选属性名)+数值"(累加)
+    /// </summary>
+    private void OnRecognize()
+    {
+        if (string.IsNullOrWhiteSpace(_ocrText))
+        {
+            Snackbar.Add("识别文本为空，请先粘贴内容", Severity.Warning);
+            return;
+        }
+
+        // 拆分: 参与识别的普通属性(无自定义前缀) 与 自定义前缀属性
+        // 仅限定「内功词条收益」分类(OCR 服务于 Tab1)，避免基础面板的同名属性(如会心)
+        // 导致 ToDictionary 重名崩溃，也避免误填到基础面板字段
+        var ocrCandidates = _paramDic.Values
+            .Where(p => p.CategoryName == "内功词条收益" && !p.OcrExclude)
+            .ToList();
+        var normalAttrs = ocrCandidates
+            .Where(p => string.IsNullOrEmpty(p.OcrPrefix))
+            .ToList();
+        var prefixAttrs = ocrCandidates
+            .Where(p => !string.IsNullOrEmpty(p.OcrPrefix))
+            .ToList();
+
+        // 粘贴识别前先清空所有参与识别属性的 NumberValue，确保本次填入的是最新识别结果
+        foreach (var p in normalAttrs.Concat(prefixAttrs))
+        {
+            p.NumberValue = 0;
+        }
+
+        int matchedCount = 0;
+
+        // === 普通属性正则 ===
+        // 按名称长度降序拼接，防止「攻击」误匹配到「最大攻击/最小攻击」前缀
+        // 负向后顾断言确保属性名前不是中文字符，防止「抗外功会心」中的「会心」被误匹配
+        if (normalAttrs.Count > 0)
+        {
+            var nameToAttr = normalAttrs.ToDictionary(a => a.Name, a => a);
+            string nameAlt = string.Join("|", nameToAttr.Keys.OrderByDescending(n => n.Length).Select(Regex.Escape));
+            var normalMatches = Regex.Matches(_ocrText, $@"(?<![\u4e00-\u9fa5])({nameAlt})\s*\+(\d+(?:\.\d+)?%?)");
+
+            foreach (Match m in normalMatches)
+            {
+                string name = m.Groups[1].Value.Trim();
+                if (!nameToAttr.TryGetValue(name, out var attr)) continue;
+                double value = ParseValueToDouble(m.Groups[2].Value.Trim());
+                // 同一属性多次出现时累加(如两个攻击词条 31+36=67)
+                attr.NumberValue += value;
+                matchedCount++;
+            }
+        }
+
+        // === 自定义前缀属性正则 ===
+        // 匹配 "前缀+(可选描述)+数值"，前缀也需 Regex.Escape(处理 "<>" 特殊字符)
+        // 中间描述放宽为「任意非换行非加号字符」，以兼容真实 OCR 文本，例如:
+        //   <赛年>伤害/治疗提高 +1.7%   ← 描述含 "/" 等非中文字符
+        // 按前缀分组(同一前缀可能对应多个属性，但累加目标是各自的 NumberValue；
+        // 由于 OCR 文本无法区分同前缀下哪个属性，这里按前缀分组建一条正则，命中后累加到对应属性)
+        foreach (var prefixGroup in prefixAttrs.GroupBy(a => a.OcrPrefix!))
+        {
+            string escapedPrefix = Regex.Escape(prefixGroup.Key);
+            // (可选描述, 不含换行和 + 以免吞掉其他属性的数值) + 数值捕获组
+            var prefixMatches = Regex.Matches(_ocrText, $@"({escapedPrefix})(?:[^\n+]*)\s*\+(\d+(?:\.\d+)?%?)");
+
+            foreach (Match m in prefixMatches)
+            {
+                double value = ParseValueToDouble(m.Groups[2].Value.Trim());
+                // 同前缀的每个属性都累加(目前仅赛年一条，行为等同直接累加到赛年)
+                foreach (var attr in prefixGroup)
+                {
+                    attr.NumberValue += value;
+                }
+                matchedCount++;
+            }
+        }
+
+        if (matchedCount == 0)
+        {
+            Snackbar.Add("未识别到任何有效属性数值，请检查文本格式", Severity.Warning);
+            return;
+        }
+
+        // === 灵韵内功下拉框匹配 ===
+        // 触发条件: 识别文本包含「灵韵」二字
+        // 匹配规则: 按 _lingyunOptions 顺序(跳过首项「无」)用子串包含查找，首个命中即选中；
+        //          全部未命中 或 文本不含「灵韵」→ 选「无」
+        TryMatchLingYun(_ocrText);
+
+        string tip = $"<ul><li>成功匹配并填入单元格 {matchedCount} 项（同属性已自动累加）</li>";
+        tip += $"<li>灵韵已识别：{_treatPageModel.LingYunSelection}</li>";
+        tip += "<li>请在「内功词条收益」确认数值，并点击「计算」</li></ul>";
+        Snackbar.Add(tip, Severity.Info);
+    }
+
+    /// <summary>
+    /// 灵韵内功匹配: 当识别文本包含「灵韵」二字时，按 _lingyunOptions 顺序(跳过「无」)
+    /// 用子串包含查找首个命中的灵韵名并选中下拉框。
+    /// 带括号的选项(如「绝电(素问)」)只匹配括号外的核心词(「绝电」)，但选中时用完整名。
+    /// 文本不含「灵韵」 或 含「灵韵」但全部未命中 → 选「无」。
+    /// </summary>
+    private void TryMatchLingYun(string text)
+    {
+        // 触发条件: 文本必须包含「灵韵」二字，否则直接选「无」
+        if (!text.Contains("灵韵"))
+        {
+            _treatPageModel.LingYunSelection = _lingyunOptions.Count > 0 ? _lingyunOptions[0] : "无";
+            return;
+        }
+
+        // _lingyunOptions 首项为「无」，从索引 1 开始遍历真实灵韵名
+        for (int i = 1; i < _lingyunOptions.Count; i++)
+        {
+            string option = _lingyunOptions[i];
+            if (string.IsNullOrEmpty(option))
+            {
+                continue;
+            }
+
+            // 去掉括号内容(兼容半角 () 和全角 （）)后再做子串匹配，
+            // 如「绝电(素问)」→ 仅尝试匹配「绝电」，但选中时用完整名
+            string matchKey = Regex.Replace(option, @"[(（][^)）]*[)）]", "").Trim();
+            if (string.IsNullOrEmpty(matchKey))
+            {
+                continue;
+            }
+
+            if (text.Contains(matchKey))
+            {
+                _treatPageModel.LingYunSelection = option;
+                return;
+            }
+        }
+
+        // 全部未命中 → 选「无」(索引 0)
+        _treatPageModel.LingYunSelection = _lingyunOptions.Count > 0 ? _lingyunOptions[0] : "无";
+    }
+
+    /// <summary>
+    /// 将字符串解析为 double，百分数(如 "1.2%")去掉 % 后取百分数值(1.2)，整数直接返回。
+    /// </summary>
+    private static double ParseValueToDouble(string valueStr)
+    {
+        if (valueStr.EndsWith("%"))
+        {
+            return double.TryParse(valueStr.TrimEnd('%'), out double percentValue) ? percentValue : 0;
+        }
+        return double.TryParse(valueStr, out double numValue) ? numValue : 0;
+    }
+
+    /// <summary>
+    /// 打开图片识别弹窗。弹窗自己注入 WebOcrEngine(Scoped)并管理引擎状态/进度，
+    /// 本组件只需传入 OnRecognized 回调。ActiveOcrTab 固定传 0(SyTreat 仅一个 OCR 文本框)。
+    /// </summary>
+    private void OpenOcrImageDialog()
+    {
+        var parameters = new DialogParameters<OcrImageDialog>
+        {
+            { x => x.ActiveOcrTab, 0 },
+            { x => x.OnRecognized, EventCallback.Factory.Create<string>(this, OnOcrRecognizedAsync) },
+        };
+        var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true };
+        Dialog.Show<OcrImageDialog>("图片识别", parameters, options);
+    }
+
+    /// <summary>
+    /// 弹窗识别完成后回调: 把文本写入 OCR 文本框，并复用 OnRecognize 填入单元格。
+    /// </summary>
+    private Task OnOcrRecognizedAsync(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            Snackbar.Add("未识别到文字，请尝试更清晰的截图或调整框选范围", Severity.Warning);
+            return Task.CompletedTask;
+        }
+
+        _ocrText = text;
+        OnRecognize();
+        return Task.CompletedTask;
     }
 
     /// <summary>

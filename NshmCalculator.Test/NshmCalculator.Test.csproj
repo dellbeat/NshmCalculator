@@ -29,6 +29,16 @@
         <ProjectReference Include="..\NshmCalcuator\Shared\NshmCalcuator.Shared.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <!-- 回归测试数据：由 tools/syTreat_case_gen.py 用 Excel COM 真实重算生成，
+             供 TreatUtilityTest 做 C# 公式翻译的数值回归校验。
+             复制到输出目录的 testdata\，测试用相对路径 testdata/xxx.json 读取。 -->
+        <Content Include="TestData\**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>testdata\%(RecursiveDir)%(FileName)%(Extension)</Link>
+        </Content>
+    </ItemGroup>
+
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <ItemGroup>
             <SomeFolder Include="$(SolutionDir)NshmCalculator.MudClient\wwwroot\data\**"/>

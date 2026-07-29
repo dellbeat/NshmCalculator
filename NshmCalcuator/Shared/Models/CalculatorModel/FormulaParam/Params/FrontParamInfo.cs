@@ -60,6 +60,17 @@ public class FrontParamInfo
     public int ShowIndex { get; set; }
 
     /// <summary>
+    /// OCR 识别时是否排除该属性（true=不参与识别，如克制/抵御/会伤/会防/治疗强度）
+    /// </summary>
+    public bool OcrExclude { get; set; }
+
+    /// <summary>
+    /// OCR 识别时使用的自定义匹配前缀（如赛年词条用 "&lt;赛年&gt;"）。
+    /// 为 null/空时使用 Name 作为正则锚点；非空时按"前缀+(可选属性名)+数值"格式累加。
+    /// </summary>
+    public string? OcrPrefix { get; set; }
+
+    /// <summary>
     /// 用于绑定下拉列表的属性，无需序列化/反序列化
     /// </summary>
     [JsonIgnore]

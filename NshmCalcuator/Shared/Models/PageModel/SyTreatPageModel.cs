@@ -29,9 +29,14 @@ public class SyTreatPageModel
     };
 
     /// <summary>
-    /// 疗承比（PVP 总收益的全局归一化旋钮，默认 1.3）
+    /// 疗承比（内功总收益的全局归一化旋钮，默认 1.3）
     /// </summary>
     public double TreatDefenseRatio { get; set; } = 1.3;
+
+    /// <summary>
+    /// 灵韵下拉框选中项名称（"无"表示不选；选中灵韵内功后其收益值会动态计算并计入总收益）
+    /// </summary>
+    public string LingYunSelection { get; set; } = "无";
 
     /// <summary>
     /// 当前 Tab 索引（0=属性变化, 1=PVP词条），用于控制计算分发与 UI

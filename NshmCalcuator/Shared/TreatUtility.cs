@@ -48,6 +48,15 @@ public static class TreatUtility
         InternalFormulaExpressionDic.Clear();
         ResultFormulaExpressionDic.Clear();
         ParamCodeList.AddRange(config.FrontParamInfoArray.Select(s => s.Code));
+        // 补充 DefaultParamValues 的键: 部分参数(如 ST_PVP_LingYun)不作为 FrontParam 渲染,
+        // 但仍作为公式输入被引擎引用, 需登记进 ParamCodeList 才能在公式中正确绑定参数占位
+        foreach (var key in (config.DefaultParamValues ?? new()).Keys)
+        {
+            if (!ParamCodeList.Contains(key))
+            {
+                ParamCodeList.Add(key);
+            }
+        }
         InitInternalFormulaDic(config.InternalFormulas ?? Array.Empty<PveFormula>());
         InitResultFormulaDic(config.ResultFormulas ?? Array.Empty<PveFormula>());
     }
