@@ -7,7 +7,7 @@ using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params;
 namespace NshmCalculator.Shared;
 
 /// <summary>
-/// 素问治疗计算器 NCalc 计算引擎（4.1.1 起，对齐 PVE 配置驱动架构，简化版）
+/// 素鸿治疗计算器 NCalc 计算引擎（4.1.1 起，对齐 PVE 配置驱动架构，简化版）
 /// <para>与 PveUtility 的差异：去掉 Lambda/LinkLambda/Count/复杂分层机制，保留 InternalValueDic 共享池、
 /// string.Empty 参数占位约定、两阶段求值（中间公式按 Level 分层 → 结果公式）。</para>
 /// </summary>

@@ -4,7 +4,7 @@ using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params;
 namespace NshmCalculator.MudClient.Utilities;
 
 /// <summary>
-/// 素问治疗计算器内功记录复算工具。
+/// 素鸿治疗计算器内功记录复算工具。
 /// 严格复刻 <c>SyTreatCalculator.PvpCalculate</c> 的核心流程（装字典 → 算灵韵 → 算 RF_TotalGain/RF_Grade），
 /// 供页面与编辑弹窗共用，保证记录总收益与页面计算结果完全一致。
 /// <para>引擎 <see cref="TreatUtility"/> 为静态类，由页面 <c>InitParameters</c> 初始化一次，

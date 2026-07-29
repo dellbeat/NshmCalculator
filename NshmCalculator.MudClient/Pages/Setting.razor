@@ -61,13 +61,13 @@
     private IEnumerable<string> options { get; set; } = new HashSet<string>();
     [Inject] IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
 
-    private readonly string[] _calculatorNameArray = ["PVE计算器", "身份收益计算器", "素问治疗计算器", "升级内功词条计算器"];
+    private readonly string[] _calculatorNameArray = ["PVE计算器", "身份收益计算器", "素鸿治疗计算器", "升级内功词条计算器"];
 
     private readonly Dictionary<string, string[]> _dic = new()
     {
         { "PVE计算器", ["config_pve", "_pvePageModel"] },
         { "身份收益计算器", ["config_sf", "_occupationPageModel"] },
-        { "素问治疗计算器", ["config_syTreat", "_treatPageModel", "_syTreatRecordPageModel"] },
+        { "素鸿治疗计算器", ["config_syTreat", "_treatPageModel", "_syTreatRecordPageModel"] },
         { "升级内功词条计算器", ["config_KiUpdate", "_kiUpdatePageModel", "_kiUpdateRecordPageModel"] },
     };
 

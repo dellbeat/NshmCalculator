@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 namespace NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params;
 
 /// <summary>
-/// 素问治疗计算器中保存的一条内功记录。
+/// 素鸿治疗计算器中保存的一条内功记录。
 /// 仅持久化标题/备注/各词条填写数值/灵韵选择；总收益（<see cref="Score"/>）与评级（<see cref="GradeText"/>）
 /// 由当前配置 + 页面疗承比复算，不序列化。
 /// </summary>

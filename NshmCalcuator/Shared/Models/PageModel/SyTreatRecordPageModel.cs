@@ -3,7 +3,7 @@
 namespace NshmCalculator.Shared.Models.PageModel;
 
 /// <summary>
-/// 素问治疗计算器中保存的内功记录列表的页面数据模型，用于本地存储缓存与恢复
+/// 素鸿治疗计算器中保存的内功记录列表的页面数据模型，用于本地存储缓存与恢复
 /// </summary>
 public class SyTreatRecordPageModel
 {

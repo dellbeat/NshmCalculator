@@ -5,7 +5,7 @@ using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params;
 namespace NshmCalculator.Shared.Models.PageModel;
 
 /// <summary>
-/// 素问治疗计算器页面状态模型（4.1.1 起 NCalc 配置驱动，对齐 PvePageModel 结构）
+/// 素鸿治疗计算器页面状态模型（4.1.1 起 NCalc 配置驱动，对齐 PvePageModel 结构）
 /// <para>不再使用 [JsonUnmappedMemberHandling.Disallow]：schema 变化大，改为宽松模式 + InternalVersion 触发迁移</para>
 /// </summary>
 public class SyTreatPageModel

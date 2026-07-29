@@ -9,7 +9,7 @@ using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params;
 namespace NshmCalculator.Test.CalculatorUtility;
 
 /// <summary>
-/// 4.1.1 素问治疗计算器数值回归测试(数据驱动版)。
+/// 4.1.1 素鸿治疗计算器数值回归测试(数据驱动版)。
 ///
 /// 数据来源:NshmCalculator.Test/TestData/syTreat_cases.json,由 tools/syTreat_case_gen.py
 /// 用 Excel COM 真实重算 4.1.1 表格生成(种子固定,可复现),并转换为 C# 模型坐标:

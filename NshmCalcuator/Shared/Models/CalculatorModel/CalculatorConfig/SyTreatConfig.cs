@@ -6,7 +6,7 @@ using NshmCalculator.Shared.Models.Interface;
 namespace NshmCalculator.Shared.Models.CalculatorModel.CalculatorConfig;
 
 /// <summary>
-/// 师尹的素问治疗计算器页面的数据配置（4.1.1 起 NCalc 配置驱动，对齐 PVE 架构）
+/// 师尹的素鸿治疗计算器页面的数据配置（4.1.1 起 NCalc 配置驱动，对齐 PVE 架构）
 /// </summary>
 public class SyTreatConfig : IGameConfig
 {
