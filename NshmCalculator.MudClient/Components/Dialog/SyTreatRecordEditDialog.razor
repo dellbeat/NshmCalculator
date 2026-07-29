@@ -1,0 +1,178 @@
+﻿@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params
+@using NshmCalculator.MudClient.Utilities
+@using Color = MudBlazor.Color
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">编辑内功记录</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="Record.Title" Label="内功名称" Variant="Variant.Outlined" Immediate="true"
+                      Margin="@(DenseMode ? Margin.Dense : Margin.Normal)"/>
+        <MudTextField @bind-Value="Record.Remark" Label="备注" Variant="Variant.Outlined" Immediate="true"
+                      Margin="@(DenseMode ? Margin.Dense : Margin.Normal)" Class="mt-2"/>
+
+        <MudSelect T="string" ShrinkLabel Value="_editLingYunSelection"
+                   ValueChanged="OnLingYunChanged"
+                   Label="灵韵" Variant="Variant.Outlined"
+                   Margin="@(DenseMode ? Margin.Dense : Margin.Normal)" Class="mt-2">
+            @foreach (var option in LingYunOptions)
+            {
+                <MudSelectItem T="string" Value="@option">@option</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudText Typo="Typo.subtitle1" Class="mt-4 mb-2">词条数值（修改后点击「重算」更新总收益）</MudText>
+        <MudGrid>
+            @foreach (var pair in _editValues)
+            {
+                var label = AttrNameMap != null && AttrNameMap.TryGetValue(pair.Key, out var name) ? name : pair.Key;
+                <MudItem xs="6" sm="4" md="3">
+                    <MudTextField ShrinkLabel T="double" @bind-Value="_editValues[pair.Key]" Label="@label"
+                                  Variant="Variant.Outlined"
+                                  Margin="@(DenseMode ? Margin.Dense : Margin.Normal)"/>
+                </MudItem>
+            }
+        </MudGrid>
+
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="mt-4">
+            <MudChip T="string" Color="Color.Success">总收益</MudChip>
+            <MudText Typo="Typo.h6" Color="Color.Success" Class="ml-2">@_score.ToString("P3")</MudText>
+            @if (!string.IsNullOrEmpty(_grade))
+            {
+                <MudChip T="string" Color="Color.Info" Class="ml-2">评级：@_grade</MudChip>
+            }
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Error" OnClick="OnDelete">删除</MudButton>
+        <MudButton OnClick="Cancel">取消</MudButton>
+        <MudButton Color="Color.Warning" Variant="Variant.Filled" OnClick="Recalculate">重算</MudButton>
+        <MudButton Color="Color.Info" Variant="Variant.Filled" OnClick="Submit">保存更改</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+
+    /// <summary>被编辑的内功记录（引用传入，保存时回写）</summary>
+    [Parameter] public SyTreatRecord Record { get; set; }
+
+    /// <summary>页面当前疗承比（复算用，不可编辑；疗承比跟随页面上下文）</summary>
+    [Parameter] public double PageTankRatio { get; set; }
+
+    /// <summary>灵韵下拉框选项（首项"无" + 灵韵名称）</summary>
+    [Parameter] public string[] LingYunOptions { get; set; } = [];
+
+    /// <summary>灵韵名称 -> RF_LY_* Code 映射（复算用）</summary>
+    [Parameter] public Dictionary<string, string> LingYunNameToCode { get; set; } = new();
+
+    /// <summary>词条 Code -> 显示名映射（渲染可编辑词条标签）</summary>
+    [Parameter] public Dictionary<string, string> AttrNameMap { get; set; } = new();
+
+    /// <summary>复算字典基底（页面的 ParamValuesDictionary 拷贝）</summary>
+    [Parameter] public Dictionary<string, ParamValue> DefaultParamValues { get; set; } = new();
+
+    [Parameter] public bool DenseMode { get; set; }
+
+    /// <summary>编辑过程中的属性数值快照（Code -> 数值），取消时回滚</summary>
+    private readonly Dictionary<string, double> _snapshot = new();
+
+    /// <summary>双向绑定的编辑数值（Code -> 数值）</summary>
+    private readonly Dictionary<string, double> _editValues = new();
+
+    /// <summary>编辑中的灵韵选择快照（取消时回滚）</summary>
+    private string _snapshotLingYunSelection;
+
+    /// <summary>双向绑定的编辑中灵韵选择</summary>
+    private string _editLingYunSelection;
+
+    /// <summary>实时复算的总收益</summary>
+    private double _score;
+
+    /// <summary>实时复算的评级</summary>
+    private string _grade;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        // 初始化编辑数值与快照（拷贝，避免直接引用原字典导致取消时无法回滚）。
+        // 仅纳入 AttrNameMap 中的真实可编辑词条 Code，过滤掉历史记录中误存的非词条项（如疗承比 ST_TankRatio）。
+        foreach (var pair in Record.InputValues)
+        {
+            if (AttrNameMap != null && AttrNameMap.Count > 0 && !AttrNameMap.ContainsKey(pair.Key))
+            {
+                continue;
+            }
+            _editValues[pair.Key] = pair.Value;
+            _snapshot[pair.Key] = pair.Value;
+        }
+
+        _editLingYunSelection = Record.LingYunSelection ?? "无";
+        _snapshotLingYunSelection = _editLingYunSelection;
+
+        Recalculate();
+    }
+
+    /// <summary>
+    /// 灵韵选择变更时：更新编辑值并触发复算。
+    /// </summary>
+    private Task OnLingYunChanged(string value)
+    {
+        _editLingYunSelection = value ?? "无";
+        Recalculate();
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// 基于编辑中的词条数值 + 编辑中的灵韵 + 页面疗承比复算总收益与评级。
+    /// 使用临时记录构造调用引擎，避免在复算期间修改 Record 自身字段。
+    /// </summary>
+    private void Recalculate()
+    {
+        var tempRecord = new SyTreatRecord
+        {
+            InputValues = new Dictionary<string, double>(_editValues),
+            LingYunSelection = _editLingYunSelection ?? "无"
+        };
+
+        (_score, _grade) = SyTreatRecordHelper.ComputeScore(
+            tempRecord,
+            PageTankRatio,
+            LingYunNameToCode,
+            DefaultParamValues);
+    }
+
+    private void Submit()
+    {
+        // 将编辑数值与灵韵选择回写到记录
+        Record.InputValues = new Dictionary<string, double>(_editValues);
+        Record.LingYunSelection = _editLingYunSelection ?? "无";
+        Record.Score = _score;
+        Record.GradeText = _grade;
+        MudDialog.Close(DialogResult.Ok(Record));
+    }
+
+    private void Cancel()
+    {
+        // 回滚：恢复记录的 InputValues/LingYunSelection 到打开对话框时的状态
+        Record.InputValues = new Dictionary<string, double>(_snapshot);
+        Record.LingYunSelection = _snapshotLingYunSelection;
+        MudDialog.Cancel();
+    }
+
+    private async Task OnDelete()
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "删除确认",
+            $"确定删除内功「{Record.Title}」吗？此操作不可恢复。",
+            yesText: "删除", cancelText: "再想想");
+        if (result == true)
+        {
+            // 返回 null 作为删除信号
+            MudDialog.Close(DialogResult.Ok<SyTreatRecord>(null));
+        }
+    }
+}

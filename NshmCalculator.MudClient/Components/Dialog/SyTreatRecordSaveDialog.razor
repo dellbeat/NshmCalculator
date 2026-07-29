@@ -1,0 +1,84 @@
+﻿@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params
+@using Align = MudBlazor.Align
+@using Color = MudBlazor.Color
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">保存内功记录</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="_title" Label="内功名称" Variant="Variant.Outlined" Immediate="true"
+                      Margin="@(DenseMode ? Margin.Dense : Margin.Normal)" Class="mt-2"/>
+        <MudTextField @bind-Value="_remark" Label="备注" Variant="Variant.Outlined" Immediate="true"
+                      Margin="@(DenseMode ? Margin.Dense : Margin.Normal)" Class="mt-2"/>
+
+        <MudText Typo="Typo.subtitle1" Class="mt-4 mb-2">词条数值（仅展示非 0 项）</MudText>
+        <MudTable Items="@ItemsSource" Breakpoint="Breakpoint.None" Striped="true"
+                  Dense="@DenseMode" Elevation="2" Hover="true">
+            <HeaderContent>
+                <MudTh>属性</MudTh>
+                <MudTh>数值</MudTh>
+            </HeaderContent>
+            <RowTemplate Context="item">
+                <MudTd DataLabel="属性">@item.Name</MudTd>
+                <MudTd DataLabel="数值">@item.Value</MudTd>
+            </RowTemplate>
+            <NoRecordsContent>
+                <MudText Typo="Typo.body2" Align="Align.Center" Color="Color.Default" Class="py-4">
+                    暂无非 0 词条
+                </MudText>
+            </NoRecordsContent>
+        </MudTable>
+
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="mt-4">
+            <MudChip T="string" Color="Color.Success">总收益</MudChip>
+            <MudText Typo="Typo.h6" Color="Color.Success" Class="ml-2">@Score.ToString("P3")</MudText>
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">取消</MudButton>
+        <MudButton Color="Color.Info" Variant="Variant.Filled" OnClick="Submit">确定</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public bool DenseMode { get; set; }
+
+    /// <summary>非 0 词条展示列表（属性名 + 数值）</summary>
+    [Parameter] public List<AttrDisplay> ItemsSource { get; set; } = new();
+
+    /// <summary>当前总收益（展示用）</summary>
+    [Parameter] public double Score { get; set; }
+
+    private string _title;
+    private string _remark;
+
+    /// <summary>
+    /// 保存结果：名称/备注
+    /// </summary>
+    public record SaveResult(string Title, string Remark);
+
+    private void Submit()
+    {
+        if (string.IsNullOrWhiteSpace(_title))
+        {
+            Snackbar.Add("请填写内功名称", Severity.Warning);
+            return;
+        }
+
+        MudDialog.Close(DialogResult.Ok(new SaveResult(_title.Trim(), _remark)));
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    /// <summary>
+    /// 弹窗展示用的词条项（属性名 + 数值字符串）
+    /// </summary>
+    public record AttrDisplay(string Name, string Value);
+}

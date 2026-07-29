@@ -1,4 +1,5 @@
 ﻿@page "/syTreat"
+@using System.Collections.ObjectModel
 @using System.Text.Json
 @using System.Text.RegularExpressions
 @using Blazored.LocalStorage
@@ -163,7 +164,7 @@
                                     <MudGrid>
                                         <MudItem xs="12">
                                             <MudAlert Severity="Severity.Info">
-                                                OCR 识别区：粘贴识别文本或上传图片，自动填入对应单元格
+                                                OCR 识别区：粘贴识别文本或上传图片，自动填入对应单元格。如图片较大，请框选必要的识别区域（从内功名称到词条）后再识别，提高识别准确率
                                             </MudAlert>
                                         </MudItem>
                                         <MudItem xs="12">
@@ -223,6 +224,12 @@
                                                 }
                                             </MudStack>
                                         </MudItem>
+                                        <MudItem xs="12" Class="d-flex justify-center">
+                                            <MudButton Variant="Variant.Filled" Color="Color.Info"
+                                                       ButtonType="ButtonType.Button" OnClick="OnSaveRecord">
+                                                保存内功记录
+                                            </MudButton>
+                                        </MudItem>
                                     </MudGrid>
                                 </MudTabPanel>
 
@@ -245,6 +252,40 @@
                                                            HideRowsPerPage="true"/>
                                         </PagerContent>
                                     </MudTable>
+                                </MudTabPanel>
+
+                                @* ----- Tab3: 内功记录 (MudTable 展示已保存记录, 点击进入编辑) ----- *@
+                                <MudTabPanel Text="内功记录">
+                                    @if (_recordObservable.Count > 0)
+                                    {
+                                        <MudTable T="SyTreatRecord" Items="@_recordObservable" Breakpoint="Breakpoint.None"
+                                                  Striped="true" Dense="@_denseMode" Elevation="2" OnRowClick="OnRecordClick">
+                                            <HeaderContent>
+                                                <MudTh>名称</MudTh>
+                                                <MudTh>
+                                                    <MudTableSortLabel InitialDirection="SortDirection.Descending"
+                                                                       SortBy="new Func<SyTreatRecord, object>(x => x.Score)">
+                                                        总收益
+                                                    </MudTableSortLabel>
+                                                </MudTh>
+                                                <MudTh>备注</MudTh>
+                                            </HeaderContent>
+                                            <RowTemplate Context="rec">
+                                                <MudTd DataLabel="名称">@rec.Title</MudTd>
+                                                <MudTd DataLabel="总收益">@rec.Score.ToString("P3")</MudTd>
+                                                <MudTd DataLabel="备注">@rec.Remark</MudTd>
+                                            </RowTemplate>
+                                            <PagerContent>
+                                                <MudTablePager PageSizeOptions="new[] { 10 }" HideRowsPerPage="true"/>
+                                            </PagerContent>
+                                        </MudTable>
+                                    }
+                                    else
+                                    {
+                                        <MudText Typo="Typo.body1" Align="Align.Center" Color="Color.Default" Class="py-4">
+                                            暂无保存的内功记录，在「内功词条收益」页计算后可点击保存
+                                        </MudText>
+                                    }
                                 </MudTabPanel>
                             </MudTabs>
                         </MudItem>
@@ -300,6 +341,17 @@
 
     // OCR 识别区临时文本缓冲(不持久化)
     private string _ocrText = string.Empty;
+
+    // ---- 保存内功记录相关状态 ----
+    // 内功记录页面数据模型（持久化，键名 _syTreatRecordPageModel）
+    private SyTreatRecordPageModel _syTreatRecordPageModel;
+    // 内功记录列表（绑定到 MudTable）
+    private ObservableCollection<SyTreatRecord> _recordObservable = new();
+    // 保存对话框参数/选项
+    private readonly DialogParameters<SyTreatRecordSaveDialog> _recordSaveDialogParameters = new();
+    private readonly DialogOptions _recordDialogOptions = new() { DisableBackdropClick = true, FullWidth = true, MaxWidth = MaxWidth.Medium };
+    // 上次计算时的疗承比，用于检测变化触发记录重算（疗承比跟随页面上下文，不存入记录）
+    private double _lastCalcTankRatio;
 
     protected override async Task OnInitializedAsync()
     {
@@ -378,8 +430,8 @@
     private void InitParameters()
     {
         // 边界保护：校正 ActiveIndex（老用户缓存可能为已移除 Tab 的索引，避免 MudTabs 越界）
-        // 当前 Tab 数量：0=属性变化, 1=PVP词条, 2=灵韵/周天收益
-        if (_treatPageModel.ActiveIndex < 0 || _treatPageModel.ActiveIndex > 2)
+        // 当前 Tab 数量：0=属性变化, 1=PVP词条, 2=灵韵/周天收益, 3=内功记录
+        if (_treatPageModel.ActiveIndex < 0 || _treatPageModel.ActiveIndex > 3)
         {
             _treatPageModel.ActiveIndex = 0;
         }
@@ -442,6 +494,10 @@
 
         // 初始化计算引擎
         TreatUtility.InitUtilityFromConfig(_currentConfig);
+
+        // 加载内功记录：读取 localStorage，并按当前配置 + 页面疗承比复算每条记录的总收益
+        LoadRecords();
+        _lastCalcTankRatio = _treatPageModel.TreatDefenseRatio;
 
         StateHasChanged();
         _tipsDialogParameters.Add(nameof(TipsDialog.ContentText), new MarkupString(_currentConfig.HelperText ?? ""));
@@ -543,6 +599,17 @@
 
         // 始终刷新灵韵/周天参考(因为疗承比可能变化)
         CalculateReferenceResults();
+
+        // 疗承比变化时，对所有内功记录复算总收益并持久化刷新
+        // (疗承比跟随页面上下文，不存入记录；记录的 RF_TotalGain 依赖 ST_TankRatio，故疗承比变化后需重算)
+        if (_recordObservable.Count > 0
+            && Math.Abs(_treatPageModel.TreatDefenseRatio - _lastCalcTankRatio) > 1e-9)
+        {
+            RecalcAllRecords(_treatPageModel.TreatDefenseRatio);
+            SaveRecords();
+            Snackbar.Add("疗承比已变化，内功记录总收益已同步刷新", Severity.Info);
+        }
+        _lastCalcTankRatio = _treatPageModel.TreatDefenseRatio;
 
         SaveInfo();
         Snackbar.Add(ConstText.SuccessText, Severity.Success);
@@ -822,6 +889,198 @@
     {
         LocalStorage.SetItem(nameof(_treatPageModel), _treatPageModel);
     }
+
+    #region 内功记录管理
+
+    /// <summary>
+    /// 从 localStorage 加载内功记录列表，按当前配置 + 页面疗承比复算每条记录的总收益并构建可观察集合。
+    /// </summary>
+    private void LoadRecords()
+    {
+        try
+        {
+            _syTreatRecordPageModel = LocalStorage.GetItem<SyTreatRecordPageModel>(nameof(_syTreatRecordPageModel)) ?? new SyTreatRecordPageModel();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("素问内功记录缓存加载异常" + e);
+            _syTreatRecordPageModel = new SyTreatRecordPageModel();
+        }
+
+        foreach (var record in _syTreatRecordPageModel.Records)
+        {
+            (record.Score, record.GradeText) = RecomputeRecord(record);
+        }
+
+        _recordObservable = new ObservableCollection<SyTreatRecord>(_syTreatRecordPageModel.Records);
+    }
+
+    /// <summary>
+    /// 持久化内功记录列表到 localStorage
+    /// </summary>
+    private void SaveRecords()
+    {
+        LocalStorage.SetItem(nameof(_syTreatRecordPageModel), _syTreatRecordPageModel);
+    }
+
+    /// <summary>
+    /// 基于记录的词条值/灵韵 + 页面疗承比复算总收益与评级（调用共享工具）。
+    /// </summary>
+    private (double score, string grade) RecomputeRecord(SyTreatRecord record)
+    {
+        return SyTreatRecordHelper.ComputeScore(
+            record,
+            _treatPageModel.TreatDefenseRatio,
+            _lingyunNameToCode,
+            _treatPageModel.ParamValuesDictionary);
+    }
+
+    /// <summary>
+    /// 疗承比变化时，对所有记录复算总收益与评级（持久化由调用方负责）。
+    /// </summary>
+    private void RecalcAllRecords(double tankRatio)
+    {
+        foreach (var record in _syTreatRecordPageModel.Records)
+        {
+            (record.Score, record.GradeText) = SyTreatRecordHelper.ComputeScore(
+                record,
+                tankRatio,
+                _lingyunNameToCode,
+                _treatPageModel.ParamValuesDictionary);
+        }
+    }
+
+    /// <summary>
+    /// 保存当前内功词条收益结果为一条内功记录：
+    /// 先执行一次内功词条收益计算（确保基于最新输入），再收集非 0 词条，
+    /// 弹出保存对话框收集名称/备注，复算总收益并加入记录列表持久化。
+    /// </summary>
+    private async Task OnSaveRecord()
+    {
+        // 0. 先执行一次计算，确保当前词条数值与总收益均为最新（用户可能未点击「计算」直接保存）
+        PvpCalculate();
+        StateHasChanged();
+
+        // 1. 收集非 0 词条（限定「内功词条收益」分类且排除「全局」组，如疗承比），构建展示列表与 Code->Name 映射
+        // 注：PvpCalculate 内部已调用 SyncFrontParamValues 同步词条值到 ParamValuesDictionary
+        var attrNameMap = new Dictionary<string, string>();
+        var displayItems = new List<SyTreatRecordSaveDialog.AttrDisplay>();
+        foreach (var (code, info) in _paramDic)
+        {
+            if (info.CategoryName == "内功词条收益" && info.GroupName != "全局" && Math.Abs(info.NumberValue) > 1e-9)
+            {
+                // NumberValue 为输入框展示值（Percent 模式已 *100），直接展示
+                attrNameMap[code] = info.Name;
+                displayItems.Add(new SyTreatRecordSaveDialog.AttrDisplay(info.Name, info.NumberValue.ToString("G")));
+            }
+        }
+
+        _recordSaveDialogParameters[nameof(SyTreatRecordSaveDialog.DenseMode)] = _denseMode;
+        _recordSaveDialogParameters[nameof(SyTreatRecordSaveDialog.ItemsSource)] = displayItems;
+        _recordSaveDialogParameters[nameof(SyTreatRecordSaveDialog.Score)] = _treatPageModel.Score;
+
+        var dialog = await Dialog.ShowAsync<SyTreatRecordSaveDialog>("保存内功记录", _recordSaveDialogParameters, _recordDialogOptions);
+        var result = await dialog.Result;
+        StateHasChanged();
+        if (result.Canceled)
+        {
+            return;
+        }
+
+        if (result.Data is not SyTreatRecordSaveDialog.SaveResult saveResult)
+        {
+            return;
+        }
+
+        // 3. 从当前 ParamValuesDictionary 提取非 0 词条数值（排除「全局」组如疗承比；按 Code 存，Percent 已 /100 转回实际值）
+        var inputValues = new Dictionary<string, double>();
+        foreach (var (code, info) in _paramDic)
+        {
+            if (info.CategoryName == "内功词条收益" && info.GroupName != "全局"
+                && _treatPageModel.ParamValuesDictionary.TryGetValue(code, out var paramValue)
+                && Math.Abs(paramValue.NumberValue) > 1e-9)
+            {
+                inputValues[code] = paramValue.NumberValue;
+            }
+        }
+
+        int newId = _syTreatRecordPageModel.Records.Count > 0
+            ? _syTreatRecordPageModel.Records.Max(r => r.Id) + 1
+            : 1;
+
+        var record = new SyTreatRecord
+        {
+            Id = newId,
+            Title = saveResult.Title,
+            Remark = saveResult.Remark,
+            CreatedAt = DateTime.Now,
+            InputValues = inputValues,
+            LingYunSelection = _treatPageModel.LingYunSelection
+        };
+        (record.Score, record.GradeText) = RecomputeRecord(record);
+
+        _syTreatRecordPageModel.Records.Add(record);
+        _recordObservable.Add(record);
+        SaveRecords();
+        Snackbar.Add("内功记录已保存", Severity.Success);
+    }
+
+    /// <summary>
+    /// 点击内功记录列表条目：弹出编辑对话框，支持编辑名称/备注/灵韵/词条数值、重算、保存更改、删除。
+    /// </summary>
+    private async Task OnRecordClick(TableRowClickEventArgs<SyTreatRecord> args)
+    {
+        var record = args.Item;
+        if (record == null)
+        {
+            return;
+        }
+
+        // 构建词条 Code -> Name 映射（限定「内功词条收益」分类且排除「全局」组如疗承比，供弹窗渲染可编辑词条标签）
+        var attrNameMap = new Dictionary<string, string>();
+        foreach (var (code, info) in _paramDic)
+        {
+            if (info.CategoryName == "内功词条收益" && info.GroupName != "全局")
+            {
+                attrNameMap[code] = info.Name;
+            }
+        }
+
+        var parameters = new DialogParameters<SyTreatRecordEditDialog>
+        {
+            [nameof(SyTreatRecordEditDialog.Record)] = record,
+            [nameof(SyTreatRecordEditDialog.PageTankRatio)] = _treatPageModel.TreatDefenseRatio,
+            [nameof(SyTreatRecordEditDialog.LingYunOptions)] = _lingyunOptions.ToArray(),
+            [nameof(SyTreatRecordEditDialog.LingYunNameToCode)] = _lingyunNameToCode,
+            [nameof(SyTreatRecordEditDialog.AttrNameMap)] = attrNameMap,
+            [nameof(SyTreatRecordEditDialog.DefaultParamValues)] = _treatPageModel.ParamValuesDictionary,
+            [nameof(SyTreatRecordEditDialog.DenseMode)] = _denseMode
+        };
+
+        var dialog = await Dialog.ShowAsync<SyTreatRecordEditDialog>("编辑内功记录", parameters, _recordDialogOptions);
+        var result = await dialog.Result;
+        StateHasChanged();
+        if (result.Canceled)
+        {
+            return;
+        }
+
+        // 返回 null 表示删除该记录
+        if (result.Data is null)
+        {
+            _syTreatRecordPageModel.Records.Remove(record);
+            _recordObservable.Remove(record);
+            SaveRecords();
+            Snackbar.Add("内功记录已删除", Severity.Success);
+            return;
+        }
+
+        // 编辑保存：记录的 InputValues/LingYunSelection/Title/Remark/Score/GradeText 已在对话框内回写，此处持久化
+        SaveRecords();
+        Snackbar.Add("内功记录已更新", Severity.Success);
+    }
+
+    #endregion
 
     private Task WarningTips()
     {
