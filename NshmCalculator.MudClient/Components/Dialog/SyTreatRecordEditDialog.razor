@@ -30,9 +30,22 @@
             {
                 var label = AttrNameMap != null && AttrNameMap.TryGetValue(pair.Key, out var name) ? name : pair.Key;
                 <MudItem xs="6" sm="4" md="3">
-                    <MudTextField ShrinkLabel T="double" @bind-Value="_editValues[pair.Key]" Label="@label"
-                                  Variant="Variant.Outlined"
-                                  Margin="@(DenseMode ? Margin.Dense : Margin.Normal)"/>
+                    @if (PercentCodes != null && PercentCodes.Contains(pair.Key))
+                    {
+                        // Percent 模式(如流派抵御/赛年词条): _editValues 存小数量级, UI 显示 *100 加 %, 输入 /100 存回并触发复算
+                        // 用 Math.Round 消除 ×100/÷100 往返产生的浮点误差(如 1.7→0.017000000000000002→1.7000000000000002)
+                        <MudTextField ShrinkLabel T="double" Label="@label"
+                                      Value="@(Math.Round(pair.Value * 100.0, 6))"
+                                      ValueChanged="@(v => { _editValues[pair.Key] = Math.Round(v / 100.0, 8); Recalculate(); })"
+                                      Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentText="%"
+                                      Margin="@(DenseMode ? Margin.Dense : Margin.Normal)"/>
+                    }
+                    else
+                    {
+                        <MudTextField ShrinkLabel T="double" @bind-Value="_editValues[pair.Key]" Label="@label"
+                                      Variant="Variant.Outlined"
+                                      Margin="@(DenseMode ? Margin.Dense : Margin.Normal)"/>
+                    }
                 </MudItem>
             }
         </MudGrid>
@@ -71,6 +84,9 @@
 
     /// <summary>词条 Code -> 显示名映射（渲染可编辑词条标签）</summary>
     [Parameter] public Dictionary<string, string> AttrNameMap { get; set; } = new();
+
+    /// <summary>Percent 模式属性的 Code 集合（如流派抵御/赛年词条），弹窗中需以百分比显示与输入转换</summary>
+    [Parameter] public HashSet<string> PercentCodes { get; set; } = new();
 
     /// <summary>复算字典基底（页面的 ParamValuesDictionary 拷贝）</summary>
     [Parameter] public Dictionary<string, ParamValue> DefaultParamValues { get; set; } = new();

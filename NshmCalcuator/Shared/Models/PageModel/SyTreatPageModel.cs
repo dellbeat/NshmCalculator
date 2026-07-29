@@ -21,10 +21,10 @@ public class SyTreatPageModel
     [ValidateComplexType]
     public TreatInfo BaseTreatInfo { get; set; } = new TreatInfo()
     {
-        TreatIntensity = 6290,
-        CriticalHits = 1500,
-        ExtraCriticalHitsRate = 3,
-        CriticalDamageRate = 160,
+        TreatIntensity = 1500,
+        CriticalHits = 1534,
+        ExtraCriticalHitsRate = 0,
+        CriticalDamageRate = 150,
         CureGain = 170
     };
 

@@ -969,9 +969,13 @@
         {
             if (info.CategoryName == "内功词条收益" && info.GroupName != "全局" && Math.Abs(info.NumberValue) > 1e-9)
             {
-                // NumberValue 为输入框展示值（Percent 模式已 *100），直接展示
+                // NumberValue 为输入框展示值（Percent 模式已 *100），直接展示；Percent 模式追加 % 后缀
+                // Percent 模式用 Round 消除 ×100 产生的浮点尾差(如 1.7000000000000002)
                 attrNameMap[code] = info.Name;
-                displayItems.Add(new SyTreatRecordSaveDialog.AttrDisplay(info.Name, info.NumberValue.ToString("G")));
+                string valueStr = info.Mode == ParamMode.Percent
+                    ? $"{Math.Round(info.NumberValue, 6):G}%"
+                    : info.NumberValue.ToString("G");
+                displayItems.Add(new SyTreatRecordSaveDialog.AttrDisplay(info.Name, valueStr));
             }
         }
 
@@ -1037,12 +1041,18 @@
         }
 
         // 构建词条 Code -> Name 映射（限定「内功词条收益」分类且排除「全局」组如疗承比，供弹窗渲染可编辑词条标签）
+        // 同时收集 Percent 模式属性的 Code 集合（流派抵御/赛年词条等），供弹窗做百分比显示与输入转换
         var attrNameMap = new Dictionary<string, string>();
+        var percentCodes = new HashSet<string>();
         foreach (var (code, info) in _paramDic)
         {
             if (info.CategoryName == "内功词条收益" && info.GroupName != "全局")
             {
                 attrNameMap[code] = info.Name;
+                if (info.Mode == ParamMode.Percent)
+                {
+                    percentCodes.Add(code);
+                }
             }
         }
 
@@ -1053,6 +1063,7 @@
             [nameof(SyTreatRecordEditDialog.LingYunOptions)] = _lingyunOptions.ToArray(),
             [nameof(SyTreatRecordEditDialog.LingYunNameToCode)] = _lingyunNameToCode,
             [nameof(SyTreatRecordEditDialog.AttrNameMap)] = attrNameMap,
+            [nameof(SyTreatRecordEditDialog.PercentCodes)] = percentCodes,
             [nameof(SyTreatRecordEditDialog.DefaultParamValues)] = _treatPageModel.ParamValuesDictionary,
             [nameof(SyTreatRecordEditDialog.DenseMode)] = _denseMode
         };
