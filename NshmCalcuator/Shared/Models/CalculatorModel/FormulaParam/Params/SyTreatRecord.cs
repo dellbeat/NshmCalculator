@@ -40,8 +40,22 @@ public class SyTreatRecord
 
     /// <summary>
     /// 灵韵下拉框选中项名称（"无"表示不选；编辑弹窗可修改）。
+    /// <para>4.1.1 内功收益改造前的旧字段，保留用于旧记录向后兼容。
+    /// 新逻辑下灵韵下拉框简化为「无/有」，UI 角色由 <see cref="HasLingYun"/> 接管；
+    /// 加载旧记录时会迁移：<c>HasLingYun = LingYunSelection=="无"?"无":"有"</c>、
+    /// <c>NeiGongSelection = LingYunSelection</c>。</para>
     /// </summary>
     public string LingYunSelection { get; set; } = "无";
+
+    /// <summary>
+    /// 内功名称下拉框选中项（"无"表示不选；编辑弹窗可修改）。对应内功特性收益 A。
+    /// </summary>
+    public string NeiGongSelection { get; set; } = "无";
+
+    /// <summary>
+    /// 灵韵下拉框选中项（"无"/"有"）。选「有」时按 <see cref="NeiGongSelection"/> 查灵韵收益 B。
+    /// </summary>
+    public string HasLingYun { get; set; } = "无";
 
     /// <summary>
     /// 总收益（加载/重算时按当前配置 + 页面疗承比复算填充，不参与序列化）

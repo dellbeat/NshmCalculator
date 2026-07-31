@@ -37,14 +37,17 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>testdata\%(RecursiveDir)%(FileName)%(Extension)</Link>
         </Content>
+        <!-- 运行时配置(wwwroot/data + index.html)：测试通过相对路径 data/xxx.json 读取
+             (GlobalConfigTest / TreatUtilityTest / IndexTest 等)。原 PreBuild 自定义 Target 在
+             SDK 样式工程下不保证触发，改用标准 Content 项保证每次构建都同步最新配置。 -->
+        <Content Include="$(SolutionDir)NshmCalculator.MudClient\wwwroot\data\**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>data\%(RecursiveDir)%(FileName)%(Extension)</Link>
+        </Content>
+        <Content Include="$(SolutionDir)NshmCalculator.MudClient\wwwroot\index.html">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>data\index.html</Link>
+        </Content>
     </ItemGroup>
-
-    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-        <ItemGroup>
-            <SomeFolder Include="$(SolutionDir)NshmCalculator.MudClient\wwwroot\data\**"/>
-            <SomeFolder Include="$(SolutionDir)NshmCalculator.MudClient\wwwroot\index.html"/>
-        </ItemGroup>
-        <Copy SourceFiles="@(SomeFolder)" DestinationFolder="$(ProjectDir)$(OutDir)data\" SkipUnchangedFiles="false"></Copy>
-    </Target>
 
 </Project>

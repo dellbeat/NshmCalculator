@@ -35,8 +35,21 @@ public class SyTreatPageModel
 
     /// <summary>
     /// 灵韵下拉框选中项名称（"无"表示不选；选中灵韵内功后其收益值会动态计算并计入总收益）
+    /// <para>4.1.1 内功收益改造后，灵韵下拉框简化为「无/有」，UI 角色由 <see cref="HasLingYun"/> 接管；
+    /// 此字段保留用于 OCR 识别逻辑向后兼容（OCR 暂未对接新下拉，后续改动迁移）。</para>
     /// </summary>
     public string LingYunSelection { get; set; } = "无";
+
+    /// <summary>
+    /// 内功名称下拉框选中项（"无"表示不选；选中特效内功后其特性收益 A 会动态查表并计入总收益）
+    /// <para>选项来源：配置「内功特性收益」组（排除御千山「无敌」文本、绝电鸿音未配置项）。</para>
+    /// </summary>
+    public string NeiGongSelection { get; set; } = "无";
+
+    /// <summary>
+    /// 灵韵下拉框选中项（"无"/"有"）。选「有」时按 <see cref="NeiGongSelection"/> 查「灵韵收益」表计入 B。
+    /// </summary>
+    public string HasLingYun { get; set; } = "无";
 
     /// <summary>
     /// 当前 Tab 索引（0=属性变化, 1=PVP词条），用于控制计算分发与 UI
@@ -93,6 +106,11 @@ public class SyTreatPageModel
     #endregion
 
     #region 结果输出
+
+    /// <summary>
+    /// 内功特性收益 A（由「内功名称」下拉选中项查 RF_TS_* 求得，显示用，不计入持久化）
+    /// </summary>
+    public double TeSeGain { get; set; }
 
     /// <summary>
     /// PVP 总评分

@@ -193,9 +193,25 @@ public class TreatUtilityRegressionTest
         CureGain = baseInfo.CureGain + delta.GetValueOrDefault("ST_CureGain"),
     };
 
-    /// <summary>equipment 的数值字典 → ParamValue 字典(NumberMode=true)。</summary>
+    /// <summary>
+    /// equipment 的数值字典 → ParamValue 字典(NumberMode=true)。
+    /// 以配置 DefaultParamValues 为基底（与页面 ParamValuesDictionary 初始化一致），
+    /// 再用用例输入覆盖；确保 RF_TotalGain 引用的非用例直供参数（如 ST_PVP_TeSe、ST_PVP_LingYun）
+    /// 缺省为 0，而非 NCalc 未绑定导致的求值异常。
+    /// </summary>
     private static Dictionary<string, ParamValue> ToParamValueDic(Dictionary<string, double> inputs)
-        => inputs.ToDictionary(kv => kv.Key, kv => new ParamValue { NumberValue = kv.Value, NumberMode = true });
+    {
+        var dic = new Dictionary<string, ParamValue>();
+        foreach ((string k, var v) in Config.DefaultParamValues ?? new())
+        {
+            dic[k] = new ParamValue { NumberValue = v.NumberValue, NumberMode = true };
+        }
+        foreach ((string k, double v) in inputs)
+        {
+            dic[k] = new ParamValue { NumberValue = v, NumberMode = true };
+        }
+        return dic;
+    }
 
     private static double GetExpected(RegressionCase c, string code)
         => c.Expected.TryGetValue(code, out var v) && v is JsonElement je

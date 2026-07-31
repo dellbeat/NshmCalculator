@@ -189,6 +189,7 @@ public class TreatUtilityTest
             "ST_PVP_Sta", "ST_PVP_Def", "ST_PVP_DefN", "ST_PVP_DefW", "ST_PVP_ACritW",
             "ST_PVP_ACritN", "ST_PVP_SchoolDef", "ST_PVP_ACrit", "ST_PVP_Restrain",
             "ST_PVP_Resist", "ST_PVP_CritDmg", "ST_PVP_CritDef", "ST_PVP_SaiNian", "ST_PVP_LingYun",
+            "ST_PVP_TeSe",
         };
         var dic = new Dictionary<string, ParamValue>();
         foreach (var code in codes)

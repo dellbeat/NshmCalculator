@@ -186,6 +186,31 @@
                                             </MudPaper>
                                         </MudItem>
                                         <MudItem xs="12">
+                                            <MudSelect T="string" ShrinkLabel @bind-Value="_treatPageModel.NeiGongSelection"
+                                                       Label="内功名称" HelperText="选择特效内功自动计入特性收益(固垒按疗承比动态计算)"
+                                                       Variant="Variant.Outlined"
+                                                       Margin="@(_denseMode ? Margin.Dense : Margin.Normal)">
+                                                @foreach (var option in _neigongOptions)
+                                                {
+                                                    <MudSelectItem T="string" Value="@option">@option</MudSelectItem>
+                                                }
+                                            </MudSelect>
+                                        </MudItem>
+                                        <MudItem xs="6">
+                                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.TreatDefenseRatio"
+                                                          Label="疗承比" HelperText="详情查阅帮助说明" Variant="Variant.Outlined"
+                                                          Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
+                                        </MudItem>
+                                        <MudItem xs="6">
+                                            <MudSelect T="string" ShrinkLabel @bind-Value="_treatPageModel.HasLingYun"
+                                                       Label="灵韵" HelperText="选「有」则按内功名称计入灵韵收益"
+                                                       Variant="Variant.Outlined"
+                                                       Margin="@(_denseMode ? Margin.Dense : Margin.Normal)">
+                                                <MudSelectItem T="string" Value="@("无")">无</MudSelectItem>
+                                                <MudSelectItem T="string" Value="@("有")">有</MudSelectItem>
+                                            </MudSelect>
+                                        </MudItem>
+                                        <MudItem xs="12">
                                             <MudExpansionPanels MultiExpansion="true">
                                                 @foreach (var group in _pvpParamGroups)
                                                 {
@@ -195,34 +220,21 @@
                                                 }
                                             </MudExpansionPanels>
                                         </MudItem>
-                                        <MudItem xs="6">
-                                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.TreatDefenseRatio"
-                                                          Label="疗承比" HelperText="详情查阅帮助说明" Variant="Variant.Outlined"
-                                                          Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
-                                        </MudItem>
-                                        <MudItem xs="6">
-                                            <MudSelect T="string" ShrinkLabel @bind-Value="_treatPageModel.LingYunSelection"
-                                                       Label="灵韵" HelperText="选择灵韵内功自动计入收益(固垒按疗承比动态计算)"
-                                                       Variant="Variant.Outlined"
-                                                       Margin="@(_denseMode ? Margin.Dense : Margin.Normal)">
-                                                @foreach (var option in _lingyunOptions)
-                                                {
-                                                    <MudSelectItem T="string" Value="@option">@option</MudSelectItem>
-                                                }
-                                            </MudSelect>
-                                        </MudItem>
-                                        <MudItem xs="12" Class="d-flex align-center justify-center">
-                                            <MudStack Row="true" Spacing="4">
+                                        <MudItem xs="12">
+                                            <div class="d-flex flex-wrap align-center justify-center" style="gap: 8px;">
+                                                <MudChip Color="Color.Secondary">
+                                                    内功特性收益：@_treatPageModel.TeSeGain.ToString("P3")
+                                                </MudChip>
                                                 <MudChip Color="Color.Info">
                                                     总收益：@_treatPageModel.Score.ToString("P3")
                                                 </MudChip>
                                                 @if (!string.IsNullOrEmpty(_treatPageModel.GradeText))
                                                 {
                                                     <MudChip Color="Color.Success">
-                                                        评级：@_treatPageModel.GradeText
+                                                        词条收益评级：@_treatPageModel.GradeText
                                                     </MudChip>
                                                 }
-                                            </MudStack>
+                                            </div>
                                         </MudItem>
                                         <MudItem xs="12" Class="d-flex justify-center">
                                             <MudButton Variant="Variant.Filled" Color="Color.Info"
@@ -233,28 +245,7 @@
                                     </MudGrid>
                                 </MudTabPanel>
 
-                                @* ----- Tab2: 灵韵/周天收益参考 (MudTable 分页展示, 对齐身份收益计算器样式) ----- *@
-                                <MudTabPanel Text="灵韵/周天收益">
-                                    <MudTable T="ReferenceRow" Items="@_referenceRows" Breakpoint="Breakpoint.None"
-                                              Striped="true" Dense="@_denseMode">
-                                        <HeaderContent>
-                                            <MudTh>类别</MudTh>
-                                            <MudTh>名称</MudTh>
-                                            <MudTh>收益</MudTh>
-                                        </HeaderContent>
-                                        <RowTemplate Context="row">
-                                            <MudTd DataLabel="类别">@row.Category</MudTd>
-                                            <MudTd DataLabel="名称">@row.Name</MudTd>
-                                            <MudTd DataLabel="收益">@row.Value.ToString("P2")</MudTd>
-                                        </RowTemplate>
-                                        <PagerContent>
-                                            <MudTablePager PageSizeOptions="new[] { 7 }"
-                                                           HideRowsPerPage="true"/>
-                                        </PagerContent>
-                                    </MudTable>
-                                </MudTabPanel>
-
-                                @* ----- Tab3: 内功记录 (MudTable 展示已保存记录, 点击进入编辑) ----- *@
+                                @* ----- Tab2: 内功记录 (MudTable 展示已保存记录, 点击进入编辑) ----- *@
                                 <MudTabPanel Text="内功记录">
                                     @if (_recordObservable.Count > 0)
                                     {
@@ -287,6 +278,7 @@
                                         </MudText>
                                     }
                                 </MudTabPanel>
+
                             </MudTabs>
                         </MudItem>
 
@@ -321,16 +313,19 @@
     // 配置驱动的参数分组缓存
     private List<IGrouping<string, FrontParamInfo>> _pvpParamGroups = new();
 
-    // 灵韵/周天参考结果组(从配置的 ResultGroups 中筛选, 用于计算取值)
+    // 灵韵/周天/内功特性 参考结果组(从配置的 ResultGroups 中筛选, 用于构建下拉选项与查表)
     private List<ResultGroup> _referenceResultGroups;
 
-    // 灵韵/周天参考收益表的数据行(MudTable 数据源)
-    private List<ReferenceRow> _referenceRows = new();
-
-    // 灵韵下拉框选项: 首项"无" + 灵韵名称(复用"灵韵收益"参考组)
+    // 灵韵名称列表(首项"无" + 灵韵名称，复用"灵韵收益"参考组)
+    // 注: 4.1.1 内功收益改造后灵韵下拉框简化为「无/有」，此列表仅供编辑弹窗 SyTreatRecordEditDialog 使用
     private List<string> _lingyunOptions = new();
-    // 灵韵名称 -> RF_LY_* Code 映射(选中后据此调用引擎求值)
+    // 灵韵名称 -> RF_LY_* Code 映射(PvpCalculate B 段按内功名称查灵韵收益、记录复算均依赖)
     private Dictionary<string, string> _lingyunNameToCode = new();
+
+    // 内功名称下拉框选项: 首项"无" + 内功名(复用"内功特性收益"参考组)
+    private List<string> _neigongOptions = new();
+    // 内功名称 -> RF_TS_* Code 映射(选中后据此调用引擎求特性收益 A)
+    private Dictionary<string, string> _neigongNameToCode = new();
 
     // 基础面板会心率/奶量(显示用)
     private double _baseHealRate;
@@ -429,9 +424,10 @@
 
     private void InitParameters()
     {
-        // 边界保护：校正 ActiveIndex（老用户缓存可能为已移除 Tab 的索引，避免 MudTabs 越界）
-        // 当前 Tab 数量：0=属性变化, 1=PVP词条, 2=灵韵/周天收益, 3=内功记录
-        if (_treatPageModel.ActiveIndex < 0 || _treatPageModel.ActiveIndex > 3)
+        // 边界保护：校正 ActiveIndex（老用户缓存可能指向已移除 Tab 的索引，避免 MudTabs 越界）
+        // 当前 Tab：0=属性变化, 1=内功词条收益, 2=内功记录
+        // (灵韵/周天收益参考 Tab 已移除；缓存命中旧索引 3 时回退到默认 Tab0)
+        if (_treatPageModel.ActiveIndex < 0 || _treatPageModel.ActiveIndex > 2)
         {
             _treatPageModel.ActiveIndex = 0;
         }
@@ -464,12 +460,12 @@
             .Where(s => s.CategoryName == "内功词条收益" && s.GroupName != "全局")
             .GroupBy(s => s.GroupName ?? "其它").ToList();
 
-        // 灵韵/周天参考结果组(从 ResultGroups 筛选)
+        // 灵韵/周天/内功特性 参考结果组(从 ResultGroups 筛选)
         _referenceResultGroups = (_currentConfig.ResultGroups ?? Array.Empty<ResultGroup>())
-            .Where(g => g.GroupName == "灵韵收益" || g.GroupName == "周天收益")
+            .Where(g => g.GroupName == "灵韵收益" || g.GroupName == "周天收益" || g.GroupName == "内功特性收益")
             .ToList();
 
-        // 构建灵韵下拉框选项(复用"灵韵收益"参考组的 Title/Code, 首项"无")
+        // 构建灵韵名称列表(供编辑弹窗 + PvpCalculate B 段查表; UI 下拉已改为无/有)
         _lingyunOptions.Clear();
         _lingyunNameToCode.Clear();
         _lingyunOptions.Add("无");
@@ -485,11 +481,40 @@
                 }
             }
         }
-        // 校正持久化的选中值(老缓存可能不在新选项里)
+        // 校正持久化的灵韵选中值(老缓存可能不在新选项里)
         if (string.IsNullOrEmpty(_treatPageModel.LingYunSelection)
             || !_lingyunOptions.Contains(_treatPageModel.LingYunSelection))
         {
             _treatPageModel.LingYunSelection = "无";
+        }
+
+        // 构建内功名称下拉框选项(复用"内功特性收益"参考组的 Title/Code, 首项"无")
+        _neigongOptions.Clear();
+        _neigongNameToCode.Clear();
+        _neigongOptions.Add("无");
+        var neigongGroup = _referenceResultGroups.FirstOrDefault(g => g.GroupName == "内功特性收益");
+        if (neigongGroup != null)
+        {
+            foreach (var line in neigongGroup.ResultLines)
+            {
+                foreach (var item in line.ResultItems)
+                {
+                    _neigongOptions.Add(item.Title);
+                    _neigongNameToCode[item.Title] = item.Code;
+                }
+            }
+        }
+        // 校正持久化的内功名称选中值(老缓存可能不在新选项里)
+        if (string.IsNullOrEmpty(_treatPageModel.NeiGongSelection)
+            || !_neigongOptions.Contains(_treatPageModel.NeiGongSelection))
+        {
+            _treatPageModel.NeiGongSelection = "无";
+        }
+        // 校正灵韵「无/有」选中值
+        if (string.IsNullOrEmpty(_treatPageModel.HasLingYun)
+            || (_treatPageModel.HasLingYun != "无" && _treatPageModel.HasLingYun != "有"))
+        {
+            _treatPageModel.HasLingYun = "无";
         }
 
         // 初始化计算引擎
@@ -516,65 +541,6 @@
         var (rate, num) = TreatUtility.ComputeHeal(_treatPageModel.BaseTreatInfo, _currentConfig);
         _baseHealRate = rate;
         _baseTreatNum = num;
-
-        // 计算灵韵/周天参考结果
-        CalculateReferenceResults();
-    }
-
-    /// <summary>
-    /// 计算灵韵/周天参考收益(纯常量公式, 依赖疗承比)
-    /// </summary>
-    private void CalculateReferenceResults()
-    {
-        if (_referenceResultGroups == null || _referenceResultGroups.Count == 0) return;
-        var refCodes = new List<string>();
-        foreach (var g in _referenceResultGroups)
-        {
-            foreach (var line in g.ResultLines)
-            {
-                refCodes.AddRange(line.ResultItems.Select(s => s.Code));
-            }
-        }
-        if (refCodes.Count == 0) return;
-
-        // 灵韵/周天公式引用 ST_TankRatio, 需装入字典
-        var valueDic = new Dictionary<string, ParamValue>(_treatPageModel.ParamValuesDictionary)
-        {
-            ["ST_TankRatio"] = new() { NumberValue = _treatPageModel.TreatDefenseRatio, NumberMode = true }
-        };
-
-        var rawResults = TreatUtility.CalculateRaw(refCodes, valueDic);
-
-        // 重新构建表格数据行（灵韵在前、周天在后）
-        _referenceRows.Clear();
-        foreach (var g in _referenceResultGroups)
-        {
-            // 根据分组名映射显示类别
-            string category = g.GroupName == "灵韵收益" ? "灵韵" : "周天";
-            foreach (var line in g.ResultLines)
-            {
-                foreach (var item in line.ResultItems)
-                {
-                    double val = 0;
-                    if (rawResults.TryGetValue(item.Code, out var rawVal))
-                    {
-                        val = rawVal is double d ? d : 0;
-                        item.Value = val;
-                    }
-
-                    _referenceRows.Add(new ReferenceRow
-                    {
-                        Category = category,
-                        Name = item.Title,
-                        Value = val
-                    });
-                }
-            }
-            g.RenderGuid = Guid.NewGuid().ToString();
-        }
-
-        // 按收益率降序排序（高收益在前，仅数据层排序，表格不体现排序控件）
-        _referenceRows = _referenceRows.OrderByDescending(r => r.Value).ToList();
     }
 
     /// <summary>
@@ -596,9 +562,6 @@
                 PvpCalculate();
                 break;
         }
-
-        // 始终刷新灵韵/周天参考(因为疗承比可能变化)
-        CalculateReferenceResults();
 
         // 疗承比变化时，对所有内功记录复算总收益并持久化刷新
         // (疗承比跟随页面上下文，不存入记录；记录的 RF_TotalGain 依赖 ST_TankRatio，故疗承比变化后需重算)
@@ -640,22 +603,44 @@
 
     /// <summary>
     /// Tab1: 内功词条收益(配置驱动 NCalc, 含评级)
+    /// 流程: 同步词条 → 算特性 A(内功名称) → 算灵韵 B(灵韵有/无) → 算总收益/评级
     /// </summary>
     private void PvpCalculate()
     {
         SyncFrontParamValues();
 
-        // 同步疗承比到字典(ST_TankRatio) —— 必须先于灵韵计算, 因为固垒依赖疗承比
+        // 同步疗承比到字典(ST_TankRatio) —— 必须先于特性/灵韵计算, 因为固垒依赖疗承比
         _treatPageModel.ParamValuesDictionary["ST_TankRatio"] = new()
         {
             NumberValue = _treatPageModel.TreatDefenseRatio,
             NumberMode = true
         };
 
-        // 先计算灵韵下拉框选中项对应的收益值, 作为 ST_PVP_LingYun 输入(固垒等动态公式走引擎求值)
+        // 4. 新逻辑 A: 内功名称非「无」→ 查「内功特性收益」表(RF_TS_*), 有则计入特性收益
+        double teSeGain = 0;
+        if (_treatPageModel.NeiGongSelection != "无"
+            && _neigongNameToCode.TryGetValue(_treatPageModel.NeiGongSelection, out var tsCode))
+        {
+            var tsResult = TreatUtility.CalculateRaw(new List<string> { tsCode }, _treatPageModel.ParamValuesDictionary);
+            if (tsResult.TryGetValue(tsCode, out var tsObj) && tsObj is double tsVal)
+            {
+                teSeGain = tsVal;
+            }
+        }
+        _treatPageModel.ParamValuesDictionary["ST_PVP_TeSe"] = new()
+        {
+            NumberValue = teSeGain,
+            NumberMode = true
+        };
+        // 暴露特性收益 A 供 chip 展示
+        _treatPageModel.TeSeGain = teSeGain;
+
+        // 5. 原逻辑 B: 灵韵选「有」且内功名称非「无」→ 按内功名称查「灵韵收益」表(RF_LY_*)
+        //    (灵韵下拉简化为无/有, 灵韵具体名复用内功名称下拉的选中项)
         double lingyunGain = 0;
-        if (_treatPageModel.LingYunSelection != "无"
-            && _lingyunNameToCode.TryGetValue(_treatPageModel.LingYunSelection, out var lyCode))
+        if (_treatPageModel.HasLingYun == "有"
+            && _treatPageModel.NeiGongSelection != "无"
+            && _lingyunNameToCode.TryGetValue(_treatPageModel.NeiGongSelection, out var lyCode))
         {
             var lyResult = TreatUtility.CalculateRaw(new List<string> { lyCode }, _treatPageModel.ParamValuesDictionary);
             if (lyResult.TryGetValue(lyCode, out var lyObj) && lyObj is double lyVal)
@@ -669,7 +654,7 @@
             NumberMode = true
         };
 
-        // 继续总收益计算(此时 ST_PVP_LingYun 已就绪)
+        // 6/7. 总收益 = K23 词条 + A + B + 赛年(公式已含 ST_PVP_TeSe)
         var rawResults = TreatUtility.CalculateRaw(_pvpCodes, _treatPageModel.ParamValuesDictionary);
 
         if (rawResults.TryGetValue("RF_TotalGain", out var totalObj) && totalObj is double total)
@@ -684,11 +669,13 @@
     }
 
     /// <summary>
-    /// 解析 OCR 识别文本，将匹配到的属性数值填入对应单元格(NumberValue)。
+    /// 解析 OCR 识别文本，将匹配到的属性数值填入对应单元格(NumberValue)，并自动选中内功名称/灵韵。
     /// 规则(配置驱动，参照 UpdateCalculator.OnRecognizeFill 并适配 FrontParamInfo 模型):
     ///  - OcrExclude==true 的属性不参与识别(如克制/抵御/会伤/会防/治疗强度)
     ///  - 普通属性: 用 Name 作锚点，匹配 "属性名+数值"(同属性累加)
     ///  - 自定义前缀属性: 用 OcrPrefix 作锚点(如"&lt;赛年&gt;")，匹配 "前缀+(可选属性名)+数值"(累加)
+    ///  - 内功名称: 从「内功特性收益」表中按名称匹配(均先去括号内容)，命中则选中对应内功
+    ///  - 灵韵有无: 识别文本去括号后包含「灵韵」二字 → 选「有」，否则「无」
     /// </summary>
     private void OnRecognize()
     {
@@ -728,14 +715,31 @@
             string nameAlt = string.Join("|", nameToAttr.Keys.OrderByDescending(n => n.Length).Select(Regex.Escape));
             var normalMatches = Regex.Matches(_ocrText, $@"(?<![\u4e00-\u9fa5])({nameAlt})\s*\+(\d+(?:\.\d+)?%?)");
 
+            // 先按属性名收集所有命中的数值(保持 OCR 文本出现顺序)
+            var nameToValues = new Dictionary<string, List<double>>();
             foreach (Match m in normalMatches)
             {
                 string name = m.Groups[1].Value.Trim();
-                if (!nameToAttr.TryGetValue(name, out var attr)) continue;
+                if (!nameToAttr.ContainsKey(name)) continue;
                 double value = ParseValueToDouble(m.Groups[2].Value.Trim());
-                // 同一属性多次出现时累加(如两个攻击词条 31+36=67)
-                attr.NumberValue += value;
-                matchedCount++;
+                if (!nameToValues.TryGetValue(name, out var list))
+                {
+                    list = new List<double>();
+                    nameToValues[name] = list;
+                }
+                list.Add(value);
+            }
+
+            // 按属性汇总到 NumberValue
+            foreach ((string name, var values) in nameToValues)
+            {
+                if (!nameToAttr.TryGetValue(name, out var attr)) continue;
+                // 特例: 「气血上限」跳过第一条(通常为装备自带主词条), 从第二条开始累加;
+                //       仅 1 条时跳过(记 0), 0 条时本就不进入此处。其余属性全部累加。
+                IEnumerable<double> toSum = ShouldSkipFirstAttr(name) ? values.Skip(1) : values;
+                double sum = toSum.Sum();
+                attr.NumberValue += sum;
+                if (sum > 0) matchedCount++;
             }
         }
 
@@ -769,59 +773,72 @@
             return;
         }
 
-        // === 灵韵内功下拉框匹配 ===
-        // 触发条件: 识别文本包含「灵韵」二字
-        // 匹配规则: 按 _lingyunOptions 顺序(跳过首项「无」)用子串包含查找，首个命中即选中；
-        //          全部未命中 或 文本不含「灵韵」→ 选「无」
-        TryMatchLingYun(_ocrText);
+        // === 内功名称下拉框匹配 ===
+        // 从「内功特性收益」表(_neigongOptions，首项「无」)逐项用子串包含查找，
+        // 文本与选项名均先去掉括号内容(兼容半角()全角（）)再匹配，命中则选中对应内功名称。
+        TryMatchNeiGongName(_ocrText);
+
+        // === 灵韵有无判定 ===
+        // 识别文本去掉括号内容后包含「灵韵」二字 → 选「有」，否则「无」
+        TryMatchHasLingYun(_ocrText);
 
         string tip = $"<ul><li>成功匹配并填入单元格 {matchedCount} 项（同属性已自动累加）</li>";
-        tip += $"<li>灵韵已识别：{_treatPageModel.LingYunSelection}</li>";
+        tip += $"<li>内功名称已识别：{_treatPageModel.NeiGongSelection}</li>";
+        tip += $"<li>灵韵已识别：{_treatPageModel.HasLingYun}</li>";
         tip += "<li>请在「内功词条收益」确认数值，并点击「计算」</li></ul>";
         Snackbar.Add(tip, Severity.Info);
     }
 
     /// <summary>
-    /// 灵韵内功匹配: 当识别文本包含「灵韵」二字时，按 _lingyunOptions 顺序(跳过「无」)
-    /// 用子串包含查找首个命中的灵韵名并选中下拉框。
-    /// 带括号的选项(如「绝电(素问)」)只匹配括号外的核心词(「绝电」)，但选中时用完整名。
-    /// 文本不含「灵韵」 或 含「灵韵」但全部未命中 → 选「无」。
+    /// 去掉字符串中的括号内容（兼容半角 () 和全角 （）），用于 OCR 匹配前归一化。
+    /// 例：「绝电(素问)」→「绝电」。
     /// </summary>
-    private void TryMatchLingYun(string text)
-    {
-        // 触发条件: 文本必须包含「灵韵」二字，否则直接选「无」
-        if (!text.Contains("灵韵"))
-        {
-            _treatPageModel.LingYunSelection = _lingyunOptions.Count > 0 ? _lingyunOptions[0] : "无";
-            return;
-        }
+    private static string StripParentheses(string? s)
+        => string.IsNullOrEmpty(s) ? "" : Regex.Replace(s, @"[(（][^)）]*[)）]", "").Trim();
 
-        // _lingyunOptions 首项为「无」，从索引 1 开始遍历真实灵韵名
-        for (int i = 1; i < _lingyunOptions.Count; i++)
+    /// <summary>
+    /// 内功名称匹配：从「内功特性收益」表(_neigongOptions，首项「无」)逐项，
+    /// 将选项名与识别文本均先去括号内容后做子串包含查找，首个命中即选中对应内功名称。
+    /// 全部未命中 → 选「无」。
+    /// </summary>
+    private void TryMatchNeiGongName(string text)
+    {
+        // 文本先去括号，避免「绝电(素问)」的括号干扰子串匹配
+        string normalizedText = StripParentheses(text);
+
+        // _neigongOptions 首项为「无」，从索引 1 开始遍历真实内功名
+        for (int i = 1; i < _neigongOptions.Count; i++)
         {
-            string option = _lingyunOptions[i];
+            string option = _neigongOptions[i];
             if (string.IsNullOrEmpty(option))
             {
                 continue;
             }
 
-            // 去掉括号内容(兼容半角 () 和全角 （）)后再做子串匹配，
-            // 如「绝电(素问)」→ 仅尝试匹配「绝电」，但选中时用完整名
-            string matchKey = Regex.Replace(option, @"[(（][^)）]*[)）]", "").Trim();
+            // 选项名去括号后做子串匹配，如「绝电(素问)」→ 仅尝试匹配「绝电」，但选中时用完整名
+            string matchKey = StripParentheses(option);
             if (string.IsNullOrEmpty(matchKey))
             {
                 continue;
             }
 
-            if (text.Contains(matchKey))
+            if (normalizedText.Contains(matchKey))
             {
-                _treatPageModel.LingYunSelection = option;
+                _treatPageModel.NeiGongSelection = option;
                 return;
             }
         }
 
         // 全部未命中 → 选「无」(索引 0)
-        _treatPageModel.LingYunSelection = _lingyunOptions.Count > 0 ? _lingyunOptions[0] : "无";
+        _treatPageModel.NeiGongSelection = _neigongOptions.Count > 0 ? _neigongOptions[0] : "无";
+    }
+
+    /// <summary>
+    /// 灵韵有无判定：识别文本去掉括号内容后包含「灵韵」二字 → 选「有」，否则「无」。
+    /// </summary>
+    private void TryMatchHasLingYun(string text)
+    {
+        _treatPageModel.HasLingYun = StripParentheses(text).Contains("灵韵") ? "有" : "无";
     }
 
     /// <summary>
@@ -835,6 +852,13 @@
         }
         return double.TryParse(valueStr, out double numValue) ? numValue : 0;
     }
+
+    /// <summary>
+    /// 判断该属性在 OCR 识别时是否需要「跳过第一条」。
+    /// 「气血上限」特例: OCR 文本中首条通常为装备自带主词条(不应计入收益)，
+    /// 故仅从第二条开始累加；仅 1 条时跳过(记 0)。其余属性保持全部累加。
+    /// </summary>
+    private static bool ShouldSkipFirstAttr(string name) => name == "气血上限";
 
     /// <summary>
     /// 打开图片识别弹窗。弹窗自己注入 WebOcrEngine(Scoped)并管理引擎状态/进度，
@@ -924,7 +948,7 @@
     }
 
     /// <summary>
-    /// 基于记录的词条值/灵韵 + 页面疗承比复算总收益与评级（调用共享工具）。
+    /// 基于记录的词条值/内功名称/灵韵 + 页面疗承比复算总收益与评级（调用共享工具）。
     /// </summary>
     private (double score, string grade) RecomputeRecord(SyTreatRecord record)
     {
@@ -932,6 +956,7 @@
             record,
             _treatPageModel.TreatDefenseRatio,
             _lingyunNameToCode,
+            _neigongNameToCode,
             _treatPageModel.ParamValuesDictionary);
     }
 
@@ -946,6 +971,7 @@
                 record,
                 tankRatio,
                 _lingyunNameToCode,
+                _neigongNameToCode,
                 _treatPageModel.ParamValuesDictionary);
         }
     }
@@ -1019,7 +1045,10 @@
             Remark = saveResult.Remark,
             CreatedAt = DateTime.Now,
             InputValues = inputValues,
-            LingYunSelection = _treatPageModel.LingYunSelection
+            NeiGongSelection = _treatPageModel.NeiGongSelection,
+            HasLingYun = _treatPageModel.HasLingYun,
+            // 旧字段保留写入(=内功名称)以兼容可能的旧 OCR/外部读取
+            LingYunSelection = _treatPageModel.NeiGongSelection
         };
         (record.Score, record.GradeText) = RecomputeRecord(record);
 
@@ -1062,6 +1091,8 @@
             [nameof(SyTreatRecordEditDialog.PageTankRatio)] = _treatPageModel.TreatDefenseRatio,
             [nameof(SyTreatRecordEditDialog.LingYunOptions)] = _lingyunOptions.ToArray(),
             [nameof(SyTreatRecordEditDialog.LingYunNameToCode)] = _lingyunNameToCode,
+            [nameof(SyTreatRecordEditDialog.NeiGongOptions)] = _neigongOptions.ToArray(),
+            [nameof(SyTreatRecordEditDialog.NeiGongNameToCode)] = _neigongNameToCode,
             [nameof(SyTreatRecordEditDialog.AttrNameMap)] = attrNameMap,
             [nameof(SyTreatRecordEditDialog.PercentCodes)] = percentCodes,
             [nameof(SyTreatRecordEditDialog.DefaultParamValues)] = _treatPageModel.ParamValuesDictionary,
@@ -1102,20 +1133,5 @@
     private void ShowTips()
     {
         Dialog.Show<TipsDialog>("帮助说明", _tipsDialogParameters, _tipsDialogOptions);
-    }
-
-    /// <summary>
-    /// 灵韵/周天收益参考表的行数据模型
-    /// </summary>
-    public class ReferenceRow
-    {
-        /// <summary>类别（灵韵/周天）</summary>
-        public string Category { get; set; }
-
-        /// <summary>名称</summary>
-        public string Name { get; set; }
-
-        /// <summary>收益（小数形式，显示时 P2 转百分比）</summary>
-        public double Value { get; set; }
     }
 }
