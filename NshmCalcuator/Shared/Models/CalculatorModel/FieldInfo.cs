@@ -3,7 +3,7 @@
 namespace NshmCalculator.Shared.Models.CalculatorModel;
 
 /// <summary>
-/// 素问治疗计算器动态系数配置
+/// 素鸿治疗计算器动态系数配置
 /// </summary>
 public class FieldInfo
 {

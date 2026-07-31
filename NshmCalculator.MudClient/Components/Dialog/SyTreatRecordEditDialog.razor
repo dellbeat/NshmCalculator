@@ -1,0 +1,261 @@
+﻿@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params
+@using NshmCalculator.MudClient.Utilities
+@using Color = MudBlazor.Color
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">编辑内功记录</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="Record.Title" Label="记录名称" Variant="Variant.Outlined" Immediate="true"
+                      Margin="@(DenseMode ? Margin.Dense : Margin.Normal)"/>
+        <MudTextField @bind-Value="Record.Remark" Label="备注" Variant="Variant.Outlined" Immediate="true"
+                      Margin="@(DenseMode ? Margin.Dense : Margin.Normal)" Class="mt-2"/>
+
+        <MudGrid Class="mt-2">
+            <MudItem xs="6">
+                <MudSelect T="string" ShrinkLabel Value="_editNeiGongSelection"
+                           ValueChanged="OnNeiGongChanged"
+                           Label="内功名称" Variant="Variant.Outlined"
+                           Margin="@(DenseMode ? Margin.Dense : Margin.Normal)">
+                    @foreach (var option in NeiGongOptions)
+                    {
+                        <MudSelectItem T="string" Value="@option">@option</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="6">
+                <MudSelect T="string" ShrinkLabel Value="_editHasLingYun"
+                           ValueChanged="OnHasLingYunChanged"
+                           Label="灵韵" Variant="Variant.Outlined"
+                           Margin="@(DenseMode ? Margin.Dense : Margin.Normal)">
+                    <MudSelectItem T="string" Value="@("无")">无</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("有")">有</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+        </MudGrid>
+
+        <MudText Typo="Typo.subtitle1" Class="mt-4 mb-2">词条数值（修改后点击「重算」更新总收益）</MudText>
+        <MudGrid>
+            @foreach (var pair in _editValues)
+            {
+                var label = AttrNameMap != null && AttrNameMap.TryGetValue(pair.Key, out var name) ? name : pair.Key;
+                <MudItem xs="6" sm="4" md="3">
+                    @if (PercentCodes != null && PercentCodes.Contains(pair.Key))
+                    {
+                        // Percent 模式(如流派抵御/赛年词条): _editValues 存小数量级, UI 显示 *100 加 %, 输入 /100 存回并触发复算
+                        // 用 Math.Round 消除 ×100/÷100 往返产生的浮点误差(如 1.7→0.017000000000000002→1.7000000000000002)
+                        <MudTextField ShrinkLabel T="double" Label="@label"
+                                      Value="@(Math.Round(pair.Value * 100.0, 6))"
+                                      ValueChanged="@(v => { _editValues[pair.Key] = Math.Round(v / 100.0, 8); Recalculate(); })"
+                                      Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentText="%"
+                                      Margin="@(DenseMode ? Margin.Dense : Margin.Normal)"/>
+                    }
+                    else
+                    {
+                        <MudTextField ShrinkLabel T="double" @bind-Value="_editValues[pair.Key]" Label="@label"
+                                      Variant="Variant.Outlined"
+                                      Margin="@(DenseMode ? Margin.Dense : Margin.Normal)"/>
+                    }
+                </MudItem>
+            }
+        </MudGrid>
+
+        <div class="d-flex flex-wrap align-center mt-4" style="gap: 8px;">
+            <MudChip T="string" Color="Color.Secondary">内功特性收益：@_teSeGain.ToString("P3")</MudChip>
+            <MudChip T="string" Color="Color.Success">总收益：@_score.ToString("P3")</MudChip>
+            @if (!string.IsNullOrEmpty(_grade))
+            {
+                <MudChip T="string" Color="Color.Info">词条收益评级：@_grade</MudChip>
+            }
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Error" OnClick="OnDelete">删除</MudButton>
+        <MudButton OnClick="Cancel">取消</MudButton>
+        <MudButton Color="Color.Warning" Variant="Variant.Filled" OnClick="Recalculate">重算</MudButton>
+        <MudButton Color="Color.Info" Variant="Variant.Filled" OnClick="Submit">保存更改</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+
+    /// <summary>被编辑的内功记录（引用传入，保存时回写）</summary>
+    [Parameter] public SyTreatRecord Record { get; set; }
+
+    /// <summary>页面当前疗承比（复算用，不可编辑；疗承比跟随页面上下文）</summary>
+    [Parameter] public double PageTankRatio { get; set; }
+
+    /// <summary>灵韵下拉框选项（首项"无" + 灵韵名称，仅供向后兼容/OCR 用）</summary>
+    [Parameter] public string[] LingYunOptions { get; set; } = [];
+
+    /// <summary>灵韵名称 -> RF_LY_* Code 映射（复算用）</summary>
+    [Parameter] public Dictionary<string, string> LingYunNameToCode { get; set; } = new();
+
+    /// <summary>内功名称下拉框选项（首项"无" + 内功名）</summary>
+    [Parameter] public string[] NeiGongOptions { get; set; } = [];
+
+    /// <summary>内功名称 -> RF_TS_* Code 映射（特性收益 A 复算用）</summary>
+    [Parameter] public Dictionary<string, string> NeiGongNameToCode { get; set; } = new();
+
+    /// <summary>词条 Code -> 显示名映射（渲染可编辑词条标签）</summary>
+    [Parameter] public Dictionary<string, string> AttrNameMap { get; set; } = new();
+
+    /// <summary>Percent 模式属性的 Code 集合（如流派抵御/赛年词条），弹窗中需以百分比显示与输入转换</summary>
+    [Parameter] public HashSet<string> PercentCodes { get; set; } = new();
+
+    /// <summary>复算字典基底（页面的 ParamValuesDictionary 拷贝）</summary>
+    [Parameter] public Dictionary<string, ParamValue> DefaultParamValues { get; set; } = new();
+
+    [Parameter] public bool DenseMode { get; set; }
+
+    /// <summary>编辑过程中的属性数值快照（Code -> 数值），取消时回滚</summary>
+    private readonly Dictionary<string, double> _snapshot = new();
+
+    /// <summary>双向绑定的编辑数值（Code -> 数值）</summary>
+    private readonly Dictionary<string, double> _editValues = new();
+
+    /// <summary>编辑中的内功名称选择快照（取消时回滚）</summary>
+    private string _snapshotNeiGongSelection;
+
+    /// <summary>双向绑定的编辑中内功名称选择</summary>
+    private string _editNeiGongSelection;
+
+    /// <summary>编辑中的灵韵(无/有)选择快照（取消时回滚）</summary>
+    private string _snapshotHasLingYun;
+
+    /// <summary>双向绑定的编辑中灵韵(无/有)选择</summary>
+    private string _editHasLingYun;
+
+    /// <summary>实时复算的内功特性收益 A</summary>
+    private double _teSeGain;
+
+    /// <summary>实时复算的总收益</summary>
+    private double _score;
+
+    /// <summary>实时复算的评级</summary>
+    private string _grade;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        // 初始化编辑数值与快照（拷贝，避免直接引用原字典导致取消时无法回滚）。
+        // 仅纳入 AttrNameMap 中的真实可编辑词条 Code，过滤掉历史记录中误存的非词条项（如疗承比 ST_TankRatio）。
+        foreach (var pair in Record.InputValues)
+        {
+            if (AttrNameMap != null && AttrNameMap.Count > 0 && !AttrNameMap.ContainsKey(pair.Key))
+            {
+                continue;
+            }
+            _editValues[pair.Key] = pair.Value;
+            _snapshot[pair.Key] = pair.Value;
+        }
+
+        // 兼容旧记录迁移：未填 NeiGongSelection/HasLingYun 时从 LingYunSelection 推导
+        _editNeiGongSelection = !string.IsNullOrEmpty(Record.NeiGongSelection)
+            ? Record.NeiGongSelection
+            : (!string.IsNullOrEmpty(Record.LingYunSelection) ? Record.LingYunSelection : "无");
+        // 校正：若推导出的内功名不在当前下拉选项里则回退「无」
+        if (NeiGongOptions == null || NeiGongOptions.Length == 0 || !NeiGongOptions.Contains(_editNeiGongSelection))
+        {
+            _editNeiGongSelection = "无";
+        }
+        _snapshotNeiGongSelection = _editNeiGongSelection;
+
+        _editHasLingYun = !string.IsNullOrEmpty(Record.HasLingYun)
+            ? Record.HasLingYun
+            : (!string.IsNullOrEmpty(Record.LingYunSelection) && Record.LingYunSelection != "无" ? "有" : "无");
+        if (_editHasLingYun != "无" && _editHasLingYun != "有")
+        {
+            _editHasLingYun = "无";
+        }
+        _snapshotHasLingYun = _editHasLingYun;
+
+        Recalculate();
+    }
+
+    /// <summary>
+    /// 内功名称选择变更时：更新编辑值并触发复算。
+    /// </summary>
+    private Task OnNeiGongChanged(string value)
+    {
+        _editNeiGongSelection = value ?? "无";
+        Recalculate();
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// 灵韵(无/有)选择变更时：更新编辑值并触发复算。
+    /// </summary>
+    private Task OnHasLingYunChanged(string value)
+    {
+        _editHasLingYun = value ?? "无";
+        Recalculate();
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// 基于编辑中的词条数值 + 编辑中的内功名称/灵韵 + 页面疗承比复算总收益与评级。
+    /// 使用临时记录构造调用引擎，避免在复算期间修改 Record 自身字段。
+    /// </summary>
+    private void Recalculate()
+    {
+        var tempRecord = new SyTreatRecord
+        {
+            InputValues = new Dictionary<string, double>(_editValues),
+            NeiGongSelection = _editNeiGongSelection ?? "无",
+            HasLingYun = _editHasLingYun ?? "无"
+        };
+
+        (_score, _grade) = SyTreatRecordHelper.ComputeScore(
+            tempRecord,
+            PageTankRatio,
+            LingYunNameToCode,
+            NeiGongNameToCode,
+            DefaultParamValues);
+        // 同步复算内功特性收益 A 供 chip 展示
+        _teSeGain = SyTreatRecordHelper.ComputeTeSeGain(
+            tempRecord,
+            PageTankRatio,
+            NeiGongNameToCode,
+            DefaultParamValues);
+    }
+
+    private void Submit()
+    {
+        // 将编辑数值与内功名称/灵韵选择回写到记录
+        Record.InputValues = new Dictionary<string, double>(_editValues);
+        Record.NeiGongSelection = _editNeiGongSelection ?? "无";
+        Record.HasLingYun = _editHasLingYun ?? "无";
+        // 旧字段同步(=内功名称)以兼容可能的旧 OCR/外部读取
+        Record.LingYunSelection = _editNeiGongSelection ?? "无";
+        Record.Score = _score;
+        Record.GradeText = _grade;
+        MudDialog.Close(DialogResult.Ok(Record));
+    }
+
+    private void Cancel()
+    {
+        // 回滚：恢复记录的 InputValues/NeiGongSelection/HasLingYun 到打开对话框时的状态
+        Record.InputValues = new Dictionary<string, double>(_snapshot);
+        Record.NeiGongSelection = _snapshotNeiGongSelection;
+        Record.HasLingYun = _snapshotHasLingYun;
+        MudDialog.Cancel();
+    }
+
+    private async Task OnDelete()
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "删除确认",
+            $"确定删除内功「{Record.Title}」吗？此操作不可恢复。",
+            yesText: "删除", cancelText: "再想想");
+        if (result == true)
+        {
+            // 返回 null 作为删除信号
+            MudDialog.Close(DialogResult.Ok<SyTreatRecord>(null));
+        }
+    }
+}

@@ -45,19 +45,19 @@ public class GlobalConfigTest
     {
         SyTreatConfig syTreatConfig = null;
         string path = _version.ConfigPathInfo[SyTreatCode].Replace("..", ".");
-        Assert.That(File.Exists(path), Is.True, "无法查找到素问治疗计算器的配置文件");
-        Assert.That(File.ReadAllLines(path).Length == 1, Is.True, "素问治疗计算器JSON配置未压缩");
+        Assert.That(File.Exists(path), Is.True, "无法查找到素鸿治疗计算器的配置文件");
+        Assert.That(File.ReadAllLines(path).Length == 1, Is.True, "素鸿治疗计算器JSON配置未压缩");
         try
         {
             syTreatConfig = JsonSerializer.Deserialize<SyTreatConfig>(File.ReadAllText(path));
         }
         catch (Exception e)
         {
-            Assert.Fail($"素问治疗计算器-配置解析出现问题:{e.Message}");
+            Assert.Fail($"素鸿治疗计算器-配置解析出现问题:{e.Message}");
         }
 
-        Assert.That(syTreatConfig.InternalVersion == _version.ConfigVersionInfo[SyTreatCode], Is.True, "素问治疗计算器版本号校验不一致");
-        Assert.Pass("素问治疗计算器版本号校验通过");
+        Assert.That(syTreatConfig.InternalVersion == _version.ConfigVersionInfo[SyTreatCode], Is.True, "素鸿治疗计算器版本号校验不一致");
+        Assert.Pass("素鸿治疗计算器版本号校验通过");
     }
 
     [Test]

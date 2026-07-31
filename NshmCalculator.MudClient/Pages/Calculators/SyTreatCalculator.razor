@@ -1,20 +1,28 @@
 ﻿@page "/syTreat"
+@using System.Collections.ObjectModel
 @using System.Text.Json
+@using System.Text.RegularExpressions
 @using Blazored.LocalStorage
+@using NshmCalculator.MudClient.Components
 @using NshmCalculator.MudClient.Components.Dialog
+@using NshmCalculator.MudClient.Services
 @using NshmCalculator.MudClient.Utilities
 @using NshmCalculator.Shared
 @using NshmCalculator.Shared.Models.CalculatorModel
 @using NshmCalculator.Shared.Models.CalculatorModel.CalculatorConfig
+@using NshmCalculator.Shared.Models.CalculatorModel.Enums
+@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Params
+@using NshmCalculator.Shared.Models.CalculatorModel.FormulaParam.Result
 @using NshmCalculator.Shared.Models.PageModel
 @using Align = MudBlazor.Align
 @using Color = MudBlazor.Color
 @inject ISyncLocalStorageService LocalStorage
 @inject ISnackbar Snackbar
-@inject IDialogService Dialog
 @inject HttpClient Client
+@inject IDialogService Dialog
+@inject WebOcrEngine Engine
 
-<PageTitle>素问治疗计算器</PageTitle>
+<PageTitle>素鸿治疗计算器</PageTitle>
 
 <MudGrid>
     @if (renderNotComplete)
@@ -26,7 +34,6 @@
                 <MudSkeleton/>
             </MudPaper>
         </MudItem>
-
         <MudItem xs="12">
             <MudPaper Class="pa-4 mt-4">
                 <MudSkeleton/>
@@ -40,7 +47,7 @@
         <MudItem xs="12">
             <MudPaper Class="d-flex align-center justify-center py-8">
                 <MudStack AlignItems="AlignItems.Center">
-                    <MudText Typo="Typo.h4">素问治疗计算器</MudText>
+                    <MudText Typo="Typo.h4">素鸿治疗计算器</MudText>
                     <MudText Typo="Typo.h6" Align="Align.Center">
                         <MudChip Icon="@Icons.Material.Filled.Person" Color="Color.Tertiary">小红书/抖音:师尹</MudChip>
                         <MudChip Color="Color.Info">源文件版本:@_currentConfig.Version</MudChip>
@@ -48,18 +55,15 @@
                 </MudStack>
             </MudPaper>
         </MudItem>
+
         <MudItem xs="12">
             <MudPaper Class="pa-4 mt-4">
                 <EditForm Model="_treatPageModel" OnValidSubmit="Calculate" OnInvalidSubmit="WarningTips">
                     <ObjectGraphDataAnnotationsValidator/>
                     <MudGrid>
+                        @* ===== 基础治疗面板 (EditForm 强类型,绑定 TreatInfo) ===== *@
                         <MudItem xs="12">
                             <MudText Typo="Typo.subtitle2" Align="Align.Center">基础治疗面板</MudText>
-                        </MudItem>
-                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.BaseTreatInfo.Attack"
-                                          For="@(() => _treatPageModel.BaseTreatInfo.Attack)" Label="攻击" Variant="Variant.Outlined"
-                                          Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                         </MudItem>
                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.BaseTreatInfo.TreatIntensity"
@@ -74,195 +78,210 @@
                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.BaseTreatInfo.CriticalDamageRate"
                                           For="@(() => _treatPageModel.BaseTreatInfo.CriticalDamageRate)" Adornment="Adornment.End" AdornmentText="%"
-                                          AdornmentColor="Color.Dark" Label="会伤百分比" HelperText="在详细面板中查看，填入会伤时无需减半"
+                                          AdornmentColor="Color.Dark" Label="会伤百分比" HelperText="面板会伤,填入无需减半"
                                           Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                         </MudItem>
                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.BaseTreatInfo.ZtCriticalHitsRate"
-                                          For="@(() => _treatPageModel.BaseTreatInfo.ZtCriticalHitsRate)" Adornment="Adornment.End" AdornmentText="%"
-                                          AdornmentColor="Color.Dark" Label="金周天会心率" HelperText="内功元素中1金周天加的会心率"
+                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.BaseTreatInfo.ExtraCriticalHitsRate"
+                                          For="@(() => _treatPageModel.BaseTreatInfo.ExtraCriticalHitsRate)" Adornment="Adornment.End" AdornmentText="%"
+                                          AdornmentColor="Color.Dark" Label="额外会心率" HelperText="如锻寒芒额外给的会心率"
+                                          Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
+                        </MudItem>
+                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
+                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.BaseTreatInfo.CureGain"
+                                          For="@(() => _treatPageModel.BaseTreatInfo.CureGain)" Adornment="Adornment.End" AdornmentText="%"
+                                          AdornmentColor="Color.Dark" Label="疗效增益" HelperText="默认170即1.7倍"
                                           Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                         </MudItem>
                         <MudItem xs="12" Class="d-flex align-center justify-center">
                             <MudStack Row="true" Spacing="4">
                                 <MudChip Color="Color.Info">
-                                    基础面板会心率：@_treatPageModel.BaseTreatInfo.CalculateCriticalHitsRate.ToString("P2")</MudChip>
-                                <MudChip Color="Color.Info">基础面板治疗量：@_treatPageModel.BaseTreatInfo.CalculateTreatNum.ToString("F3")</MudChip>
+                                    基础面板会心率：@_baseHealRate.ToString("P2")
+                                </MudChip>
+                                <MudChip Color="Color.Info">
+                                    基础面板治疗量：@_baseTreatNum.ToString("F3")
+                                </MudChip>
                             </MudStack>
                         </MudItem>
+
+                        @* ===== Tab 区 ===== *@
                         <MudItem xs="12">
                             <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6"
                                      @bind-ActivePanelIndex="_treatPageModel.ActiveIndex">
+
+                                @* ----- Tab0: 属性变化计算 (EditForm 强类型) ----- *@
                                 <MudTabPanel Text="属性变化计算">
                                     <MudGrid>
                                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.Attack" For="@(() => _treatPageModel.Attack)"
-                                                          Label="攻击" Variant="Variant.Outlined"
-                                                          Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
-                                        </MudItem>
-                                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.TreatIntensity"
-                                                          For="@(() => _treatPageModel.TreatIntensity)" Label="治疗强度" Variant="Variant.Outlined"
-                                                          Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
-                                        </MudItem>
-                                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.CriticalDamageRate"
-                                                          For="@(() => _treatPageModel.CriticalDamageRate)" Adornment="Adornment.End"
-                                                          AdornmentText="%" AdornmentColor="Color.Dark" Label="会伤百分比"
-                                                          Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
-                                        </MudItem>
-                                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.CriticalHitsRate"
-                                                          For="@(() => _treatPageModel.CriticalHitsRate)" Adornment="Adornment.End" AdornmentText="%"
-                                                          AdornmentColor="Color.Dark" Label="会心率" Variant="Variant.Outlined"
+                                                          For="@(() => _treatPageModel.TreatIntensity)" Label="Δ治疗强度" Variant="Variant.Outlined"
                                                           Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                         </MudItem>
                                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
                                             <MudTextField ShrinkLabel @bind-Value="_treatPageModel.CriticalHits"
-                                                          For="@(() => _treatPageModel.CriticalHits)" Label="会心" Variant="Variant.Outlined"
+                                                          For="@(() => _treatPageModel.CriticalHits)" Label="Δ会心" Variant="Variant.Outlined"
                                                           Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                         </MudItem>
-                                        <MudItem xs="12" Class="d-flex align-center justify-center">
-                                            <MudStack Row="true" Spacing="4">
-                                                <MudChip Color="Color.Info">
-                                                    变化后会心率：@_treatPageModel.CalculateCriticalHitsRate.ToString("P2")</MudChip>
-                                                <MudChip Color="Color.Info">变化后治疗量：@_treatPageModel.CalculateTreatNum.ToString("F3")</MudChip>
-                                            </MudStack>
-                                        </MudItem>
-                                    </MudGrid>
-                                </MudTabPanel>
-                                <MudTabPanel Text="新面板计算">
-                                    <MudGrid>
                                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.DifferenceTreatInfo.Attack"
-                                                          For="@(() => _treatPageModel.DifferenceTreatInfo.Attack)" Label="攻击"
-                                                          Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
+                                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.CriticalDamageRate"
+                                                          For="@(() => _treatPageModel.CriticalDamageRate)" Adornment="Adornment.End" AdornmentText="%"
+                                                          AdornmentColor="Color.Dark" Label="Δ会伤百分比" Variant="Variant.Outlined"
+                                                          Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                         </MudItem>
                                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.DifferenceTreatInfo.TreatIntensity"
-                                                          For="@(() => _treatPageModel.DifferenceTreatInfo.TreatIntensity)" Label="治疗强度"
-                                                          Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
+                                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.ExtraCriticalHitsRate"
+                                                          For="@(() => _treatPageModel.ExtraCriticalHitsRate)" Adornment="Adornment.End" AdornmentText="%"
+                                                          AdornmentColor="Color.Dark" Label="Δ额外会心率" Variant="Variant.Outlined"
+                                                          Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                         </MudItem>
                                         <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.DifferenceTreatInfo.CriticalHits"
-                                                          For="@(() => _treatPageModel.DifferenceTreatInfo.CriticalHits)" Label="会心"
+                                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.CureGain"
+                                                          For="@(() => _treatPageModel.CureGain)" Adornment="Adornment.End" AdornmentText="%"
+                                                          AdornmentColor="Color.Dark" Label="Δ疗效增益" HelperText="如心眼/流派增益"
                                                           Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
                                         </MudItem>
-                                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.DifferenceTreatInfo.CriticalDamageRate"
-                                                          For="@(() => _treatPageModel.DifferenceTreatInfo.CriticalDamageRate)"
-                                                          Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Label="会伤百分比"
-                                                          Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
-                                        </MudItem>
-                                        <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.DifferenceTreatInfo.ZtCriticalHitsRate"
-                                                          For="@(() => _treatPageModel.DifferenceTreatInfo.ZtCriticalHitsRate)"
-                                                          Adornment="Adornment.End" AdornmentText="%" AdornmentColor="Color.Dark" Label="金周天会心率"
-                                                          Variant="Variant.Outlined" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
-                                        </MudItem>
-                                        <MudItem xs="12" Class="d-flex align-center justify-center">
-                                            <MudStack Row="true" Spacing="4">
-                                                <MudChip Color="Color.Info">
-                                                    新面板会心率：@_treatPageModel.DifferenceTreatInfo.CalculateCriticalHitsRate.ToString("P2")</MudChip>
-                                                <MudChip Color="Color.Info">
-                                                    新面板治疗量：@_treatPageModel.DifferenceTreatInfo.CalculateTreatNum.ToString("F3")</MudChip>
-                                            </MudStack>
-                                        </MudItem>
-                                    </MudGrid>
-                                </MudTabPanel>
-                                <MudTabPanel Text="转换疗强计算">
-                                    <MudGrid>
-                                        @if (_currentConfig.TransTreatFields?.Length > 0)
-                                        {
-                                            foreach (var treatField in _currentConfig.TransTreatFields)
-                                            {
-                                                <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                                    <MudTextField ShrinkLabel @bind-Value="@treatField.Value" For="@(() => @treatField.Value)"
-                                                                  Label="@treatField.Name" Variant="Variant.Outlined"
-                                                                  Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
-                                                </MudItem>
-                                            }
-                                        }
                                         <MudItem xs="12">
-                                            <MudAlert Severity="Severity.Info">转换疗强计算结果与基础面板无关</MudAlert>
+                                            <div class="d-flex flex-wrap align-center justify-center" style="gap: 8px;">
+                                                <MudChip Color="Color.Info">
+                                                    变化后会心率：@_treatPageModel.CalculateCriticalHitsRate.ToString("P2")
+                                                </MudChip>
+                                                <MudChip Color="Color.Info">
+                                                    变化后治疗量：@_treatPageModel.CalculateTreatNum.ToString("F3")
+                                                </MudChip>
+                                                <MudChip Color="Color.Success">
+                                                    治疗量增值：@_treatPageModel.TreatGrowthNum.ToString("F3")
+                                                </MudChip>
+                                                <MudChip Color="Color.Success">
+                                                    收益百分比：@_treatPageModel.TreatGrowthPercent.ToString("P2")
+                                                </MudChip>
+                                            </div>
                                         </MudItem>
                                     </MudGrid>
                                 </MudTabPanel>
-                                <MudTabPanel Text="pvp词条收益">
+
+                                @* ----- Tab1: 内功词条收益 (配置驱动) ----- *@
+                                <MudTabPanel Text="内功词条收益">
                                     <MudGrid>
                                         <MudItem xs="12">
                                             <MudAlert Severity="Severity.Info">
-                                                气血”不计算在内功主词条中“气血上限”的值；格挡类词条需面板格挡在3000以上才填。疗承比根据个人理解填入你认为1%治疗提升=X%坦度提升，X越低说明坦度越重要
+                                                OCR 识别区：粘贴识别文本或上传图片，自动填入对应单元格。如图片较大，请框选必要的识别区域（从内功名称到词条）后再识别，提高识别准确率
                                             </MudAlert>
                                         </MudItem>
                                         <MudItem xs="12">
-                                            <MudExpansionPanels MultiExpansion="true">
-                                                @if (_currentConfig.ScoreFields?.Length > 0)
-                                                {
-                                                    var result = _currentConfig.ScoreFields.GroupBy(s => s.BelongGroup);
-                                                    foreach (IGrouping<string, FieldInfo> fieldResults in result)
-                                                    {
-                                                        <MudExpansionPanel Text=@fieldResults.Key>
-                                                            <MudGrid>
-                                                                @foreach (var fieldResult in fieldResults)
-                                                                {
-                                                                    <MudItem xs="6" sm="4" md="3" lg="2" xl="2">
-                                                                        <MudTextField ShrinkLabel @bind-Value="@fieldResult.Value"
-                                                                                      For="@(() => fieldResult.Value)" Label="@fieldResult.Name"
-                                                                                      Adornment="@(fieldResult.PercentMode ? Adornment.End : Adornment.None)"
-                                                                                      AdornmentText="%" AdornmentColor="Color.Dark"
-                                                                                      Variant="Variant.Outlined"
-                                                                                      Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
-                                                                    </MudItem>
-                                                                }
-                                                            </MudGrid>
-                                                        </MudExpansionPanel>
-                                                    }
-                                                }
-                                            </MudExpansionPanels>
+                                            <MudPaper Class="pa-4 mt-2">
+                                                <MudTextField ShrinkLabel T="string" @bind-Value="_ocrText"
+                                                              Label="粘贴识别文本" Variant="Variant.Outlined"
+                                                              Margin="Margin.Normal" Lines="3"/>
+                                                <MudStack Row="true" Spacing="2" Class="mt-2">
+                                                    <MudButton Variant="Variant.Filled" Color="Color.Info"
+                                                               ButtonType="ButtonType.Button" OnClick="OpenOcrImageDialog"
+                                                               StartIcon="@Icons.Material.Filled.Image">
+                                                        图片自动识别
+                                                    </MudButton>
+                                                    <MudButton Variant="Variant.Filled" Color="Color.Secondary"
+                                                               ButtonType="ButtonType.Button" OnClick="OnRecognize">
+                                                        手动识别
+                                                    </MudButton>
+                                                </MudStack>
+                                            </MudPaper>
                                         </MudItem>
-                                        <MudItem xs="6">
-                                            <MudTextField ShrinkLabel @bind-Value="@_treatPageModel.TreatDefenseRatio"
-                                                          Label="疗承比" HelperText="详情查阅“帮助说明”底部" Variant="Variant.Outlined"
-                                                          Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
-                                        </MudItem>
-                                        <MudItem xs="6">
-                                            <MudSelect Label="灵韵内功" Variant="Variant.Outlined" @bind-Value="_selectedKey"
-                                                       TextChanged="OnSelectionChanged" Margin="@(_denseMode ? Margin.Dense : Margin.Normal)">
-                                                @if (_currentConfig.SpecialScoreDictionary?.Count > 0)
+                                        <MudItem xs="12">
+                                            <MudSelect T="string" ShrinkLabel @bind-Value="_treatPageModel.NeiGongSelection"
+                                                       Label="内功名称" HelperText="选择特效内功自动计入特性收益(固垒按疗承比动态计算)"
+                                                       Variant="Variant.Outlined"
+                                                       Margin="@(_denseMode ? Margin.Dense : Margin.Normal)">
+                                                @foreach (var option in _neigongOptions)
                                                 {
-                                                    foreach (var keyValuePair in _currentConfig.SpecialScoreDictionary)
-                                                    {
-                                                        <MudSelectItem Value="@keyValuePair">@keyValuePair.Key</MudSelectItem>
-                                                    }
+                                                    <MudSelectItem T="string" Value="@option">@option</MudSelectItem>
                                                 }
                                             </MudSelect>
                                         </MudItem>
+                                        <MudItem xs="6">
+                                            <MudTextField ShrinkLabel @bind-Value="_treatPageModel.TreatDefenseRatio"
+                                                          Label="疗承比" HelperText="详情查阅帮助说明" Variant="Variant.Outlined"
+                                                          Margin="@(_denseMode ? Margin.Dense : Margin.Normal)"/>
+                                        </MudItem>
+                                        <MudItem xs="6">
+                                            <MudSelect T="string" ShrinkLabel @bind-Value="_treatPageModel.HasLingYun"
+                                                       Label="灵韵" HelperText="选「有」则按内功名称计入灵韵收益"
+                                                       Variant="Variant.Outlined"
+                                                       Margin="@(_denseMode ? Margin.Dense : Margin.Normal)">
+                                                <MudSelectItem T="string" Value="@("无")">无</MudSelectItem>
+                                                <MudSelectItem T="string" Value="@("有")">有</MudSelectItem>
+                                            </MudSelect>
+                                        </MudItem>
+                                        <MudItem xs="12">
+                                            <MudExpansionPanels MultiExpansion="true">
+                                                @foreach (var group in _pvpParamGroups)
+                                                {
+                                                    <MudExpansionPanel Text="@group.Key">
+                                                        <PveFrontParamItem ItemSource="group.OrderBy(s => s.ShowIndex).ToArray()" RefDic="_paramDic" DenseMode="_denseMode"/>
+                                                    </MudExpansionPanel>
+                                                }
+                                            </MudExpansionPanels>
+                                        </MudItem>
+                                        <MudItem xs="12">
+                                            <div class="d-flex flex-wrap align-center justify-center" style="gap: 8px;">
+                                                <MudChip Color="Color.Secondary">
+                                                    内功特性收益：@_treatPageModel.TeSeGain.ToString("P3")
+                                                </MudChip>
+                                                <MudChip Color="Color.Info">
+                                                    总收益：@_treatPageModel.Score.ToString("P3")
+                                                </MudChip>
+                                                @if (!string.IsNullOrEmpty(_treatPageModel.GradeText))
+                                                {
+                                                    <MudChip Color="Color.Success">
+                                                        词条收益评级：@_treatPageModel.GradeText
+                                                    </MudChip>
+                                                }
+                                            </div>
+                                        </MudItem>
+                                        <MudItem xs="12" Class="d-flex justify-center">
+                                            <MudButton Variant="Variant.Filled" Color="Color.Info"
+                                                       ButtonType="ButtonType.Button" OnClick="OnSaveRecord">
+                                                保存内功记录
+                                            </MudButton>
+                                        </MudItem>
                                     </MudGrid>
                                 </MudTabPanel>
+
+                                @* ----- Tab2: 内功记录 (MudTable 展示已保存记录, 点击进入编辑) ----- *@
+                                <MudTabPanel Text="内功记录">
+                                    @if (_recordObservable.Count > 0)
+                                    {
+                                        <MudTable T="SyTreatRecord" Items="@_recordObservable" Breakpoint="Breakpoint.None"
+                                                  Striped="true" Dense="@_denseMode" Elevation="2" OnRowClick="OnRecordClick">
+                                            <HeaderContent>
+                                                <MudTh>名称</MudTh>
+                                                <MudTh>
+                                                    <MudTableSortLabel InitialDirection="SortDirection.Descending"
+                                                                       SortBy="new Func<SyTreatRecord, object>(x => x.Score)">
+                                                        总收益
+                                                    </MudTableSortLabel>
+                                                </MudTh>
+                                                <MudTh>备注</MudTh>
+                                            </HeaderContent>
+                                            <RowTemplate Context="rec">
+                                                <MudTd DataLabel="名称">@rec.Title</MudTd>
+                                                <MudTd DataLabel="总收益">@rec.Score.ToString("P3")</MudTd>
+                                                <MudTd DataLabel="备注">@rec.Remark</MudTd>
+                                            </RowTemplate>
+                                            <PagerContent>
+                                                <MudTablePager PageSizeOptions="new[] { 10 }" HideRowsPerPage="true"/>
+                                            </PagerContent>
+                                        </MudTable>
+                                    }
+                                    else
+                                    {
+                                        <MudText Typo="Typo.body1" Align="Align.Center" Color="Color.Default" Class="py-4">
+                                            暂无保存的内功记录，在「内功词条收益」页计算后可点击保存
+                                        </MudText>
+                                    }
+                                </MudTabPanel>
+
                             </MudTabs>
                         </MudItem>
-                        <MudItem xs="12" Class="d-flex align-center justify-center">
-                            <MudStack Row="true" Spacing="4">
-                                @switch (_treatPageModel.ActiveIndex)
-                                {
-                                    case 0:
-                                    case 1:
-                                        <MudChip Color="Color.Info">治疗量增值：@_treatPageModel.TreatGrowthNum.ToString("F3")</MudChip>
-                                        <MudChip Color="Color.Info">收益百分比：@_treatPageModel.TreatGrowthPercent.ToString("P2")</MudChip>
-                                        break;
-                                    case 2:
-                                        <MudChip
-                                            Color="Color.Success">转换疗强：@_treatPageModel.ConvertTreatNum.ToString("F2")</MudChip>
-                                        break;
-                                    case 3:
-                                        <MudChip Color="Color.Info">灵韵分（不记总评分）：@_treatPageModel.SpecialScoreText</MudChip>
-                                        <MudChip
-                                            Color="Color.Success">总评分：@_treatPageModel.Score.ToString("F3")</MudChip>
-                                        break;
-                                }
-                            </MudStack>
-                        </MudItem>
+
                         <MudItem xs="12">
                             <MudDivider FlexItem="true"/>
                         </MudItem>
@@ -284,13 +303,50 @@
 @code {
     private readonly DialogParameters<TipsDialog> _tipsDialogParameters = new();
     private readonly DialogOptions _tipsDialogOptions = new();
+
     private SyTreatPageModel _treatPageModel = new();
     private SyTreatConfig _currentConfig;
-    readonly TreatInfo _additionalInfo = new();
-    private KeyValuePair<string, string> _selectedKey { get; set; }
-    private Func<KeyValuePair<string, string>, string> convertFunc = ci => ci.Key;
-    private bool renderNotComplete { get; set; }
-    private bool _denseMode { get; set; }
+    private Dictionary<string, FrontParamInfo> _paramDic = new();
+    private bool renderNotComplete = true;
+    private bool _denseMode;
+
+    // 配置驱动的参数分组缓存
+    private List<IGrouping<string, FrontParamInfo>> _pvpParamGroups = new();
+
+    // 灵韵/周天/内功特性 参考结果组(从配置的 ResultGroups 中筛选, 用于构建下拉选项与查表)
+    private List<ResultGroup> _referenceResultGroups;
+
+    // 灵韵名称列表(首项"无" + 灵韵名称，复用"灵韵收益"参考组)
+    // 注: 4.1.1 内功收益改造后灵韵下拉框简化为「无/有」，此列表仅供编辑弹窗 SyTreatRecordEditDialog 使用
+    private List<string> _lingyunOptions = new();
+    // 灵韵名称 -> RF_LY_* Code 映射(PvpCalculate B 段按内功名称查灵韵收益、记录复算均依赖)
+    private Dictionary<string, string> _lingyunNameToCode = new();
+
+    // 内功名称下拉框选项: 首项"无" + 内功名(复用"内功特性收益"参考组)
+    private List<string> _neigongOptions = new();
+    // 内功名称 -> RF_TS_* Code 映射(选中后据此调用引擎求特性收益 A)
+    private Dictionary<string, string> _neigongNameToCode = new();
+
+    // 基础面板会心率/奶量(显示用)
+    private double _baseHealRate;
+    private double _baseTreatNum;
+
+    // 结果公式代号列表(供 Calculate 使用)
+    private readonly List<string> _pvpCodes = new() { "RF_TotalGain", "RF_Grade" };
+
+    // OCR 识别区临时文本缓冲(不持久化)
+    private string _ocrText = string.Empty;
+
+    // ---- 保存内功记录相关状态 ----
+    // 内功记录页面数据模型（持久化，键名 _syTreatRecordPageModel）
+    private SyTreatRecordPageModel _syTreatRecordPageModel;
+    // 内功记录列表（绑定到 MudTable）
+    private ObservableCollection<SyTreatRecord> _recordObservable = new();
+    // 保存对话框参数/选项
+    private readonly DialogParameters<SyTreatRecordSaveDialog> _recordSaveDialogParameters = new();
+    private readonly DialogOptions _recordDialogOptions = new() { DisableBackdropClick = true, FullWidth = true, MaxWidth = MaxWidth.Medium };
+    // 上次计算时的疗承比，用于检测变化触发记录重算（疗承比跟随页面上下文，不存入记录）
+    private double _lastCalcTankRatio;
 
     protected override async Task OnInitializedAsync()
     {
@@ -299,7 +355,7 @@
         await LoadData();
         await base.OnInitializedAsync();
         InitParameters();
-        GetInfo();
+        FirstCalculate();
         LocalStorage.SetItemAsString(ConstText.LastVisitName, "syTreat");
     }
 
@@ -311,7 +367,7 @@
         }
         catch (Exception e)
         {
-            Console.WriteLine("身份收益计算器缓存加载异常" + e);
+            Console.WriteLine("素鸿治疗计算器缓存加载异常" + e);
             _treatPageModel = new SyTreatPageModel();
         }
 
@@ -327,9 +383,9 @@
                 _currentConfig = JsonSerializer.Deserialize<SyTreatConfig>(result.Item1);
                 if (result.Item2)
                 {
+                    UpdatePageModel();
                     Snackbar.Add("配置数据更新，已加载完成", Severity.Success);
                 }
-
                 renderNotComplete = false;
             }
             catch (Exception e)
@@ -342,39 +398,514 @@
         return result.Item2;
     }
 
-    private void GetInfo()
+    /// <summary>
+    /// 配置版本升级时的迁移逻辑（参照 PveCalculator.UpdatePageModel）
+    /// </summary>
+    private void UpdatePageModel()
     {
-        _treatPageModel.TransTreatFields = _currentConfig.TransTreatFields;
-        _treatPageModel.ScoreFields = _currentConfig.ScoreFields;
-        if (_treatPageModel.TransTreatDictionary is { Count: > 0 }) //恢复保存的数值
+        var newDefaults = _currentConfig.DefaultParamValues;
+        var oldValues = _treatPageModel.ParamValuesDictionary;
+
+        if (oldValues != null && oldValues.Count > 0)
         {
-            foreach ((string? key, int value) in _treatPageModel.TransTreatDictionary)
+            foreach (string key in newDefaults.Keys)
             {
-                if (_treatPageModel.TransTreatFields.FirstOrDefault(s => s.Name == key) is FieldInfo info)
+                if (oldValues.TryGetValue(key, out var oldValue))
                 {
-                    info.Value = value;
+                    newDefaults[key].NumberValue = oldValue.NumberValue;
+                    newDefaults[key].StringValue = oldValue.StringValue;
                 }
             }
         }
 
-        if (_treatPageModel.ScoreFieldsDictionary is { Count: > 0 })
+        _treatPageModel.ParamValuesDictionary = newDefaults;
+        _treatPageModel.InternalVersion = _currentConfig.InternalVersion;
+    }
+
+    private void InitParameters()
+    {
+        // 边界保护：校正 ActiveIndex（老用户缓存可能指向已移除 Tab 的索引，避免 MudTabs 越界）
+        // 当前 Tab：0=属性变化, 1=内功词条收益, 2=内功记录
+        // (灵韵/周天收益参考 Tab 已移除；缓存命中旧索引 3 时回退到默认 Tab0)
+        if (_treatPageModel.ActiveIndex < 0 || _treatPageModel.ActiveIndex > 2)
         {
-            foreach ((string? key, int value) in _treatPageModel.ScoreFieldsDictionary)
+            _treatPageModel.ActiveIndex = 0;
+        }
+
+        _paramDic = new Dictionary<string, FrontParamInfo>();
+        _treatPageModel.ParamValuesDictionary ??= _currentConfig.DefaultParamValues ?? new();
+        bool hasUpdate = false;
+
+        foreach (var frontParamInfo in _currentConfig.FrontParamInfoArray ?? Array.Empty<FrontParamInfo>())
+        {
+            _paramDic.Add(frontParamInfo.Code, frontParamInfo);
+            if (_treatPageModel.ParamValuesDictionary.TryGetValue(frontParamInfo.Code, out var param))
             {
-                if (_treatPageModel.ScoreFields.FirstOrDefault(s => s.Name == key) is FieldInfo info)
-                {
-                    info.Value = value;
-                }
+                frontParamInfo.StringValue = param.StringValue;
+                // Percent 模式: 显示值 = 实际值 * 100 (输入时再 /100)
+                frontParamInfo.NumberValue = frontParamInfo.Mode == ParamMode.Percent
+                    ? param.NumberValue * 100
+                    : param.NumberValue;
+            }
+            else
+            {
+                var newParam = new ParamValue(frontParamInfo);
+                _treatPageModel.ParamValuesDictionary.Add(frontParamInfo.Code, newParam);
+                hasUpdate = true;
             }
         }
 
-        if (string.IsNullOrEmpty(_treatPageModel.SelectedKey) || !_currentConfig.SpecialScoreDictionary.ContainsKey(_treatPageModel.SelectedKey))
+        // 分类参数缓存
+        _pvpParamGroups = (_currentConfig.FrontParamInfoArray ?? Array.Empty<FrontParamInfo>())
+            .Where(s => s.CategoryName == "内功词条收益" && s.GroupName != "全局")
+            .GroupBy(s => s.GroupName ?? "其它").ToList();
+
+        // 灵韵/周天/内功特性 参考结果组(从 ResultGroups 筛选)
+        _referenceResultGroups = (_currentConfig.ResultGroups ?? Array.Empty<ResultGroup>())
+            .Where(g => g.GroupName == "灵韵收益" || g.GroupName == "周天收益" || g.GroupName == "内功特性收益")
+            .ToList();
+
+        // 构建灵韵名称列表(供编辑弹窗 + PvpCalculate B 段查表; UI 下拉已改为无/有)
+        _lingyunOptions.Clear();
+        _lingyunNameToCode.Clear();
+        _lingyunOptions.Add("无");
+        var lingyunGroup = _referenceResultGroups.FirstOrDefault(g => g.GroupName == "灵韵收益");
+        if (lingyunGroup != null)
         {
-            _selectedKey = _currentConfig.SpecialScoreDictionary.First();
+            foreach (var line in lingyunGroup.ResultLines)
+            {
+                foreach (var item in line.ResultItems)
+                {
+                    _lingyunOptions.Add(item.Title);
+                    _lingyunNameToCode[item.Title] = item.Code;
+                }
+            }
         }
-        else
+        // 校正持久化的灵韵选中值(老缓存可能不在新选项里)
+        if (string.IsNullOrEmpty(_treatPageModel.LingYunSelection)
+            || !_lingyunOptions.Contains(_treatPageModel.LingYunSelection))
         {
-            _selectedKey = _currentConfig.SpecialScoreDictionary.First(s => s.Key == _treatPageModel.SelectedKey);
+            _treatPageModel.LingYunSelection = "无";
+        }
+
+        // 构建内功名称下拉框选项(复用"内功特性收益"参考组的 Title/Code, 首项"无")
+        _neigongOptions.Clear();
+        _neigongNameToCode.Clear();
+        _neigongOptions.Add("无");
+        var neigongGroup = _referenceResultGroups.FirstOrDefault(g => g.GroupName == "内功特性收益");
+        if (neigongGroup != null)
+        {
+            foreach (var line in neigongGroup.ResultLines)
+            {
+                foreach (var item in line.ResultItems)
+                {
+                    _neigongOptions.Add(item.Title);
+                    _neigongNameToCode[item.Title] = item.Code;
+                }
+            }
+        }
+        // 校正持久化的内功名称选中值(老缓存可能不在新选项里)
+        if (string.IsNullOrEmpty(_treatPageModel.NeiGongSelection)
+            || !_neigongOptions.Contains(_treatPageModel.NeiGongSelection))
+        {
+            _treatPageModel.NeiGongSelection = "无";
+        }
+        // 校正灵韵「无/有」选中值
+        if (string.IsNullOrEmpty(_treatPageModel.HasLingYun)
+            || (_treatPageModel.HasLingYun != "无" && _treatPageModel.HasLingYun != "有"))
+        {
+            _treatPageModel.HasLingYun = "无";
+        }
+
+        // 初始化计算引擎
+        TreatUtility.InitUtilityFromConfig(_currentConfig);
+
+        // 加载内功记录：读取 localStorage，并按当前配置 + 页面疗承比复算每条记录的总收益
+        LoadRecords();
+        _lastCalcTankRatio = _treatPageModel.TreatDefenseRatio;
+
+        StateHasChanged();
+        _tipsDialogParameters.Add(nameof(TipsDialog.ContentText), new MarkupString(_currentConfig.HelperText ?? ""));
+        _tipsDialogOptions.CloseButton = true;
+
+        if (hasUpdate)
+        {
+            Snackbar.Add("更新/初始化配置成功", Severity.Success);
+            SaveInfo();
+        }
+    }
+
+    private void FirstCalculate()
+    {
+        // 首次计算基础面板会心率/奶量
+        var (rate, num) = TreatUtility.ComputeHeal(_treatPageModel.BaseTreatInfo, _currentConfig);
+        _baseHealRate = rate;
+        _baseTreatNum = num;
+    }
+
+    /// <summary>
+    /// 主计算入口(根据当前 Tab 分发)
+    /// </summary>
+    private void Calculate()
+    {
+        // 始终先算基础面板会心率/奶量
+        var (baseRate, baseNum) = TreatUtility.ComputeHeal(_treatPageModel.BaseTreatInfo, _currentConfig);
+        _baseHealRate = baseRate;
+        _baseTreatNum = baseNum;
+
+        switch (_treatPageModel.ActiveIndex)
+        {
+            case 0:
+                AdditionalCalculate();
+                break;
+            case 1:
+                PvpCalculate();
+                break;
+        }
+
+        // 疗承比变化时，对所有内功记录复算总收益并持久化刷新
+        // (疗承比跟随页面上下文，不存入记录；记录的 RF_TotalGain 依赖 ST_TankRatio，故疗承比变化后需重算)
+        if (_recordObservable.Count > 0
+            && Math.Abs(_treatPageModel.TreatDefenseRatio - _lastCalcTankRatio) > 1e-9)
+        {
+            RecalcAllRecords(_treatPageModel.TreatDefenseRatio);
+            SaveRecords();
+            Snackbar.Add("疗承比已变化，内功记录总收益已同步刷新", Severity.Info);
+        }
+        _lastCalcTankRatio = _treatPageModel.TreatDefenseRatio;
+
+        SaveInfo();
+        Snackbar.Add(ConstText.SuccessText, Severity.Success);
+    }
+
+    /// <summary>
+    /// Tab0: 属性变化计算(基础面板 + Δ → 奶量收益)
+    /// </summary>
+    private void AdditionalCalculate()
+    {
+        var changeInfo = new TreatInfo
+        {
+            TreatIntensity = _treatPageModel.BaseTreatInfo.TreatIntensity + _treatPageModel.TreatIntensity,
+            CriticalHits = _treatPageModel.BaseTreatInfo.CriticalHits + _treatPageModel.CriticalHits,
+            CriticalDamageRate = _treatPageModel.BaseTreatInfo.CriticalDamageRate + _treatPageModel.CriticalDamageRate,
+            ExtraCriticalHitsRate = _treatPageModel.BaseTreatInfo.ExtraCriticalHitsRate + _treatPageModel.ExtraCriticalHitsRate,
+            CureGain = _treatPageModel.BaseTreatInfo.CureGain + _treatPageModel.CureGain,
+        };
+
+        var (rate, num) = TreatUtility.ComputeHeal(changeInfo, _currentConfig);
+        _treatPageModel.CalculateCriticalHitsRate = rate;
+        _treatPageModel.CalculateTreatNum = num;
+
+        var (dispersion, gainRate) = TreatUtility.CompareHeal(_treatPageModel.BaseTreatInfo, changeInfo, _currentConfig);
+        _treatPageModel.TreatGrowthNum = dispersion;
+        _treatPageModel.TreatGrowthPercent = gainRate;
+    }
+
+    /// <summary>
+    /// Tab1: 内功词条收益(配置驱动 NCalc, 含评级)
+    /// 流程: 同步词条 → 算特性 A(内功名称) → 算灵韵 B(灵韵有/无) → 算总收益/评级
+    /// </summary>
+    private void PvpCalculate()
+    {
+        SyncFrontParamValues();
+
+        // 同步疗承比到字典(ST_TankRatio) —— 必须先于特性/灵韵计算, 因为固垒依赖疗承比
+        _treatPageModel.ParamValuesDictionary["ST_TankRatio"] = new()
+        {
+            NumberValue = _treatPageModel.TreatDefenseRatio,
+            NumberMode = true
+        };
+
+        // 4. 新逻辑 A: 内功名称非「无」→ 查「内功特性收益」表(RF_TS_*), 有则计入特性收益
+        double teSeGain = 0;
+        if (_treatPageModel.NeiGongSelection != "无"
+            && _neigongNameToCode.TryGetValue(_treatPageModel.NeiGongSelection, out var tsCode))
+        {
+            var tsResult = TreatUtility.CalculateRaw(new List<string> { tsCode }, _treatPageModel.ParamValuesDictionary);
+            if (tsResult.TryGetValue(tsCode, out var tsObj) && tsObj is double tsVal)
+            {
+                teSeGain = tsVal;
+            }
+        }
+        _treatPageModel.ParamValuesDictionary["ST_PVP_TeSe"] = new()
+        {
+            NumberValue = teSeGain,
+            NumberMode = true
+        };
+        // 暴露特性收益 A 供 chip 展示
+        _treatPageModel.TeSeGain = teSeGain;
+
+        // 5. 原逻辑 B: 灵韵选「有」且内功名称非「无」→ 按内功名称查「灵韵收益」表(RF_LY_*)
+        //    (灵韵下拉简化为无/有, 灵韵具体名复用内功名称下拉的选中项)
+        double lingyunGain = 0;
+        if (_treatPageModel.HasLingYun == "有"
+            && _treatPageModel.NeiGongSelection != "无"
+            && _lingyunNameToCode.TryGetValue(_treatPageModel.NeiGongSelection, out var lyCode))
+        {
+            var lyResult = TreatUtility.CalculateRaw(new List<string> { lyCode }, _treatPageModel.ParamValuesDictionary);
+            if (lyResult.TryGetValue(lyCode, out var lyObj) && lyObj is double lyVal)
+            {
+                lingyunGain = lyVal;
+            }
+        }
+        _treatPageModel.ParamValuesDictionary["ST_PVP_LingYun"] = new()
+        {
+            NumberValue = lingyunGain,
+            NumberMode = true
+        };
+
+        // 6/7. 总收益 = K23 词条 + A + B + 赛年(公式已含 ST_PVP_TeSe)
+        var rawResults = TreatUtility.CalculateRaw(_pvpCodes, _treatPageModel.ParamValuesDictionary);
+
+        if (rawResults.TryGetValue("RF_TotalGain", out var totalObj) && totalObj is double total)
+        {
+            _treatPageModel.Score = total;
+        }
+
+        if (rawResults.TryGetValue("RF_Grade", out var gradeObj))
+        {
+            _treatPageModel.GradeText = gradeObj?.ToString() ?? "";
+        }
+    }
+
+    /// <summary>
+    /// 解析 OCR 识别文本，将匹配到的属性数值填入对应单元格(NumberValue)，并自动选中内功名称/灵韵。
+    /// 规则(配置驱动，参照 UpdateCalculator.OnRecognizeFill 并适配 FrontParamInfo 模型):
+    ///  - OcrExclude==true 的属性不参与识别(如克制/抵御/会伤/会防/治疗强度)
+    ///  - 普通属性: 用 Name 作锚点，匹配 "属性名+数值"(同属性累加)
+    ///  - 自定义前缀属性: 用 OcrPrefix 作锚点(如"&lt;赛年&gt;")，匹配 "前缀+(可选属性名)+数值"(累加)
+    ///  - 内功名称: 从「内功特性收益」表中按名称匹配(均先去括号内容)，命中则选中对应内功
+    ///  - 灵韵有无: 识别文本去括号后包含「灵韵」二字 → 选「有」，否则「无」
+    /// </summary>
+    private void OnRecognize()
+    {
+        if (string.IsNullOrWhiteSpace(_ocrText))
+        {
+            Snackbar.Add("识别文本为空，请先粘贴内容", Severity.Warning);
+            return;
+        }
+
+        // 拆分: 参与识别的普通属性(无自定义前缀) 与 自定义前缀属性
+        // 仅限定「内功词条收益」分类(OCR 服务于 Tab1)，避免基础面板的同名属性(如会心)
+        // 导致 ToDictionary 重名崩溃，也避免误填到基础面板字段
+        var ocrCandidates = _paramDic.Values
+            .Where(p => p.CategoryName == "内功词条收益" && !p.OcrExclude)
+            .ToList();
+        var normalAttrs = ocrCandidates
+            .Where(p => string.IsNullOrEmpty(p.OcrPrefix))
+            .ToList();
+        var prefixAttrs = ocrCandidates
+            .Where(p => !string.IsNullOrEmpty(p.OcrPrefix))
+            .ToList();
+
+        // 粘贴识别前先清空所有参与识别属性的 NumberValue，确保本次填入的是最新识别结果
+        foreach (var p in normalAttrs.Concat(prefixAttrs))
+        {
+            p.NumberValue = 0;
+        }
+
+        int matchedCount = 0;
+
+        // === 普通属性正则 ===
+        // 按名称长度降序拼接，防止「攻击」误匹配到「最大攻击/最小攻击」前缀
+        // 负向后顾断言确保属性名前不是中文字符，防止「抗外功会心」中的「会心」被误匹配
+        if (normalAttrs.Count > 0)
+        {
+            var nameToAttr = normalAttrs.ToDictionary(a => a.Name, a => a);
+            string nameAlt = string.Join("|", nameToAttr.Keys.OrderByDescending(n => n.Length).Select(Regex.Escape));
+            var normalMatches = Regex.Matches(_ocrText, $@"(?<![\u4e00-\u9fa5])({nameAlt})\s*\+(\d+(?:\.\d+)?%?)");
+
+            // 先按属性名收集所有命中的数值(保持 OCR 文本出现顺序)
+            var nameToValues = new Dictionary<string, List<double>>();
+            foreach (Match m in normalMatches)
+            {
+                string name = m.Groups[1].Value.Trim();
+                if (!nameToAttr.ContainsKey(name)) continue;
+                double value = ParseValueToDouble(m.Groups[2].Value.Trim());
+                if (!nameToValues.TryGetValue(name, out var list))
+                {
+                    list = new List<double>();
+                    nameToValues[name] = list;
+                }
+                list.Add(value);
+            }
+
+            // 按属性汇总到 NumberValue
+            foreach ((string name, var values) in nameToValues)
+            {
+                if (!nameToAttr.TryGetValue(name, out var attr)) continue;
+                // 特例: 「气血上限」跳过第一条(通常为装备自带主词条), 从第二条开始累加;
+                //       仅 1 条时跳过(记 0), 0 条时本就不进入此处。其余属性全部累加。
+                IEnumerable<double> toSum = ShouldSkipFirstAttr(name) ? values.Skip(1) : values;
+                double sum = toSum.Sum();
+                attr.NumberValue += sum;
+                if (sum > 0) matchedCount++;
+            }
+        }
+
+        // === 自定义前缀属性正则 ===
+        // 匹配 "前缀+(可选描述)+数值"，前缀也需 Regex.Escape(处理 "<>" 特殊字符)
+        // 中间描述放宽为「任意非换行非加号字符」，以兼容真实 OCR 文本，例如:
+        //   <赛年>伤害/治疗提高 +1.7%   ← 描述含 "/" 等非中文字符
+        // 按前缀分组(同一前缀可能对应多个属性，但累加目标是各自的 NumberValue；
+        // 由于 OCR 文本无法区分同前缀下哪个属性，这里按前缀分组建一条正则，命中后累加到对应属性)
+        foreach (var prefixGroup in prefixAttrs.GroupBy(a => a.OcrPrefix!))
+        {
+            string escapedPrefix = Regex.Escape(prefixGroup.Key);
+            // (可选描述, 不含换行和 + 以免吞掉其他属性的数值) + 数值捕获组
+            var prefixMatches = Regex.Matches(_ocrText, $@"({escapedPrefix})(?:[^\n+]*)\s*\+(\d+(?:\.\d+)?%?)");
+
+            foreach (Match m in prefixMatches)
+            {
+                double value = ParseValueToDouble(m.Groups[2].Value.Trim());
+                // 同前缀的每个属性都累加(目前仅赛年一条，行为等同直接累加到赛年)
+                foreach (var attr in prefixGroup)
+                {
+                    attr.NumberValue += value;
+                }
+                matchedCount++;
+            }
+        }
+
+        if (matchedCount == 0)
+        {
+            Snackbar.Add("未识别到任何有效属性数值，请检查文本格式", Severity.Warning);
+            return;
+        }
+
+        // === 内功名称下拉框匹配 ===
+        // 从「内功特性收益」表(_neigongOptions，首项「无」)逐项用子串包含查找，
+        // 文本与选项名均先去掉括号内容(兼容半角()全角（）)再匹配，命中则选中对应内功名称。
+        TryMatchNeiGongName(_ocrText);
+
+        // === 灵韵有无判定 ===
+        // 识别文本去掉括号内容后包含「灵韵」二字 → 选「有」，否则「无」
+        TryMatchHasLingYun(_ocrText);
+
+        string tip = $"<ul><li>成功匹配并填入单元格 {matchedCount} 项（同属性已自动累加）</li>";
+        tip += $"<li>内功名称已识别：{_treatPageModel.NeiGongSelection}</li>";
+        tip += $"<li>灵韵已识别：{_treatPageModel.HasLingYun}</li>";
+        tip += "<li>请在「内功词条收益」确认数值，并点击「计算」</li></ul>";
+        Snackbar.Add(tip, Severity.Info);
+    }
+
+    /// <summary>
+    /// 去掉字符串中的括号内容（兼容半角 () 和全角 （）），用于 OCR 匹配前归一化。
+    /// 例：「绝电(素问)」→「绝电」。
+    /// </summary>
+    private static string StripParentheses(string? s)
+        => string.IsNullOrEmpty(s) ? "" : Regex.Replace(s, @"[(（][^)）]*[)）]", "").Trim();
+
+    /// <summary>
+    /// 内功名称匹配：从「内功特性收益」表(_neigongOptions，首项「无」)逐项，
+    /// 将选项名与识别文本均先去括号内容后做子串包含查找，首个命中即选中对应内功名称。
+    /// 全部未命中 → 选「无」。
+    /// </summary>
+    private void TryMatchNeiGongName(string text)
+    {
+        // 文本先去括号，避免「绝电(素问)」的括号干扰子串匹配
+        string normalizedText = StripParentheses(text);
+
+        // _neigongOptions 首项为「无」，从索引 1 开始遍历真实内功名
+        for (int i = 1; i < _neigongOptions.Count; i++)
+        {
+            string option = _neigongOptions[i];
+            if (string.IsNullOrEmpty(option))
+            {
+                continue;
+            }
+
+            // 选项名去括号后做子串匹配，如「绝电(素问)」→ 仅尝试匹配「绝电」，但选中时用完整名
+            string matchKey = StripParentheses(option);
+            if (string.IsNullOrEmpty(matchKey))
+            {
+                continue;
+            }
+
+            if (normalizedText.Contains(matchKey))
+            {
+                _treatPageModel.NeiGongSelection = option;
+                return;
+            }
+        }
+
+        // 全部未命中 → 选「无」(索引 0)
+        _treatPageModel.NeiGongSelection = _neigongOptions.Count > 0 ? _neigongOptions[0] : "无";
+    }
+
+    /// <summary>
+    /// 灵韵有无判定：识别文本去掉括号内容后包含「灵韵」二字 → 选「有」，否则「无」。
+    /// </summary>
+    private void TryMatchHasLingYun(string text)
+    {
+        _treatPageModel.HasLingYun = StripParentheses(text).Contains("灵韵") ? "有" : "无";
+    }
+
+    /// <summary>
+    /// 将字符串解析为 double，百分数(如 "1.2%")去掉 % 后取百分数值(1.2)，整数直接返回。
+    /// </summary>
+    private static double ParseValueToDouble(string valueStr)
+    {
+        if (valueStr.EndsWith("%"))
+        {
+            return double.TryParse(valueStr.TrimEnd('%'), out double percentValue) ? percentValue : 0;
+        }
+        return double.TryParse(valueStr, out double numValue) ? numValue : 0;
+    }
+
+    /// <summary>
+    /// 判断该属性在 OCR 识别时是否需要「跳过第一条」。
+    /// 「气血上限」特例: OCR 文本中首条通常为装备自带主词条(不应计入收益)，
+    /// 故仅从第二条开始累加；仅 1 条时跳过(记 0)。其余属性保持全部累加。
+    /// </summary>
+    private static bool ShouldSkipFirstAttr(string name) => name == "气血上限";
+
+    /// <summary>
+    /// 打开图片识别弹窗。弹窗自己注入 WebOcrEngine(Scoped)并管理引擎状态/进度，
+    /// 本组件只需传入 OnRecognized 回调。ActiveOcrTab 固定传 0(SyTreat 仅一个 OCR 文本框)。
+    /// </summary>
+    private void OpenOcrImageDialog()
+    {
+        var parameters = new DialogParameters<OcrImageDialog>
+        {
+            { x => x.ActiveOcrTab, 0 },
+            { x => x.OnRecognized, EventCallback.Factory.Create<string>(this, OnOcrRecognizedAsync) },
+        };
+        var options = new DialogOptions { CloseButton = true, CloseOnEscapeKey = true };
+        Dialog.Show<OcrImageDialog>("图片识别", parameters, options);
+    }
+
+    /// <summary>
+    /// 弹窗识别完成后回调: 把文本写入 OCR 文本框，并复用 OnRecognize 填入单元格。
+    /// </summary>
+    private Task OnOcrRecognizedAsync(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            Snackbar.Add("未识别到文字，请尝试更清晰的截图或调整框选范围", Severity.Warning);
+            return Task.CompletedTask;
+        }
+
+        _ocrText = text;
+        OnRecognize();
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// 把 PveFrontParamItem 绑定的 NumberValue/StringValue 回写到 ParamValuesDictionary
+    /// (Percent 模式: /100 转小数)
+    /// </summary>
+    private void SyncFrontParamValues()
+    {
+        foreach ((string code, var param) in _paramDic)
+        {
+            if (_treatPageModel.ParamValuesDictionary.TryGetValue(code, out var paramValue))
+            {
+                paramValue.StringValue = param.StringValue;
+                paramValue.NumberValue = param.Mode == ParamMode.Percent
+                    ? param.NumberValue / 100.0
+                    : param.NumberValue;
+            }
         }
     }
 
@@ -383,91 +914,219 @@
         LocalStorage.SetItem(nameof(_treatPageModel), _treatPageModel);
     }
 
-    private void Calculate()
+    #region 内功记录管理
+
+    /// <summary>
+    /// 从 localStorage 加载内功记录列表，按当前配置 + 页面疗承比复算每条记录的总收益并构建可观察集合。
+    /// </summary>
+    private void LoadRecords()
     {
-        switch (_treatPageModel.ActiveIndex)
+        try
         {
-            case 0:
-                AdditionalCalculate();
-                break;
-            case 1:
-                CompareCalculate();
-                break;
-            case 2:
-                ConvertTreatNumCalculate();
-                break;
-            case 3:
-                ScoreCalculate();
-                break;
+            _syTreatRecordPageModel = LocalStorage.GetItem<SyTreatRecordPageModel>(nameof(_syTreatRecordPageModel)) ?? new SyTreatRecordPageModel();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("素问内功记录缓存加载异常" + e);
+            _syTreatRecordPageModel = new SyTreatRecordPageModel();
         }
 
-        SaveInfo();
-    }
-
-    private void AdditionalCalculate()
-    {
-        _additionalInfo.Attack = _treatPageModel.BaseTreatInfo.Attack + _treatPageModel.Attack;
-        _additionalInfo.TreatIntensity = _treatPageModel.BaseTreatInfo.TreatIntensity + _treatPageModel.TreatIntensity;
-        _additionalInfo.CriticalDamageRate = _treatPageModel.BaseTreatInfo.CriticalDamageRate + _treatPageModel.CriticalDamageRate;
-        _additionalInfo.CriticalHits = _treatPageModel.BaseTreatInfo.CriticalHits + _treatPageModel.CriticalHits;
-        _additionalInfo.ZtCriticalHitsRate = _treatPageModel.BaseTreatInfo.ZtCriticalHitsRate;
-        _additionalInfo.ExtraCriticalHitsRate = _treatPageModel.CriticalHitsRate / 100;
-
-        (_treatPageModel.TreatGrowthNum, _treatPageModel.TreatGrowthPercent) = TreatUtility.Compare(_treatPageModel.BaseTreatInfo, _additionalInfo, _currentConfig);
-        _treatPageModel.CalculateCriticalHitsRate = _additionalInfo.CalculateCriticalHitsRate;
-        _treatPageModel.CalculateTreatNum = _additionalInfo.CalculateTreatNum;
-        _treatPageModel.ConvertMode = false;
-
-        Snackbar.Add(ConstText.SuccessText, Severity.Success);
-    }
-
-    private void CompareCalculate()
-    {
-        (_treatPageModel.TreatGrowthNum, _treatPageModel.TreatGrowthPercent) = TreatUtility.Compare(_treatPageModel.BaseTreatInfo, _treatPageModel.DifferenceTreatInfo, _currentConfig);
-
-        _treatPageModel.ConvertMode = false;
-
-        Snackbar.Add(ConstText.SuccessText, Severity.Success);
-    }
-
-    private void ConvertTreatNumCalculate()
-    {
-        _treatPageModel.ConvertTreatNum = TreatUtility.FieldCalculate(_treatPageModel.TransTreatFields, 1);
-
-        _treatPageModel.ConvertMode = true;
-
-        _treatPageModel.TransTreatDictionary = _treatPageModel.TransTreatFields.ToDictionary(s => s.Name, s => s.Value);
-
-        Snackbar.Add(ConstText.SuccessText, Severity.Success);
-    }
-
-    private void ScoreCalculate()
-    {
-        _treatPageModel.Score = TreatUtility.FieldCalculate(_treatPageModel.ScoreFields, _treatPageModel.TreatDefenseRatio);
-        _treatPageModel.SelectedKey = _selectedKey.Key;
-
-        _treatPageModel.ConvertMode = true;
-
-        _treatPageModel.ScoreFieldsDictionary = _treatPageModel.ScoreFields.ToDictionary(s => s.Name, s => s.Value);
-
-        Snackbar.Add(ConstText.SuccessText, Severity.Success);
-    }
-
-    private void InitParameters()
-    {
-        _tipsDialogParameters.Add(nameof(TipsDialog.ContentText), new MarkupString(_currentConfig.HelperText));
-        _tipsDialogOptions.CloseButton = true;
-
-        if (_currentConfig.Version == "0.0")
+        foreach (var record in _syTreatRecordPageModel.Records)
         {
-            Snackbar.Add(ConstText.ConfigNotFoundText, Severity.Warning);
+            (record.Score, record.GradeText) = RecomputeRecord(record);
+        }
+
+        _recordObservable = new ObservableCollection<SyTreatRecord>(_syTreatRecordPageModel.Records);
+    }
+
+    /// <summary>
+    /// 持久化内功记录列表到 localStorage
+    /// </summary>
+    private void SaveRecords()
+    {
+        LocalStorage.SetItem(nameof(_syTreatRecordPageModel), _syTreatRecordPageModel);
+    }
+
+    /// <summary>
+    /// 基于记录的词条值/内功名称/灵韵 + 页面疗承比复算总收益与评级（调用共享工具）。
+    /// </summary>
+    private (double score, string grade) RecomputeRecord(SyTreatRecord record)
+    {
+        return SyTreatRecordHelper.ComputeScore(
+            record,
+            _treatPageModel.TreatDefenseRatio,
+            _lingyunNameToCode,
+            _neigongNameToCode,
+            _treatPageModel.ParamValuesDictionary);
+    }
+
+    /// <summary>
+    /// 疗承比变化时，对所有记录复算总收益与评级（持久化由调用方负责）。
+    /// </summary>
+    private void RecalcAllRecords(double tankRatio)
+    {
+        foreach (var record in _syTreatRecordPageModel.Records)
+        {
+            (record.Score, record.GradeText) = SyTreatRecordHelper.ComputeScore(
+                record,
+                tankRatio,
+                _lingyunNameToCode,
+                _neigongNameToCode,
+                _treatPageModel.ParamValuesDictionary);
         }
     }
+
+    /// <summary>
+    /// 保存当前内功词条收益结果为一条内功记录：
+    /// 先执行一次内功词条收益计算（确保基于最新输入），再收集非 0 词条，
+    /// 弹出保存对话框收集名称/备注，复算总收益并加入记录列表持久化。
+    /// </summary>
+    private async Task OnSaveRecord()
+    {
+        // 0. 先执行一次计算，确保当前词条数值与总收益均为最新（用户可能未点击「计算」直接保存）
+        PvpCalculate();
+        StateHasChanged();
+
+        // 1. 收集非 0 词条（限定「内功词条收益」分类且排除「全局」组，如疗承比），构建展示列表与 Code->Name 映射
+        // 注：PvpCalculate 内部已调用 SyncFrontParamValues 同步词条值到 ParamValuesDictionary
+        var attrNameMap = new Dictionary<string, string>();
+        var displayItems = new List<SyTreatRecordSaveDialog.AttrDisplay>();
+        foreach (var (code, info) in _paramDic)
+        {
+            if (info.CategoryName == "内功词条收益" && info.GroupName != "全局" && Math.Abs(info.NumberValue) > 1e-9)
+            {
+                // NumberValue 为输入框展示值（Percent 模式已 *100），直接展示；Percent 模式追加 % 后缀
+                // Percent 模式用 Round 消除 ×100 产生的浮点尾差(如 1.7000000000000002)
+                attrNameMap[code] = info.Name;
+                string valueStr = info.Mode == ParamMode.Percent
+                    ? $"{Math.Round(info.NumberValue, 6):G}%"
+                    : info.NumberValue.ToString("G");
+                displayItems.Add(new SyTreatRecordSaveDialog.AttrDisplay(info.Name, valueStr));
+            }
+        }
+
+        _recordSaveDialogParameters[nameof(SyTreatRecordSaveDialog.DenseMode)] = _denseMode;
+        _recordSaveDialogParameters[nameof(SyTreatRecordSaveDialog.ItemsSource)] = displayItems;
+        _recordSaveDialogParameters[nameof(SyTreatRecordSaveDialog.Score)] = _treatPageModel.Score;
+
+        var dialog = await Dialog.ShowAsync<SyTreatRecordSaveDialog>("保存内功记录", _recordSaveDialogParameters, _recordDialogOptions);
+        var result = await dialog.Result;
+        StateHasChanged();
+        if (result.Canceled)
+        {
+            return;
+        }
+
+        if (result.Data is not SyTreatRecordSaveDialog.SaveResult saveResult)
+        {
+            return;
+        }
+
+        // 3. 从当前 ParamValuesDictionary 提取非 0 词条数值（排除「全局」组如疗承比；按 Code 存，Percent 已 /100 转回实际值）
+        var inputValues = new Dictionary<string, double>();
+        foreach (var (code, info) in _paramDic)
+        {
+            if (info.CategoryName == "内功词条收益" && info.GroupName != "全局"
+                && _treatPageModel.ParamValuesDictionary.TryGetValue(code, out var paramValue)
+                && Math.Abs(paramValue.NumberValue) > 1e-9)
+            {
+                inputValues[code] = paramValue.NumberValue;
+            }
+        }
+
+        int newId = _syTreatRecordPageModel.Records.Count > 0
+            ? _syTreatRecordPageModel.Records.Max(r => r.Id) + 1
+            : 1;
+
+        var record = new SyTreatRecord
+        {
+            Id = newId,
+            Title = saveResult.Title,
+            Remark = saveResult.Remark,
+            CreatedAt = DateTime.Now,
+            InputValues = inputValues,
+            NeiGongSelection = _treatPageModel.NeiGongSelection,
+            HasLingYun = _treatPageModel.HasLingYun,
+            // 旧字段保留写入(=内功名称)以兼容可能的旧 OCR/外部读取
+            LingYunSelection = _treatPageModel.NeiGongSelection
+        };
+        (record.Score, record.GradeText) = RecomputeRecord(record);
+
+        _syTreatRecordPageModel.Records.Add(record);
+        _recordObservable.Add(record);
+        SaveRecords();
+        Snackbar.Add("内功记录已保存", Severity.Success);
+    }
+
+    /// <summary>
+    /// 点击内功记录列表条目：弹出编辑对话框，支持编辑名称/备注/灵韵/词条数值、重算、保存更改、删除。
+    /// </summary>
+    private async Task OnRecordClick(TableRowClickEventArgs<SyTreatRecord> args)
+    {
+        var record = args.Item;
+        if (record == null)
+        {
+            return;
+        }
+
+        // 构建词条 Code -> Name 映射（限定「内功词条收益」分类且排除「全局」组如疗承比，供弹窗渲染可编辑词条标签）
+        // 同时收集 Percent 模式属性的 Code 集合（流派抵御/赛年词条等），供弹窗做百分比显示与输入转换
+        var attrNameMap = new Dictionary<string, string>();
+        var percentCodes = new HashSet<string>();
+        foreach (var (code, info) in _paramDic)
+        {
+            if (info.CategoryName == "内功词条收益" && info.GroupName != "全局")
+            {
+                attrNameMap[code] = info.Name;
+                if (info.Mode == ParamMode.Percent)
+                {
+                    percentCodes.Add(code);
+                }
+            }
+        }
+
+        var parameters = new DialogParameters<SyTreatRecordEditDialog>
+        {
+            [nameof(SyTreatRecordEditDialog.Record)] = record,
+            [nameof(SyTreatRecordEditDialog.PageTankRatio)] = _treatPageModel.TreatDefenseRatio,
+            [nameof(SyTreatRecordEditDialog.LingYunOptions)] = _lingyunOptions.ToArray(),
+            [nameof(SyTreatRecordEditDialog.LingYunNameToCode)] = _lingyunNameToCode,
+            [nameof(SyTreatRecordEditDialog.NeiGongOptions)] = _neigongOptions.ToArray(),
+            [nameof(SyTreatRecordEditDialog.NeiGongNameToCode)] = _neigongNameToCode,
+            [nameof(SyTreatRecordEditDialog.AttrNameMap)] = attrNameMap,
+            [nameof(SyTreatRecordEditDialog.PercentCodes)] = percentCodes,
+            [nameof(SyTreatRecordEditDialog.DefaultParamValues)] = _treatPageModel.ParamValuesDictionary,
+            [nameof(SyTreatRecordEditDialog.DenseMode)] = _denseMode
+        };
+
+        var dialog = await Dialog.ShowAsync<SyTreatRecordEditDialog>("编辑内功记录", parameters, _recordDialogOptions);
+        var result = await dialog.Result;
+        StateHasChanged();
+        if (result.Canceled)
+        {
+            return;
+        }
+
+        // 返回 null 表示删除该记录
+        if (result.Data is null)
+        {
+            _syTreatRecordPageModel.Records.Remove(record);
+            _recordObservable.Remove(record);
+            SaveRecords();
+            Snackbar.Add("内功记录已删除", Severity.Success);
+            return;
+        }
+
+        // 编辑保存：记录的 InputValues/LingYunSelection/Title/Remark/Score/GradeText 已在对话框内回写，此处持久化
+        SaveRecords();
+        Snackbar.Add("内功记录已更新", Severity.Success);
+    }
+
+    #endregion
 
     private Task WarningTips()
     {
         Snackbar.Add(ConstText.WarningText, Severity.Warning);
-
         return Task.CompletedTask;
     }
 
@@ -475,18 +1134,4 @@
     {
         Dialog.Show<TipsDialog>("帮助说明", _tipsDialogParameters, _tipsDialogOptions);
     }
-
-    private void OnSelectionChanged()
-    {
-        int index = Array.IndexOf(_currentConfig.ExceptSpecialScoreArray, _selectedKey.Key);
-        if (index >= 0)
-        {
-            _treatPageModel.SpecialScoreText = (Convert.ToDouble(_selectedKey.Value) / _treatPageModel.TreatDefenseRatio).ToString("F2");
-        }
-        else
-        {
-            _treatPageModel.SpecialScoreText = _selectedKey.Value;
-        }
-    }
-
 }
